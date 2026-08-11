@@ -26,7 +26,6 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.app.AlertDialog;
-import android.graphics.drawable.GradientDrawable;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -209,7 +208,6 @@ public class LivePlayActivity extends BaseActivity {
     private TextView tv_shownum ;
     private TextView txtNoEpg ;
     private ImageView iv_back_bg;
-    private TextView tvBottomSetting; // 酷9：底部设置按钮（动态创建）
 
     private ObjectAnimator objectAnimator;
     public String epgStringAddress ="";
@@ -265,30 +263,6 @@ public class LivePlayActivity extends BaseActivity {
         epgStringAddress = getConfiguredEpgAddress();
 
         setLoadSir(findViewById(R.id.live_root));
-
-        // 酷9：动态创建设置按钮，不依赖XML，确保一定能显示
-        tvBottomSetting = new TextView(this);
-        tvBottomSetting.setText("设置");
-        tvBottomSetting.setTextColor(0xFFFFFFFF); // 纯白
-        tvBottomSetting.setTextSize(18);
-        tvBottomSetting.setPadding(30, 12, 30, 12);
-        GradientDrawable bg = new GradientDrawable();
-        bg.setColor(0xCC000000); // 半透明黑底
-        bg.setCornerRadius(16);
-        tvBottomSetting.setBackground(bg);
-        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.WRAP_CONTENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        );
-        lp.gravity = Gravity.BOTTOM | Gravity.END;
-        lp.rightMargin = 40;
-        lp.bottomMargin = 180;
-        tvBottomSetting.setLayoutParams(lp);
-        tvBottomSetting.setVisibility(View.GONE);
-        tvBottomSetting.setOnClickListener(v -> showSettingGroup());
-        FrameLayout root = findViewById(R.id.live_root);
-        if (root != null) root.addView(tvBottomSetting);
-
         mVideoView = findViewById(R.id.mVideoView);
         switchChannelSnapshotOverlay = findViewById(R.id.switchChannelSnapshotOverlay);
         switchChannelSnapshotImage = findViewById(R.id.switchChannelSnapshotImage);
@@ -1187,15 +1161,10 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // 酷9风格：返回键管理浮层，最后弹出设置菜单
+        // 酷9风格：返回键管理浮层，无浮层时直接显示设置菜单（不用动画，避免闪退）
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
-            return;
-        }
-        if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
-            mHandler.removeCallbacks(mHideSettingLayoutRun);
-            mHandler.post(mHideSettingLayoutRun);
             return;
         }
         if (backcontroller.getVisibility() == View.VISIBLE) {
@@ -1207,8 +1176,12 @@ public class LivePlayActivity extends BaseActivity {
             playPreSource();
             return;
         }
-        // 没有浮层时，弹出设置菜单（酷9风格）
-        showSettingGroup();
+        // 设置菜单开关
+        if (tvRightSettingLayout.getVisibility() != View.VISIBLE) {
+            showSettingGroupDirect();
+        } else {
+            hideSettingGroupDirect();
+        }
     }
 
     private final Runnable mPlaySelectedChannel = new Runnable() {
@@ -1869,8 +1842,6 @@ public class LivePlayActivity extends BaseActivity {
             showResolutionAfterChannelSwitch();
         }
         loadEpgAfterChannelStarted();
-        // 酷9：视频播放成功后显示设置按钮
-        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.VISIBLE);
         return true;
     }
 
@@ -1920,6 +1891,36 @@ public class LivePlayActivity extends BaseActivity {
         if (!isCurrentLiveChannelValid()) return;
         currentLiveChannelItem.nextSource();
         playChannel(currentChannelGroupIndex, currentLiveChannelIndex, true);
+    }
+
+    // 酷9：直接显示设置菜单（无动画，避免闪退）
+    private void showSettingGroupDirect() {
+        if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
+            tvLeftChannelListLayout.setVisibility(View.INVISIBLE);
+        }
+        ApiConfig.get().refreshLiveApiHistoryItems();
+        loadCurrentSourceList();
+        liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
+        liveSettingGroupAdapter.setSelectedGroupIndex(-1);
+        int settingGroupIndex = getDefaultSettingGroupIndex();
+        selectSettingGroup(settingGroupIndex, false);
+        int settingGroupPosition = liveSettingGroupAdapter.findPositionByGroupIndex(settingGroupIndex);
+        mSettingGroupView.scrollToPosition(settingGroupPosition < 0 ? 0 : settingGroupPosition);
+        int settingItemIndex = currentLiveChannelItem == null ? 0 : currentLiveChannelItem.getSourceIndex();
+        if (liveSettingItemAdapter.getData().isEmpty() || settingItemIndex < 0 || settingItemIndex >= liveSettingItemAdapter.getData().size()) {
+            settingItemIndex = 0;
+        }
+        mSettingItemView.scrollToPosition(settingItemIndex);
+        tvRightSettingLayout.setVisibility(View.VISIBLE);
+        mHandler.removeCallbacks(mHideSettingLayoutRun);
+        mHandler.postDelayed(mHideSettingLayoutRun, 30000); // 30秒后自动隐藏
+    }
+
+    // 酷9：直接隐藏设置菜单（无动画）
+    private void hideSettingGroupDirect() {
+        tvRightSettingLayout.setVisibility(View.INVISIBLE);
+        liveSettingGroupAdapter.setSelectedGroupIndex(-1);
+        mHandler.removeCallbacks(mHideSettingLayoutRun);
     }
 
     //显示设置列表
@@ -1983,21 +1984,9 @@ public class LivePlayActivity extends BaseActivity {
     private Runnable mHideSettingLayoutRun = new Runnable() {
         @Override
         public void run() {
-            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvRightSettingLayout.getLayoutParams();
-            if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
-                ViewObj viewObj = new ViewObj(tvRightSettingLayout, params);
-                ObjectAnimator animator = ObjectAnimator.ofObject(viewObj, "marginRight", new IntEvaluator(), params.rightMargin, -tvRightSettingLayout.getLayoutParams().width);
-                animator.setDuration(200);
-                animator.addListener(new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        tvRightSettingLayout.setVisibility(View.INVISIBLE);
-                        liveSettingGroupAdapter.setSelectedGroupIndex(-1);
-                    }
-                });
-                animator.start();
-            }
+            // 酷9：直接隐藏，不用动画
+            tvRightSettingLayout.setVisibility(View.INVISIBLE);
+            liveSettingGroupAdapter.setSelectedGroupIndex(-1);
         }
     };
 
@@ -3686,7 +3675,6 @@ public class LivePlayActivity extends BaseActivity {
 
     private void setEmptyLiveChannelList(boolean releasePlayer) {
         clearLiveChannelList(releasePlayer);
-        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9
 //        Toast.makeText(App.getInstance(), "源异常,请切换到其他源", Toast.LENGTH_SHORT).show();
     }
 
