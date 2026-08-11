@@ -1041,6 +1041,7 @@ public class LivePlayActivity extends BaseActivity {
             if(!tip_epg1.getText().equals("暂无信息")){
                 ll_right_top_loading.setVisibility(View.VISIBLE);
                 ll_epg.setVisibility(View.VISIBLE);
+                if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.VISIBLE); // 酷9
                 countDownTimer = new CountDownTimer(postTimeout, 1000) {//底部epg隐藏时间设定
                     public void onTick(long j) {
                     }
@@ -1048,6 +1049,7 @@ public class LivePlayActivity extends BaseActivity {
                         ll_right_top_loading.setVisibility(View.GONE);
                         ll_right_top_huikan.setVisibility(View.GONE);
                         ll_epg.setVisibility(View.GONE);
+                        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9
                     }
                 };
                 countDownTimer.start();
@@ -1055,6 +1057,7 @@ public class LivePlayActivity extends BaseActivity {
                 ll_right_top_loading.setVisibility(View.GONE);
                 ll_right_top_huikan.setVisibility(View.GONE);
                 ll_epg.setVisibility(View.GONE);
+                if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9
             }
             if (channel_Name == null || channel_Name.getSourceNum() <= 0) {
                 ((TextView) findViewById(R.id.tv_source)).setText("1/1");
@@ -1168,7 +1171,7 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // 酷9风格：按返回键优先处理浮层，然后弹出设置菜单
+        // 酷9风格：返回键管理浮层，最后弹出设置菜单
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
@@ -1183,7 +1186,12 @@ public class LivePlayActivity extends BaseActivity {
             backcontroller.setVisibility(View.GONE);
             return;
         }
-        // 没有浮层时，弹出设置菜单
+        if (isBack) {
+            isBack = false;
+            playPreSource();
+            return;
+        }
+        // 没有浮层时，弹出设置菜单（酷9风格）
         showSettingGroup();
     }
 
@@ -2265,7 +2273,6 @@ public class LivePlayActivity extends BaseActivity {
                     case VideoView.STATE_PLAYING:
                         // 播放状态：当播放器缓冲完成或正在正常播放时，表明当前源是可用的，
                         hideSwitchChannelSnapshot();
-                        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.VISIBLE); // 酷9：显示设置按钮
                         if (resolutionInfoPending) {
                             resolutionInfoRetryCount = 0;
                             mHandler.removeCallbacks(mUpdateResolutionInfoRun);
@@ -2279,7 +2286,6 @@ public class LivePlayActivity extends BaseActivity {
                         // 错误或播放结束状态：播放器遇到错误或播放完毕时，
                         // 启动自动换源任务，等待3秒后尝试切换至备选源
                         hideSwitchChannelSnapshot();
-                        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9：隐藏设置按钮
                         mHandler.postDelayed(mConnectTimeoutChangeSourceRun, 3500);
                         break;
                     case VideoView.STATE_PREPARING:
