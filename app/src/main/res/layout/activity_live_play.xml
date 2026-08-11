@@ -864,18 +864,23 @@
 	</RelativeLayout>
 
 	<!-- 酷9：底部设置按钮，常驻右下角 -->
-	<ImageView
-		android:id="@+id/iv_bottom_setting"
-		android:layout_width="44dp"
-		android:layout_height="44dp"
+	<TextView
+		android:id="@+id/tv_bottom_setting"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
 		android:layout_gravity="bottom|end"
-		android:layout_marginEnd="24dp"
-		android:layout_marginRight="24dp"
-		android:layout_marginBottom="148dp"
-		android:src="@android:drawable/ic_menu_preferences"
-		android:scaleType="centerInside"
+		android:layout_marginEnd="20dp"
+		android:layout_marginRight="20dp"
+		android:layout_marginBottom="150dp"
+		android:text="设置"
+		android:textColor="@android:color/white"
+		android:textSize="18sp"
+		android:textStyle="bold"
 		android:background="@drawable/shape_live_resolution_badge"
-		android:padding="8dp"
+		android:paddingLeft="12dp"
+		android:paddingRight="12dp"
+		android:paddingTop="6dp"
+		android:paddingBottom="6dp"
 		android:visibility="gone" />
 
 </FrameLayout>
