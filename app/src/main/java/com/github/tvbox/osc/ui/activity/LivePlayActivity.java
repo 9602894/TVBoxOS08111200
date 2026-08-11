@@ -1041,7 +1041,6 @@ public class LivePlayActivity extends BaseActivity {
             if(!tip_epg1.getText().equals("暂无信息")){
                 ll_right_top_loading.setVisibility(View.VISIBLE);
                 ll_epg.setVisibility(View.VISIBLE);
-                if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.VISIBLE); // 酷9
                 countDownTimer = new CountDownTimer(postTimeout, 1000) {//底部epg隐藏时间设定
                     public void onTick(long j) {
                     }
@@ -1049,7 +1048,6 @@ public class LivePlayActivity extends BaseActivity {
                         ll_right_top_loading.setVisibility(View.GONE);
                         ll_right_top_huikan.setVisibility(View.GONE);
                         ll_epg.setVisibility(View.GONE);
-                        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9
                     }
                 };
                 countDownTimer.start();
@@ -1057,7 +1055,6 @@ public class LivePlayActivity extends BaseActivity {
                 ll_right_top_loading.setVisibility(View.GONE);
                 ll_right_top_huikan.setVisibility(View.GONE);
                 ll_epg.setVisibility(View.GONE);
-                if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9
             }
             if (channel_Name == null || channel_Name.getSourceNum() <= 0) {
                 ((TextView) findViewById(R.id.tv_source)).setText("1/1");
@@ -1853,6 +1850,8 @@ public class LivePlayActivity extends BaseActivity {
             showResolutionAfterChannelSwitch();
         }
         loadEpgAfterChannelStarted();
+        // 酷9：视频播放成功后显示设置按钮
+        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.VISIBLE);
         return true;
     }
 
@@ -3668,6 +3667,7 @@ public class LivePlayActivity extends BaseActivity {
 
     private void setEmptyLiveChannelList(boolean releasePlayer) {
         clearLiveChannelList(releasePlayer);
+        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9
 //        Toast.makeText(App.getInstance(), "源异常,请切换到其他源", Toast.LENGTH_SHORT).show();
     }
 
