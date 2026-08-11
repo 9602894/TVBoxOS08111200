@@ -427,6 +427,16 @@ public class LivePlayActivity extends BaseActivity {
         initLiveChannelList();
         initLiveSettingGroupList();
         Hawk.put(HawkConfig.PLAYER_IS_LIVE,true);
+
+        // 酷9：提前准备好设置菜单数据，返回键直接显示
+        ApiConfig.get().refreshLiveApiHistoryItems();
+        loadCurrentSourceList();
+        liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
+        int settingGroupIndex = getDefaultSettingGroupIndex();
+        if (settingGroupIndex >= 0 && settingGroupIndex < liveSettingGroupList.size()) {
+            liveSettingGroupAdapter.setSelectedGroupIndex(settingGroupIndex);
+            liveSettingItemAdapter.setNewData(liveSettingGroupList.get(settingGroupIndex).getLiveSettingItems());
+        }
     }
     //获取EPG并存储 // 百川epg  DIYP epg   51zmt epg ------- 自建EPG格式输出格式请参考 51zmt
     private List<Epginfo> epgdata = new ArrayList<>();
@@ -1161,27 +1171,21 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // 酷9风格：返回键管理浮层，无浮层时直接显示设置菜单（不用动画，避免闪退）
+        // 酷9：返回键直接开关设置菜单
+        if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
+            tvRightSettingLayout.setVisibility(View.INVISIBLE);
+            return;
+        }
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
-            mHandler.removeCallbacks(mHideChannelListRun);
-            mHandler.post(mHideChannelListRun);
+            tvLeftChannelListLayout.setVisibility(View.INVISIBLE);
             return;
         }
         if (backcontroller.getVisibility() == View.VISIBLE) {
             backcontroller.setVisibility(View.GONE);
             return;
         }
-        if (isBack) {
-            isBack = false;
-            playPreSource();
-            return;
-        }
-        // 设置菜单开关
-        if (tvRightSettingLayout.getVisibility() != View.VISIBLE) {
-            showSettingGroupDirect();
-        } else {
-            hideSettingGroupDirect();
-        }
+        // 直接显示设置菜单
+        tvRightSettingLayout.setVisibility(View.VISIBLE);
     }
 
     private final Runnable mPlaySelectedChannel = new Runnable() {
@@ -1893,36 +1897,6 @@ public class LivePlayActivity extends BaseActivity {
         playChannel(currentChannelGroupIndex, currentLiveChannelIndex, true);
     }
 
-    // 酷9：直接显示设置菜单（无动画，避免闪退）
-    private void showSettingGroupDirect() {
-        if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
-            tvLeftChannelListLayout.setVisibility(View.INVISIBLE);
-        }
-        ApiConfig.get().refreshLiveApiHistoryItems();
-        loadCurrentSourceList();
-        liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
-        liveSettingGroupAdapter.setSelectedGroupIndex(-1);
-        int settingGroupIndex = getDefaultSettingGroupIndex();
-        selectSettingGroup(settingGroupIndex, false);
-        int settingGroupPosition = liveSettingGroupAdapter.findPositionByGroupIndex(settingGroupIndex);
-        mSettingGroupView.scrollToPosition(settingGroupPosition < 0 ? 0 : settingGroupPosition);
-        int settingItemIndex = currentLiveChannelItem == null ? 0 : currentLiveChannelItem.getSourceIndex();
-        if (liveSettingItemAdapter.getData().isEmpty() || settingItemIndex < 0 || settingItemIndex >= liveSettingItemAdapter.getData().size()) {
-            settingItemIndex = 0;
-        }
-        mSettingItemView.scrollToPosition(settingItemIndex);
-        tvRightSettingLayout.setVisibility(View.VISIBLE);
-        mHandler.removeCallbacks(mHideSettingLayoutRun);
-        mHandler.postDelayed(mHideSettingLayoutRun, 30000); // 30秒后自动隐藏
-    }
-
-    // 酷9：直接隐藏设置菜单（无动画）
-    private void hideSettingGroupDirect() {
-        tvRightSettingLayout.setVisibility(View.INVISIBLE);
-        liveSettingGroupAdapter.setSelectedGroupIndex(-1);
-        mHandler.removeCallbacks(mHideSettingLayoutRun);
-    }
-
     //显示设置列表
     private void showSettingGroup() {
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
@@ -1984,9 +1958,21 @@ public class LivePlayActivity extends BaseActivity {
     private Runnable mHideSettingLayoutRun = new Runnable() {
         @Override
         public void run() {
-            // 酷9：直接隐藏，不用动画
-            tvRightSettingLayout.setVisibility(View.INVISIBLE);
-            liveSettingGroupAdapter.setSelectedGroupIndex(-1);
+            ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvRightSettingLayout.getLayoutParams();
+            if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
+                ViewObj viewObj = new ViewObj(tvRightSettingLayout, params);
+                ObjectAnimator animator = ObjectAnimator.ofObject(viewObj, "marginRight", new IntEvaluator(), params.rightMargin, -tvRightSettingLayout.getLayoutParams().width);
+                animator.setDuration(200);
+                animator.addListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        tvRightSettingLayout.setVisibility(View.INVISIBLE);
+                        liveSettingGroupAdapter.setSelectedGroupIndex(-1);
+                    }
+                });
+                animator.start();
+            }
         }
     };
 
