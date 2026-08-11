@@ -26,6 +26,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.app.AlertDialog;
+import android.graphics.drawable.GradientDrawable;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -208,7 +209,7 @@ public class LivePlayActivity extends BaseActivity {
     private TextView tv_shownum ;
     private TextView txtNoEpg ;
     private ImageView iv_back_bg;
-    private TextView tvBottomSetting; // 酷9：底部设置按钮
+    private TextView tvBottomSetting; // 酷9：底部设置按钮（动态创建）
 
     private ObjectAnimator objectAnimator;
     public String epgStringAddress ="";
@@ -264,6 +265,30 @@ public class LivePlayActivity extends BaseActivity {
         epgStringAddress = getConfiguredEpgAddress();
 
         setLoadSir(findViewById(R.id.live_root));
+
+        // 酷9：动态创建设置按钮，不依赖XML，确保一定能显示
+        tvBottomSetting = new TextView(this);
+        tvBottomSetting.setText("设置");
+        tvBottomSetting.setTextColor(0xFFFFFFFF); // 纯白
+        tvBottomSetting.setTextSize(18);
+        tvBottomSetting.setPadding(30, 12, 30, 12);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setColor(0xCC000000); // 半透明黑底
+        bg.setCornerRadius(16);
+        tvBottomSetting.setBackground(bg);
+        FrameLayout.LayoutParams lp = new FrameLayout.LayoutParams(
+            FrameLayout.LayoutParams.WRAP_CONTENT,
+            FrameLayout.LayoutParams.WRAP_CONTENT
+        );
+        lp.gravity = Gravity.BOTTOM | Gravity.END;
+        lp.rightMargin = 40;
+        lp.bottomMargin = 180;
+        tvBottomSetting.setLayoutParams(lp);
+        tvBottomSetting.setVisibility(View.GONE);
+        tvBottomSetting.setOnClickListener(v -> showSettingGroup());
+        FrameLayout root = findViewById(R.id.live_root);
+        if (root != null) root.addView(tvBottomSetting);
+
         mVideoView = findViewById(R.id.mVideoView);
         switchChannelSnapshotOverlay = findViewById(R.id.switchChannelSnapshotOverlay);
         switchChannelSnapshotImage = findViewById(R.id.switchChannelSnapshotImage);
@@ -294,7 +319,6 @@ public class LivePlayActivity extends BaseActivity {
 //        tv_right_top_type = (TextView)findViewById(R.id.tv_right_top_type);
         iv_circle_bg = (ImageView) findViewById(R.id.iv_circle_bg);
         iv_back_bg = (ImageView) findViewById(R.id.iv_back_bg);
-        tvBottomSetting = findViewById(R.id.tv_bottom_setting); // 酷9：底部设置按钮
         tv_shownum = (TextView) findViewById(R.id.tv_shownum);
         txtNoEpg = (TextView) findViewById(R.id.txtNoEpg);
         ll_right_top_loading = findViewById(R.id.ll_right_top_loading);
@@ -429,11 +453,6 @@ public class LivePlayActivity extends BaseActivity {
         initLiveChannelList();
         initLiveSettingGroupList();
         Hawk.put(HawkConfig.PLAYER_IS_LIVE,true);
-
-        // 酷9：底部设置按钮点击事件
-        if (tvBottomSetting != null) {
-            tvBottomSetting.setOnClickListener(v -> showSettingGroup());
-        }
     }
     //获取EPG并存储 // 百川epg  DIYP epg   51zmt epg ------- 自建EPG格式输出格式请参考 51zmt
     private List<Epginfo> epgdata = new ArrayList<>();
