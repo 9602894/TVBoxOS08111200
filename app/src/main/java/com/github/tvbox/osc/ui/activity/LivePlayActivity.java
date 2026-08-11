@@ -1041,7 +1041,6 @@ public class LivePlayActivity extends BaseActivity {
             if(!tip_epg1.getText().equals("暂无信息")){
                 ll_right_top_loading.setVisibility(View.VISIBLE);
                 ll_epg.setVisibility(View.VISIBLE);
-                if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.VISIBLE);
                 countDownTimer = new CountDownTimer(postTimeout, 1000) {//底部epg隐藏时间设定
                     public void onTick(long j) {
                     }
@@ -1049,7 +1048,6 @@ public class LivePlayActivity extends BaseActivity {
                         ll_right_top_loading.setVisibility(View.GONE);
                         ll_right_top_huikan.setVisibility(View.GONE);
                         ll_epg.setVisibility(View.GONE);
-                        if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.GONE);
                     }
                 };
                 countDownTimer.start();
@@ -1057,7 +1055,6 @@ public class LivePlayActivity extends BaseActivity {
                 ll_right_top_loading.setVisibility(View.GONE);
                 ll_right_top_huikan.setVisibility(View.GONE);
                 ll_epg.setVisibility(View.GONE);
-                if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.GONE);
             }
             if (channel_Name == null || channel_Name.getSourceNum() <= 0) {
                 ((TextView) findViewById(R.id.tv_source)).setText("1/1");
@@ -1171,7 +1168,7 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // 酷9风格：按返回键直接退出直播，不弹设置菜单
+        // 酷9风格：先关闭各种浮层，最后彻底退出应用
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
@@ -1186,6 +1183,7 @@ public class LivePlayActivity extends BaseActivity {
             backcontroller.setVisibility(View.GONE);
             return;
         }
+        // 彻底退出，不回到主页
         exitingLivePlay = true;
         if (mVideoView != null) {
             mVideoView.release();
@@ -1194,7 +1192,9 @@ public class LivePlayActivity extends BaseActivity {
         mHandler.removeCallbacksAndMessages(null);
         if (countDownTimer != null) countDownTimer.cancel();
         if (countDownTimer3 != null) countDownTimer3.cancel();
-        finish();
+        finishAffinity();
+        android.os.Process.killProcess(android.os.Process.myPid());
+        System.exit(0);
     }
 
     private final Runnable mPlaySelectedChannel = new Runnable() {
@@ -2275,6 +2275,7 @@ public class LivePlayActivity extends BaseActivity {
                     case VideoView.STATE_PLAYING:
                         // 播放状态：当播放器缓冲完成或正在正常播放时，表明当前源是可用的，
                         hideSwitchChannelSnapshot();
+                        if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.VISIBLE); // 酷9：显示设置按钮
                         if (resolutionInfoPending) {
                             resolutionInfoRetryCount = 0;
                             mHandler.removeCallbacks(mUpdateResolutionInfoRun);
