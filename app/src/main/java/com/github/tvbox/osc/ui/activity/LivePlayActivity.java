@@ -208,7 +208,7 @@ public class LivePlayActivity extends BaseActivity {
     private TextView tv_shownum ;
     private TextView txtNoEpg ;
     private ImageView iv_back_bg;
-    private ImageView ivBottomSetting; // 酷9：底部设置按钮
+    private TextView tvBottomSetting; // 酷9：底部设置按钮
 
     private ObjectAnimator objectAnimator;
     public String epgStringAddress ="";
@@ -294,7 +294,7 @@ public class LivePlayActivity extends BaseActivity {
 //        tv_right_top_type = (TextView)findViewById(R.id.tv_right_top_type);
         iv_circle_bg = (ImageView) findViewById(R.id.iv_circle_bg);
         iv_back_bg = (ImageView) findViewById(R.id.iv_back_bg);
-        ivBottomSetting = findViewById(R.id.iv_bottom_setting); // 酷9：底部设置按钮
+        tvBottomSetting = findViewById(R.id.tv_bottom_setting); // 酷9：底部设置按钮
         tv_shownum = (TextView) findViewById(R.id.tv_shownum);
         txtNoEpg = (TextView) findViewById(R.id.txtNoEpg);
         ll_right_top_loading = findViewById(R.id.ll_right_top_loading);
@@ -431,8 +431,8 @@ public class LivePlayActivity extends BaseActivity {
         Hawk.put(HawkConfig.PLAYER_IS_LIVE,true);
 
         // 酷9：底部设置按钮点击事件
-        if (ivBottomSetting != null) {
-            ivBottomSetting.setOnClickListener(v -> showSettingGroup());
+        if (tvBottomSetting != null) {
+            tvBottomSetting.setOnClickListener(v -> showSettingGroup());
         }
     }
     //获取EPG并存储 // 百川epg  DIYP epg   51zmt epg ------- 自建EPG格式输出格式请参考 51zmt
@@ -1168,7 +1168,7 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
-        // 酷9风格：先关闭各种浮层，最后彻底退出应用
+        // 酷9风格：按返回键优先处理浮层，然后弹出设置菜单
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
@@ -1183,18 +1183,8 @@ public class LivePlayActivity extends BaseActivity {
             backcontroller.setVisibility(View.GONE);
             return;
         }
-        // 彻底退出，不回到主页
-        exitingLivePlay = true;
-        if (mVideoView != null) {
-            mVideoView.release();
-            mVideoView = null;
-        }
-        mHandler.removeCallbacksAndMessages(null);
-        if (countDownTimer != null) countDownTimer.cancel();
-        if (countDownTimer3 != null) countDownTimer3.cancel();
-        finishAffinity();
-        android.os.Process.killProcess(android.os.Process.myPid());
-        System.exit(0);
+        // 没有浮层时，弹出设置菜单
+        showSettingGroup();
     }
 
     private final Runnable mPlaySelectedChannel = new Runnable() {
@@ -2275,7 +2265,7 @@ public class LivePlayActivity extends BaseActivity {
                     case VideoView.STATE_PLAYING:
                         // 播放状态：当播放器缓冲完成或正在正常播放时，表明当前源是可用的，
                         hideSwitchChannelSnapshot();
-                        if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.VISIBLE); // 酷9：显示设置按钮
+                        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.VISIBLE); // 酷9：显示设置按钮
                         if (resolutionInfoPending) {
                             resolutionInfoRetryCount = 0;
                             mHandler.removeCallbacks(mUpdateResolutionInfoRun);
@@ -2289,6 +2279,7 @@ public class LivePlayActivity extends BaseActivity {
                         // 错误或播放结束状态：播放器遇到错误或播放完毕时，
                         // 启动自动换源任务，等待3秒后尝试切换至备选源
                         hideSwitchChannelSnapshot();
+                        if (tvBottomSetting != null) tvBottomSetting.setVisibility(View.GONE); // 酷9：隐藏设置按钮
                         mHandler.postDelayed(mConnectTimeoutChangeSourceRun, 3500);
                         break;
                     case VideoView.STATE_PREPARING:
