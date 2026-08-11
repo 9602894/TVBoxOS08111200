@@ -25,6 +25,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.app.AlertDialog;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -206,6 +208,7 @@ public class LivePlayActivity extends BaseActivity {
     private TextView tv_shownum ;
     private TextView txtNoEpg ;
     private ImageView iv_back_bg;
+    private ImageView ivBottomSetting; // 酷9：底部设置按钮
 
     private ObjectAnimator objectAnimator;
     public String epgStringAddress ="";
@@ -291,6 +294,7 @@ public class LivePlayActivity extends BaseActivity {
 //        tv_right_top_type = (TextView)findViewById(R.id.tv_right_top_type);
         iv_circle_bg = (ImageView) findViewById(R.id.iv_circle_bg);
         iv_back_bg = (ImageView) findViewById(R.id.iv_back_bg);
+        ivBottomSetting = findViewById(R.id.iv_bottom_setting); // 酷9：底部设置按钮
         tv_shownum = (TextView) findViewById(R.id.tv_shownum);
         txtNoEpg = (TextView) findViewById(R.id.txtNoEpg);
         ll_right_top_loading = findViewById(R.id.ll_right_top_loading);
@@ -425,6 +429,11 @@ public class LivePlayActivity extends BaseActivity {
         initLiveChannelList();
         initLiveSettingGroupList();
         Hawk.put(HawkConfig.PLAYER_IS_LIVE,true);
+
+        // 酷9：底部设置按钮点击事件
+        if (ivBottomSetting != null) {
+            ivBottomSetting.setOnClickListener(v -> showSettingGroup());
+        }
     }
     //获取EPG并存储 // 百川epg  DIYP epg   51zmt epg ------- 自建EPG格式输出格式请参考 51zmt
     private List<Epginfo> epgdata = new ArrayList<>();
@@ -1032,6 +1041,7 @@ public class LivePlayActivity extends BaseActivity {
             if(!tip_epg1.getText().equals("暂无信息")){
                 ll_right_top_loading.setVisibility(View.VISIBLE);
                 ll_epg.setVisibility(View.VISIBLE);
+                if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.VISIBLE);
                 countDownTimer = new CountDownTimer(postTimeout, 1000) {//底部epg隐藏时间设定
                     public void onTick(long j) {
                     }
@@ -1039,6 +1049,7 @@ public class LivePlayActivity extends BaseActivity {
                         ll_right_top_loading.setVisibility(View.GONE);
                         ll_right_top_huikan.setVisibility(View.GONE);
                         ll_epg.setVisibility(View.GONE);
+                        if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.GONE);
                     }
                 };
                 countDownTimer.start();
@@ -1046,6 +1057,7 @@ public class LivePlayActivity extends BaseActivity {
                 ll_right_top_loading.setVisibility(View.GONE);
                 ll_right_top_huikan.setVisibility(View.GONE);
                 ll_epg.setVisibility(View.GONE);
+                if (ivBottomSetting != null) ivBottomSetting.setVisibility(View.GONE);
             }
             if (channel_Name == null || channel_Name.getSourceNum() <= 0) {
                 ((TextView) findViewById(R.id.tv_source)).setText("1/1");
@@ -1159,23 +1171,30 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     public void onBackPressed() {
+        // 酷9风格：按返回键直接退出直播，不弹设置菜单
         if (tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
-        } else if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
+            return;
+        }
+        if (tvRightSettingLayout.getVisibility() == View.VISIBLE) {
             mHandler.removeCallbacks(mHideSettingLayoutRun);
             mHandler.post(mHideSettingLayoutRun);
-        } else if( backcontroller.getVisibility() == View.VISIBLE){ //
-            backcontroller.setVisibility(View.GONE);
-        }else if(isBack){
-            isBack= false;
-            playPreSource();
-        }else {
-            mHandler.removeCallbacks(mConnectTimeoutChangeSourceRun);
-            mHandler.removeCallbacks(mUpdateNetSpeedRun);
-            exitingLivePlay = true;
-            super.onBackPressed();
+            return;
         }
+        if (backcontroller.getVisibility() == View.VISIBLE) {
+            backcontroller.setVisibility(View.GONE);
+            return;
+        }
+        exitingLivePlay = true;
+        if (mVideoView != null) {
+            mVideoView.release();
+            mVideoView = null;
+        }
+        mHandler.removeCallbacksAndMessages(null);
+        if (countDownTimer != null) countDownTimer.cancel();
+        if (countDownTimer3 != null) countDownTimer3.cancel();
+        finish();
     }
 
     private final Runnable mPlaySelectedChannel = new Runnable() {
@@ -2547,6 +2566,15 @@ public class LivePlayActivity extends BaseActivity {
             case 6:
                 liveSettingItemAdapter.selectItem(getCurrentLiveApiHistoryIndex(), true, true);
                 break;
+            case 7:
+                liveSettingItemAdapter.selectItem(-1, false, false);
+                break;
+            case 8:
+                liveSettingItemAdapter.selectItem(-1, false, false);
+                break;
+            case 9:
+                liveSettingItemAdapter.selectItem(2, true, true); // 默认1.0x
+                break;
         }
         int scrollToPosition = liveSettingItemAdapter.getSelectedItemIndex();
         if (scrollToPosition < 0) scrollToPosition = 0;
@@ -2724,6 +2752,40 @@ public class LivePlayActivity extends BaseActivity {
                 });
                 break;
             }
+            case 7: // 酷9：直播订阅
+                if (position == 0) {
+                    showInputDialog("直播订阅地址", Hawk.get(HawkConfig.LIVE_API_URL, ""), val -> {
+                        if (!val.isEmpty()) {
+                            Hawk.put(HawkConfig.LIVE_API_URL, val);
+                            HistoryHelper.setLiveApiHistory(val);
+                            Toast.makeText(this, "已保存，点击'更新订阅'生效", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else if (position == 1) {
+                    Toast.makeText(this, "正在更新订阅...", Toast.LENGTH_SHORT).show();
+                    refreshLiveChannelListAndPlay("", -1);
+                }
+                break;
+            case 8: // 酷9：EPG订阅
+                if (position == 0) {
+                    showInputDialog("EPG地址", Hawk.get(HawkConfig.EPG_URL, ""), val -> {
+                        Hawk.put(HawkConfig.EPG_URL, val);
+                        epgStringAddress = val.isEmpty() ? DEFAULT_EPG_ADDRESS : val;
+                        Toast.makeText(this, "已保存EPG地址", Toast.LENGTH_SHORT).show();
+                    });
+                } else if (position == 1) {
+                    hsEpg.clear();
+                    if (channel_Name != null) getEpg(new Date());
+                    Toast.makeText(this, "EPG已更新", Toast.LENGTH_SHORT).show();
+                }
+                break;
+            case 9: // 酷9：倍速
+                float[] speedValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
+                if (position >= 0 && position < speedValues.length) {
+                    liveSettingItemAdapter.selectItem(position, true, true);
+                    if (mVideoView != null) mVideoView.setSpeed(speedValues[position]);
+                }
+                break;
         }
         mHandler.removeCallbacks(mHideSettingLayoutRun);
         mHandler.postDelayed(mHideSettingLayoutRun, postTimeout);
@@ -3075,6 +3137,42 @@ public class LivePlayActivity extends BaseActivity {
         if (liveGroupIndex >= 0 && liveGroupIndex < liveSettingGroupList.get(5).getLiveSettingItems().size()) {
             liveSettingGroupList.get(5).getLiveSettingItems().get(liveGroupIndex).setItemSelected(true);
         }
+
+        // 酷9：添加直播源订阅组（索引7）
+        LiveSettingGroup sourceGroup = new LiveSettingGroup();
+        sourceGroup.setGroupIndex(7);
+        sourceGroup.setGroupName("直播订阅");
+        ArrayList<LiveSettingItem> sourceItems = new ArrayList<>();
+        LiveSettingItem s1 = new LiveSettingItem(); s1.setItemIndex(0); s1.setItemName("订阅地址"); sourceItems.add(s1);
+        LiveSettingItem s2 = new LiveSettingItem(); s2.setItemIndex(1); s2.setItemName("更新订阅"); sourceItems.add(s2);
+        sourceGroup.setLiveSettingItems(sourceItems);
+        liveSettingGroupList.add(sourceGroup);
+
+        // 酷9：添加EPG订阅组（索引8）
+        LiveSettingGroup epgGroup = new LiveSettingGroup();
+        epgGroup.setGroupIndex(8);
+        epgGroup.setGroupName("EPG订阅");
+        ArrayList<LiveSettingItem> epgItems = new ArrayList<>();
+        LiveSettingItem e1 = new LiveSettingItem(); e1.setItemIndex(0); e1.setItemName("EPG地址"); epgItems.add(e1);
+        LiveSettingItem e2 = new LiveSettingItem(); e2.setItemIndex(1); e2.setItemName("更新EPG"); epgItems.add(e2);
+        epgGroup.setLiveSettingItems(epgItems);
+        liveSettingGroupList.add(epgGroup);
+
+        // 酷9：添加倍速组（索引9）
+        LiveSettingGroup speedGroup = new LiveSettingGroup();
+        speedGroup.setGroupIndex(9);
+        speedGroup.setGroupName("播放倍速");
+        ArrayList<LiveSettingItem> speedItems = new ArrayList<>();
+        float[] speeds = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
+        for (int i = 0; i < speeds.length; i++) {
+            LiveSettingItem item = new LiveSettingItem();
+            item.setItemIndex(i);
+            item.setItemName(speeds[i] + "x");
+            if (speeds[i] == 1.0f) item.setItemSelected(true);
+            speedItems.add(item);
+        }
+        speedGroup.setLiveSettingItems(speedItems);
+        liveSettingGroupList.add(speedGroup);
     }
 
     private void loadCurrentSourceList() {
@@ -3574,4 +3672,24 @@ public class LivePlayActivity extends BaseActivity {
         clearLiveChannelList(releasePlayer);
 //        Toast.makeText(App.getInstance(), "源异常,请切换到其他源", Toast.LENGTH_SHORT).show();
     }
+
+    // ==================== 酷9：输入对话框 ====================
+    private void showInputDialog(String title, String defaultValue, OnInputConfirmListener listener) {
+        EditText editText = new EditText(this);
+        editText.setText(defaultValue);
+        editText.setSelection(defaultValue != null ? defaultValue.length() : 0);
+        new AlertDialog.Builder(this)
+                .setTitle(title)
+                .setView(editText)
+                .setPositiveButton("确定", (dialog, which) -> {
+                    if (listener != null) listener.onConfirm(editText.getText().toString().trim());
+                })
+                .setNegativeButton("取消", null)
+                .show();
+    }
+
+    private interface OnInputConfirmListener {
+        void onConfirm(String value);
+    }
+
 }
