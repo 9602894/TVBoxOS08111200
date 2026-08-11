@@ -631,28 +631,6 @@
 			android:visibility="gone"
 			tools:text="1920 x 1080" />
 		</RelativeLayout>
-
-		<!-- 酷9：底部设置按钮，跟随EPG栏显示 -->
-		<TextView
-			android:id="@+id/tv_bottom_setting"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_alignParentEnd="true"
-			android:layout_alignParentRight="true"
-			android:layout_alignParentBottom="true"
-			android:layout_marginEnd="@dimen/vs_20"
-			android:layout_marginRight="@dimen/vs_20"
-			android:layout_marginBottom="@dimen/vs_10"
-			android:text="设置"
-			android:textColor="@android:color/white"
-			android:textSize="@dimen/ts_20"
-			android:textStyle="bold"
-			android:background="@drawable/shape_live_resolution_badge"
-			android:paddingLeft="10dp"
-			android:paddingRight="10dp"
-			android:paddingTop="4dp"
-			android:paddingBottom="4dp"
-			android:visibility="gone" />
 	</RelativeLayout>
 
 
@@ -884,4 +862,26 @@
 			    android:includeFontPadding="false"/>
 		</LinearLayout>
 	</RelativeLayout>
+
+	<!-- 酷9：设置按钮，放在根布局最末尾确保z-order最高 -->
+	<TextView
+		android:id="@+id/tv_bottom_setting"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom|end"
+		android:layout_marginEnd="20dp"
+		android:layout_marginRight="20dp"
+		android:layout_marginBottom="160dp"
+		android:text="设置"
+		android:textColor="#FFFFFF"
+		android:textSize="20sp"
+		android:textStyle="bold"
+		android:background="#CC000000"
+		android:paddingLeft="14dp"
+		android:paddingRight="14dp"
+		android:paddingTop="6dp"
+		android:paddingBottom="6dp"
+		android:elevation="20dp"
+		android:visibility="gone" />
+
 </FrameLayout>
