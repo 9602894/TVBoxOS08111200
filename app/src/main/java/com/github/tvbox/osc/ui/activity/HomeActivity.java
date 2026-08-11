@@ -350,11 +350,20 @@ public class HomeActivity extends BaseActivity {
             } else {
                 LOG.e("无");
             }
-            if (!useCacheConfig && Hawk.get(HawkConfig.DEFAULT_LOAD_LIVE, false)) {
+            
+            // ========== 修改：无条件自动进入直播 ==========
+            // 原来：if (!useCacheConfig && Hawk.get(HawkConfig.DEFAULT_LOAD_LIVE, false)) {
+            //           jumpActivity(LivePlayActivity.class);
+            //       }
+            if (!useCacheConfig) {
                 jumpActivity(LivePlayActivity.class);
+                // 如果需要"返回键直接退出App"而不是回到首页，取消下面这行的注释：
+                // finish();
             }
+            // ============================================
+            
             //爬虫预热 仅首次加载
-            if(!useCacheConfig)warmSearchSpidersOnce();
+            if(!useCacheConfig) warmSearchSpidersOnce();
             return;
         }
         tvNameAnimation();
