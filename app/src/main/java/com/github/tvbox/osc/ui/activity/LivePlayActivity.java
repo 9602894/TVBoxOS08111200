@@ -2995,7 +2995,7 @@ public class LivePlayActivity extends BaseActivity {
             return new ArrayList<>();
         if (!isNeedInputPassword(groupIndex)) {
             List<LiveChannelItem> channels = liveChannelGroupList.get(groupIndex).getLiveChannels();
-            return channels != null ? channels : new ArrayList<>();
+            return channels != null ? new ArrayList<>(channels) : new ArrayList<>();
         } else {
             return new ArrayList<>();
         }
