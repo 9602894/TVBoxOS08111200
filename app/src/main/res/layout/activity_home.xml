@@ -34,7 +34,7 @@
 
         <TextView
             android:id="@+id/tvDate"
-            android:layout_width="@dimen/vs_0"
+            android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:focusable="false"
@@ -46,6 +46,19 @@
             android:textColor="@android:color/white"
             android:textSize="@dimen/ts_26"
             tools:text="2026/06/16  周二  15:01" />
+
+        <!-- ========== 新增：设置按钮 ========== -->
+        <ImageView
+            android:id="@+id/tvSetting"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_setting"   <!-- 请准备一个设置图标，例如 ic_setting.xml -->
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:gravity="center"
+            android:contentDescription="设置" />
     </LinearLayout>
 
     <LinearLayout
