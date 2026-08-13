@@ -47,12 +47,12 @@
             android:textSize="@dimen/ts_26"
             tools:text="2026/06/16  周二  15:01" />
 
-        <!-- 设置按钮 -->
+        <!-- 设置按钮（使用系统图标） -->
         <ImageView
             android:id="@+id/tvSetting"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            android:src="@drawable/ic_setting"
+            android:src="@android:drawable/ic_menu_preferences"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
             android:focusable="true"
