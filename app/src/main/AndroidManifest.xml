@@ -32,13 +32,13 @@
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
 
-        <!-- HomeActivity 不再作为启动页 -->
+        <!-- HomeActivity 不再是启动页 -->
         <activity
             android:name=".ui.activity.HomeActivity"
             android:exported="true"
             android:screenOrientation="sensorLandscape" />
 
-        <!-- LivePlayActivity 设为启动页（酷9风格） -->
+        <!-- LivePlayActivity 设为启动页 -->
         <activity
             android:name=".ui.activity.LivePlayActivity"
             android:exported="true"
