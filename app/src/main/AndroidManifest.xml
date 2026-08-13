@@ -32,17 +32,17 @@
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
 
-        <!-- HomeActivity 不再是启动页，移除 intent-filter -->
+        <!-- HomeActivity 不再作为启动页 -->
         <activity
             android:name=".ui.activity.HomeActivity"
             android:exported="true"
             android:screenOrientation="sensorLandscape" />
 
-        <!-- LivePlayActivity 设为启动页 -->
+        <!-- LivePlayActivity 设为启动页（酷9风格） -->
         <activity
             android:name=".ui.activity.LivePlayActivity"
-            android:screenOrientation="sensorLandscape"
-            android:exported="true">
+            android:exported="true"
+            android:screenOrientation="sensorLandscape">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
