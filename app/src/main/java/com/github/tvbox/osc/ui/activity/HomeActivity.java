@@ -10,6 +10,7 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -81,6 +82,8 @@ import java.util.Objects;
 import me.jessyan.autosize.utils.AutoSizeUtils;
 
 public class HomeActivity extends BaseActivity {
+    private static final String TAG = "HomeActivity";
+    
     private LinearLayout topLayout;
     private LinearLayout contentLayout;
     private TextView tvDate;
@@ -136,21 +139,58 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     protected void init() {
-        EventBus.getDefault().register(this);
-        eventBusRegistered = true;
-        ControlManager.get().startServer();
-        initView();
-        initViewModel();
+        Log.i(TAG, "init() called");
+        try {
+            EventBus.getDefault().register(this);
+            eventBusRegistered = true;
+            Log.i(TAG, "EventBus registered");
+        } catch (Exception e) {
+            Log.e(TAG, "EventBus register failed", e);
+        }
+        
+        try {
+            ControlManager.get().startServer();
+            Log.i(TAG, "ControlManager started");
+        } catch (Exception e) {
+            Log.e(TAG, "ControlManager start failed", e);
+        }
+        
+        try {
+            initView();
+            Log.i(TAG, "initView() completed");
+        } catch (Exception e) {
+            Log.e(TAG, "initView() failed", e);
+            throw e; // rethrow to see crash
+        }
+        
+        try {
+            initViewModel();
+            Log.i(TAG, "initViewModel() completed");
+        } catch (Exception e) {
+            Log.e(TAG, "initViewModel() failed", e);
+            throw e;
+        }
+        
         useCacheConfig = false;
         Intent intent = getIntent();
         if (intent != null && intent.getExtras() != null) {
             Bundle bundle = intent.getExtras();
             useCacheConfig = bundle.getBoolean("useCache", false);
+            Log.i(TAG, "useCacheConfig = " + useCacheConfig);
         }
-        initData();
+        
+        try {
+            initData();
+            Log.i(TAG, "initData() completed");
+        } catch (Exception e) {
+            Log.e(TAG, "initData() failed", e);
+            throw e;
+        }
+        Log.i(TAG, "init() finished successfully");
     }
 
     private void initView() {
+        Log.i(TAG, "initView() start");
         this.topLayout = findViewById(R.id.topLayout);
         this.tvDate = findViewById(R.id.tvDate);
         this.tvName = findViewById(R.id.tvName);
@@ -293,31 +333,35 @@ public class HomeActivity extends BaseActivity {
             }
         });
 
-        // ========== 设置按钮（防护性代码） ==========
+        // ========== 设置按钮 ==========
         ImageView tvSetting = findViewById(R.id.tvSetting);
         if (tvSetting != null) {
             tvSetting.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    Log.i(TAG, "Setting button clicked");
                     jumpActivity(SettingActivity.class);
                 }
             });
+            Log.i(TAG, "Setting button initialized");
         } else {
-            // 如果布局中没有 tvSetting，可以静默忽略，不影响使用
-            android.util.Log.e("HomeActivity", "tvSetting not found in layout, skip setting button init.");
+            Log.w(TAG, "tvSetting not found in layout, skip setting button init.");
         }
 
         setLoadSir(this.contentLayout);
+        Log.i(TAG, "initView() end");
     }
 
 
     private boolean skipNextUpdate = false;
 
     private void initViewModel() {
+        Log.i(TAG, "initViewModel() start");
         sourceViewModel = new ViewModelProvider(this).get(SourceViewModel.class);
         sourceViewModel.sortResult.observe(this, new Observer<AbsSortXml>() {
             @Override
             public void onChanged(AbsSortXml absXml) {
+                Log.i(TAG, "sortResult onChanged, sourceKey=" + (absXml != null ? absXml.sourceKey : "null"));
                 if (skipNextUpdate) {
                     skipNextUpdate = false;
                     return;
@@ -348,6 +392,7 @@ public class HomeActivity extends BaseActivity {
                 previousHomeSource = null;
             }
         });
+        Log.i(TAG, "initViewModel() end");
     }
 
     private boolean dataInitOk = false;
@@ -356,6 +401,7 @@ public class HomeActivity extends BaseActivity {
     private TipDialog mConfigErrorDialog;
 
     private void initData() {
+        Log.i(TAG, "initData() start, dataInitOk=" + dataInitOk + ", jarInitOk=" + jarInitOk);
         if (dataInitOk && jarInitOk) {
             loadHomeSort(false);
             if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -366,7 +412,15 @@ public class HomeActivity extends BaseActivity {
             
             // 自动进入直播（酷9风格）
             if (!useCacheConfig) {
-                jumpActivity(LivePlayActivity.class);
+                Log.i(TAG, "Attempting to jump to LivePlayActivity");
+                try {
+                    jumpActivity(LivePlayActivity.class);
+                    Log.i(TAG, "jumpActivity(LivePlayActivity) executed");
+                } catch (Exception e) {
+                    Log.e(TAG, "jumpActivity(LivePlayActivity) failed", e);
+                    // 不抛出，让应用继续运行，但会停留在主页
+                    Toast.makeText(this, "直播启动失败，进入主页", Toast.LENGTH_SHORT).show();
+                }
             }
             
             if(!useCacheConfig) warmSearchSpidersOnce();
@@ -503,6 +557,7 @@ public class HomeActivity extends BaseActivity {
                 });
             }
         }, this);
+        Log.i(TAG, "initData() end");
     }
 
     private void warmSearchSpidersOnce() {
@@ -604,6 +659,7 @@ public class HomeActivity extends BaseActivity {
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onBackPressed() {
+        Log.i(TAG, "onBackPressed() called");
         // 打断加载
         if (homeSortLoading) {
             cancelHomeSortLoading();
@@ -623,6 +679,7 @@ public class HomeActivity extends BaseActivity {
         // 检查 fragments 状态
         if (this.fragments.size() <= 0 || this.sortFocused >= this.fragments.size() || this.sortFocused < 0) {
             // 无有效 fragment，直接进入设置
+            Log.i(TAG, "No valid fragment, jump to setting");
             jumpToSettingSafely();
             return;
         }
@@ -639,12 +696,14 @@ public class HomeActivity extends BaseActivity {
                 this.mGridView.setSelection(0);
             } else {
                 // 已经是最顶层的首页，按返回键进入设置
+                Log.i(TAG, "At top home page, jump to setting");
                 jumpToSettingSafely();
             }
         } else if (baseLazyFragment instanceof UserFragment && UserFragment.tvHotList.canScrollVertically(-1)) {
             UserFragment.tvHotList.scrollToPosition(0);
             this.mGridView.setSelection(0);
         } else {
+            Log.i(TAG, "Other case, jump to setting");
             jumpToSettingSafely();
         }
     }
@@ -654,9 +713,10 @@ public class HomeActivity extends BaseActivity {
      */
     private void jumpToSettingSafely() {
         try {
+            Log.i(TAG, "jumpToSettingSafely: trying to start SettingActivity");
             jumpActivity(SettingActivity.class);
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, "jumpToSettingSafely failed", e);
             Toast.makeText(this, "无法打开设置页面", Toast.LENGTH_SHORT).show();
         }
     }
