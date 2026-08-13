@@ -2,24 +2,30 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="6mm"
-    android:layout_marginTop="4mm"
-    android:layout_marginRight="6mm"
-    android:layout_marginBottom="4mm"
-    android:background="@drawable/shape_live_focus"
-    android:focusable="true"
-    android:focusableInTouchMode="false"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="12dp"
+    android:background="@drawable/item_bg_selector_left">
 
     <TextView
-        android:id="@+id/tvChannelGroupName"
-        android:layout_width="0mm"
-        android:layout_height="52mm"
-        android:layout_weight="1"
-        android:ellipsize="marquee"
-        android:gravity="center"
-        android:marqueeRepeatLimit="marquee_forever"
+        android:id="@+id/tvGroupName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#FFFFFFFF"
+        android:textSize="16sp"
         android:singleLine="true"
-        android:textColor="@android:color/white"
-        android:textSize="20mm" />
+        android:ellipsize="end" />
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:id="@+id/tvGroupCount"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="#80FFFFFF"
+        android:textSize="12sp"
+        android:singleLine="true" />
 </LinearLayout>

@@ -2,36 +2,55 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginLeft="6mm"
-    android:layout_marginTop="4mm"
-    android:layout_marginRight="6mm"
-    android:layout_marginBottom="4mm"
-    android:background="@drawable/shape_live_focus"
-    android:focusable="true"
-    android:focusableInTouchMode="false"
-    android:orientation="horizontal">
+    android:orientation="horizontal"
+    android:gravity="center_vertical"
+    android:padding="8dp"
+    android:background="@drawable/item_bg_selector_right">
 
     <TextView
         android:id="@+id/tvChannelNum"
-        android:layout_width="54mm"
-        android:layout_height="52mm"
-        android:ellipsize="marquee"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minWidth="48dp"
         android:gravity="center"
-        android:marqueeRepeatLimit="marquee_forever"
+        android:textColor="#FF1890FF"
+        android:textSize="16sp"
+        android:textStyle="bold"
         android:singleLine="true"
-        android:textColor="@android:color/white"
-        android:textSize="19mm" />
+        android:ellipsize="end" />
 
-    <TextView
-        android:id="@+id/tvChannelName"
-        android:layout_width="0mm"
-        android:layout_height="52mm"
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:ellipsize="marquee"
-        android:gravity="center_vertical"
-        android:paddingRight="8mm"
-        android:marqueeRepeatLimit="marquee_forever"
-        android:singleLine="true"
-        android:textColor="@android:color/white"
-        android:textSize="20mm" />
+        android:orientation="vertical"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp">
+
+        <TextView
+            android:id="@+id/tvChannelName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFFFF"
+            android:textSize="16sp"
+            android:singleLine="true"
+            android:ellipsize="end" />
+
+        <TextView
+            android:id="@+id/tvCurrentProgram"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#80FFFFFF"
+            android:textSize="12sp"
+            android:singleLine="true"
+            android:ellipsize="end"
+            android:visibility="gone" />
+    </LinearLayout>
+
+    <ImageView
+        android:id="@+id/ivChannelLogo"
+        android:layout_width="32dp"
+        android:layout_height="24dp"
+        android:scaleType="centerInside"
+        android:visibility="gone" />
 </LinearLayout>

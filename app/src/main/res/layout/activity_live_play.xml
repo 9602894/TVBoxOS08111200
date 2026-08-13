@@ -6,15 +6,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/bg_ku9_gradient">   <!-- 酷9深色渐变 -->
+    android:background="@drawable/bg_ku9_gradient">
 
-    <!-- 视频播放器（不变） -->
+    <!-- 视频播放器 -->
     <xyz.doikki.videoplayer.player.VideoView
         android:id="@+id/mVideoView"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- 切换频道快照覆盖层（不变） -->
+    <!-- 字幕 -->
+    <androidx.media3.ui.SubtitleView
+        android:id="@+id/mSubtitleView"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true"
+        android:layout_centerHorizontal="true"/>
+
+    <!-- 切换频道快照覆盖层 -->
     <FrameLayout
         android:id="@+id/switchChannelSnapshotOverlay"
         android:layout_width="match_parent"
@@ -39,13 +48,14 @@
             android:indeterminate="true" />
     </FrameLayout>
 
-    <!-- 右上角大号频道号（不变） -->
+    <!-- 右上角大号频道号 -->
     <TextView
         android:id="@+id/tv_selected_channel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_margin="20dp"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="25dp"
+        android:layout_marginRight="40dp"
         android:background="@android:color/transparent"
         android:clickable="false"
         android:focusable="false"
@@ -58,29 +68,27 @@
         android:textStyle="bold"
         android:visibility="invisible" />
 
-    <!-- ========== 左侧频道列表面板（添加卡片背景和边距，内部完全保留） ========== -->
+    <!-- 左侧频道列表面板 -->
     <LinearLayout
         android:id="@+id/tvLeftChannnelListLayout"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="left|center_vertical"
-        android:layout_margin="12dp"                     <!-- 新增外边距 -->
-        android:background="@drawable/bg_ku9_card"      <!-- 卡片背景 -->
+        android:layout_margin="12dp"
+        android:background="@drawable/bg_ku9_card"
         android:orientation="horizontal"
         android:padding="0dp"
         android:baselineAligned="false">
 
-        <!-- 原内部所有布局完全保留，不做任何删除 -->
         <LinearLayout
             android:id="@+id/ll_typeSelect"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_margin="0dp"
-            android:background="@drawable/bg_channel_list_left"   <!-- 原背景可保留，也可去掉，但为了兼容保留 -->
+            android:background="@drawable/bg_channel_list_left"
             android:baselineAligned="false"
             android:padding="0dp">
 
-            <!-- 分组列表 -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -97,7 +105,6 @@
                     android:scrollbars="none" />
             </LinearLayout>
 
-            <!-- EPG左箭头（保留） -->
             <LinearLayout
                 android:id="@+id/divLoadEpgleft"
                 style="@style/epg_window_btn"
@@ -141,19 +148,17 @@
                     android:shadowColor="#CC000000"
                     android:shadowDx="5.0"
                     android:shadowRadius="5.0"
-                    android:text="节 目"
+                    android:text="上一周"
                     android:textColor="@color/color_FFFFFF"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- 分隔线 -->
-            <LinearLayout
+            <View
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
                 android:layout_margin="1dp"
                 android:background="#FF333333" />
 
-            <!-- 频道列表 -->
             <com.owen.tvrecyclerview.widget.TvRecyclerView
                 android:id="@+id/mChannelGridView"
                 android:layout_width="@dimen/vs_300"
@@ -165,8 +170,7 @@
                 android:padding="5dp"
                 android:scrollbars="none" />
 
-            <!-- 分隔线 -->
-            <LinearLayout
+            <View
                 android:id="@+id/divLoadEpgDivider"
                 android:layout_width="1dp"
                 android:layout_height="match_parent"
@@ -174,7 +178,6 @@
                 android:background="#FF333333"
                 android:orientation="horizontal" />
 
-            <!-- EPG右箭头（保留） -->
             <LinearLayout
                 android:id="@+id/divLoadEpg"
                 style="@style/epg_window_btn"
@@ -195,14 +198,14 @@
                     android:shadowColor="#CC000000"
                     android:shadowDx="5.0"
                     android:shadowRadius="5.0"
-                    android:text="节 目"
+                    android:text="下一周"
                     android:textColor="@color/color_FFFFFF"
                     android:textStyle="bold" />
                 <ImageView
                     android:id="@+id/iv_arrow"
                     android:layout_width="20dp"
                     android:layout_height="20dp"
-                    android:layout_gravity="center"
+                    android:layout_gravity="center|left"
                     android:layout_marginLeft="1dp"
                     android:gravity="center|left"
                     android:onClick="divLoadEpgRight"
@@ -218,12 +221,11 @@
                     android:shadowColor="#CC000000"
                     android:shadowDx="5.0"
                     android:shadowRadius="5.0"
-                    android:text="信 息"
+                    android:text="今天"
                     android:textColor="@color/color_FFFFFF"
                     android:textStyle="bold" />
             </LinearLayout>
 
-            <!-- EPG日期和节目列表（保留） -->
             <LinearLayout
                 android:id="@+id/divEPG"
                 android:layout_width="@dimen/vs_360"
@@ -263,7 +265,7 @@
                     android:layout_marginTop="50px"
                     android:gravity="center"
                     android:paddingLeft="5dp"
-                    android:text="暂无节目信息…"
+                    android:text="暂无节目信息"
                     android:textColor="@color/color_FF0057"
                     android:visibility="gone" />
             </LinearLayout>
@@ -271,19 +273,18 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- ========== 右侧设置面板（添加卡片背景和边距，内部完全保留） ========== -->
+    <!-- 右侧设置面板 -->
     <LinearLayout
         android:id="@+id/tvRightSettingLayout"
         android:layout_width="@dimen/vs_640"
         android:layout_height="match_parent"
-        android:layout_margin="12dp"                    <!-- 新增外边距 -->
+        android:layout_margin="12dp"
         android:layout_gravity="right"
-        android:background="@drawable/bg_ku9_card"     <!-- 卡片背景 -->
+        android:background="@drawable/bg_ku9_card"
         android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="visible">
 
-        <!-- 设置项列表（原顺序不变） -->
         <com.owen.tvrecyclerview.widget.TvRecyclerView
             android:id="@+id/mSettingItemView"
             android:layout_width="@dimen/vs_420"
@@ -298,7 +299,6 @@
             app:tv_selectedItemIsCentered="true"
             app:tv_verticalSpacingWithMargins="4mm" />
 
-        <!-- 分隔线 -->
         <View
             android:layout_width="1dp"
             android:layout_height="match_parent"
@@ -306,7 +306,6 @@
             android:layout_gravity="center_horizontal"
             android:background="#FF333333" />
 
-        <!-- 设置分组列表 -->
         <com.owen.tvrecyclerview.widget.TvRecyclerView
             android:id="@+id/mSettingGroupView"
             android:layout_width="@dimen/vs_200"
@@ -322,7 +321,7 @@
             app:tv_verticalSpacingWithMargins="4mm" />
     </LinearLayout>
 
-    <!-- 居中大号频道号（不变） -->
+    <!-- 居中大号频道号 -->
     <TextView
         android:id="@+id/tvChannel"
         android:layout_width="wrap_content"
@@ -339,7 +338,7 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
-    <!-- 右上角网速和时间（不变） -->
+    <!-- 右上角网速和时间 -->
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -374,18 +373,17 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <!-- ========== 底部EPG信息栏（添加卡片背景，内部完全保留） ========== -->
+    <!-- 底部EPG信息栏 -->
     <RelativeLayout
         android:id="@+id/ll_epg"
         android:layout_gravity="bottom|center"
         android:gravity="center_vertical"
         android:layout_width="match_parent"
         android:layout_height="@dimen/vs_140"
-        android:layout_margin="12dp"                     <!-- 新增外边距 -->
-        android:background="@drawable/bg_ku9_card"      <!-- 卡片背景 -->
-        android:padding="8dp">                           <!-- 增加内边距 -->
+        android:layout_margin="12dp"
+        android:background="@drawable/bg_ku9_card"
+        android:padding="8dp">
 
-        <!-- 背景View（保留） -->
         <View
             android:id="@+id/view_bg"
             android:background="@drawable/shape_user_focus"
@@ -394,7 +392,6 @@
             android:layout_alignParentLeft="true"
             android:layout_alignParentBottom="true" />
 
-        <!-- 频道信息（台标、名称、当前/下一节目等）全部保留 -->
         <LinearLayout
             android:id="@+id/channelinfo"
             android:layout_width="@dimen/vs_270"
@@ -406,7 +403,6 @@
             android:layout_gravity="bottom"
             android:orientation="vertical">
 
-            <!-- 频道数字 -->
             <TextView
                 android:id="@+id/tv_channel_bottom_number"
                 android:layout_width="@dimen/vs_200"
@@ -428,7 +424,6 @@
                 android:textSize="@dimen/ts_100"
                 android:textStyle="bold" />
 
-            <!-- 台标区域 -->
             <FrameLayout
                 android:layout_width="@dimen/vs_220"
                 android:layout_height="@dimen/vs_60"
@@ -463,7 +458,6 @@
                     android:scaleType="centerInside" />
             </FrameLayout>
 
-            <!-- 频道名称（跑马灯） -->
             <com.github.tvbox.osc.ui.tv.widget.MarqueeTextView
                 android:id="@+id/tv_channel_bar_name"
                 android:layout_width="@dimen/vs_200"
@@ -483,12 +477,11 @@
                 android:gravity="center"
                 android:paddingTop="0dp"
                 android:singleLine="true"
-                android:text="CCTV 高清"
+                android:text="CCTV 综合"
                 android:textColor="@color/color_FFFFFF"
                 android:textSize="@dimen/ts_34" />
         </LinearLayout>
 
-        <!-- 当前节目时间 -->
         <TextView
             android:id="@+id/tv_current_program"
             android:layout_width="wrap_content"
@@ -496,13 +489,12 @@
             android:layout_alignTop="@+id/view_bg"
             android:layout_marginLeft="@dimen/vs_0"
             android:layout_marginTop="@dimen/vs_40"
+            android:text=""
             android:layout_toRightOf="@+id/channelinfo"
             android:gravity="center"
-            android:text=""
             android:textColor="@color/color_FFFFFF"
             android:textSize="@dimen/ts_26" />
 
-        <!-- 当前节目时间（跑马灯） -->
         <com.github.tvbox.osc.ui.tv.widget.MarqueeTextView
             android:textSize="@dimen/ts_26"
             android:textColor="@color/color_FFFFFF"
@@ -512,19 +504,18 @@
             android:textScaleX="0.95"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="暂无信息"
+            android:text="正在播放"
             android:singleLine="true"
             android:layout_toRightOf="@+id/tv_current_program"
             android:layout_alignTop="@+id/tv_current_program" />
 
-        <!-- 当前节目名称（跑马灯） -->
         <com.github.tvbox.osc.ui.tv.widget.MarqueeTextView
             android:id="@+id/tv_current_program_name"
             android:layout_width="@dimen/vs_440"
             android:layout_height="wrap_content"
             android:layout_alignTop="@+id/tv_current_program"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignEnd="@+id/tv_current_program"
+            android:layout_alignRight="@+id/tv_current_program"
             android:layout_marginStart="26px"
             android:layout_marginLeft="26px"
             android:layout_marginEnd="@dimen/vs_20"
@@ -538,7 +529,6 @@
             android:textColor="@color/color_FFFFFF"
             android:textSize="@dimen/ts_26" />
 
-        <!-- 分割线 -->
         <View
             android:id="@+id/view_line"
             android:background="@color/color_FFFFFF"
@@ -548,7 +538,6 @@
             android:layout_alignLeft="@+id/tv_current_program"
             android:layout_alignBottom="@+id/tv_current_program_name" />
 
-        <!-- 下一节目时间 -->
         <TextView
             android:textSize="@dimen/ts_26"
             android:textColor="@color/color_FFFFFF"
@@ -558,10 +547,8 @@
             android:layout_marginBottom="@dimen/vs_10"
             android:text=""
             android:layout_alignLeft="@+id/tv_current_program"
-            android:layout_alignBottom="@+id/view_line"
-            android:layout_alignParentBottom="true" />
+            android:layout_alignBottom="@+id/view_line" />
 
-        <!-- 下一节目时间（跑马灯） -->
         <com.github.tvbox.osc.ui.tv.widget.MarqueeTextView
             android:textSize="@dimen/ts_26"
             android:textColor="@color/color_FFFFFF"
@@ -570,13 +557,12 @@
             android:textScaleX="0.95"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="暂无信息"
+            android:text="下一节目"
             android:singleLine="true"
             android:ellipsize="marquee"
             android:layout_toRightOf="@+id/tv_next_program"
             android:layout_alignTop="@+id/tv_next_program" />
 
-        <!-- 下一节目名称（跑马灯） -->
         <com.github.tvbox.osc.ui.tv.widget.MarqueeTextView
             android:id="@+id/tv_next_program_name"
             android:layout_width="@dimen/vs_440"
@@ -597,7 +583,6 @@
             android:textColor="@color/color_FFFFFF"
             android:textSize="@dimen/ts_26" />
 
-        <!-- 右侧状态信息（源、分辨率） -->
         <RelativeLayout
             android:id="@+id/live_status_info"
             android:layout_width="@dimen/vs_220"
@@ -615,7 +600,7 @@
                 android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
                 android:layout_marginTop="@dimen/vs_10"
-                android:text="源 1/1"
+                android:text="线路 1/1"
                 android:background="@drawable/shape_live_resolution_badge"
                 android:gravity="center"
                 android:includeFontPadding="false"
@@ -647,7 +632,6 @@
         </RelativeLayout>
     </RelativeLayout>
 
-    <!-- 其他保留控件（tv_shownum, tv_showTime, ll_loading 等） -->
     <TextView
         android:id="@+id/tv_shownum"
         android:layout_width="wrap_content"
@@ -671,7 +655,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />
 
-    <!-- 右上角回看状态（完全保留） -->
     <RelativeLayout
         android:layout_gravity="center|right|top"
         android:orientation="vertical"
@@ -708,7 +691,7 @@
             android:paddingStart="10px"
             android:paddingTop="15px"
             android:singleLine="true"
-            android:text="测试频道"
+            android:text="精彩节目"
             android:textColor="#FFFCFFFF"
             android:textSize="30px"
             android:paddingLeft="10px" />
@@ -732,15 +715,15 @@
             android:paddingStart="20px"
             android:paddingBottom="10px"
             android:singleLine="true"
-            android:text="回看中"
+            android:text="回看"
             android:textColor="#FFFCFFFF"
             android:textSize="24px"
             android:paddingLeft="20px" />
     </RelativeLayout>
 
-    <!-- 右上角加载动画 -->
     <RelativeLayout
         android:layout_gravity="center|right|top"
+        android:orientation="vertical"
         android:id="@+id/ll_right_top_loading"
         android:background="@drawable/shape_user_search"
         android:layout_width="@dimen/vs_240"
@@ -764,7 +747,7 @@
             android:gravity="center"
             android:marqueeRepeatLimit="marquee_forever"
             android:singleLine="true"
-            android:text="测试频道"
+            android:text="精彩节目"
             android:textColor="#FFFCFFFF"
             android:textSize="@dimen/vs_28"
             android:layout_toLeftOf="@id/iv_circle_bg"
@@ -772,7 +755,6 @@
             android:layout_marginRight="10dp" />
     </RelativeLayout>
 
-    <!-- 底部播放控制条（完全保留） -->
     <RelativeLayout
         android:id="@+id/backcontroller"
         android:layout_width="match_parent"
