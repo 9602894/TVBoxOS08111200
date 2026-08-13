@@ -10,6 +10,7 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -302,6 +303,9 @@ public class HomeActivity extends BaseActivity {
                     jumpActivity(SettingActivity.class);
                 }
             });
+        } else {
+            // 如果布局中没有 tvSetting，静默忽略（使用 LOG.e 避免编译问题）
+            LOG.e("HomeActivity", "tvSetting not found in layout, skip setting button init.");
         }
 
         setLoadSir(this.contentLayout);
