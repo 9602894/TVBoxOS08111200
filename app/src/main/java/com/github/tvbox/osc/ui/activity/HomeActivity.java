@@ -7,7 +7,6 @@ import android.animation.IntEvaluator;
 import android.animation.ObjectAnimator;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -69,7 +68,6 @@ import com.owen.tvrecyclerview.widget.V7LinearLayoutManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.lang.reflect.Field;
@@ -225,7 +223,7 @@ public class HomeActivity extends BaseActivity {
             public void onItemClick(TvRecyclerView parent, View itemView, int position) {
                 if (itemView != null && currentSelected == position) {
                     BaseLazyFragment baseLazyFragment = fragments.get(currentSelected);
-                    if ((baseLazyFragment instanceof GridFragment) && !sortAdapter.getItem(position).filters.isEmpty()) {// 弹出筛选
+                    if ((baseLazyFragment instanceof GridFragment) && !sortAdapter.getItem(position).filters.isEmpty()) {
                         ((GridFragment) baseLazyFragment).showFilter();
                     } else if (baseLazyFragment instanceof UserFragment) {
                         showSiteSwitch();
@@ -295,17 +293,21 @@ public class HomeActivity extends BaseActivity {
             }
         });
 
-        // ========== 新增：设置按钮点击 ==========
+        // ========== 设置按钮（防护性代码） ==========
         ImageView tvSetting = findViewById(R.id.tvSetting);
-        tvSetting.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                jumpActivity(SettingActivity.class);
-            }
-        });
+        if (tvSetting != null) {
+            tvSetting.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    jumpActivity(SettingActivity.class);
+                }
+            });
+        } else {
+            // 如果布局中没有 tvSetting，可以静默忽略，不影响使用
+            LOG.d("HomeActivity", "tvSetting not found in layout, skip setting button init.");
+        }
 
         setLoadSir(this.contentLayout);
-        //mHandler.postDelayed(mFindFocus, 500);
     }
 
 
@@ -362,18 +364,11 @@ public class HomeActivity extends BaseActivity {
                 LOG.e("无");
             }
             
-            // ========== 修改：无条件自动进入直播 ==========
-            // 原来：if (!useCacheConfig && Hawk.get(HawkConfig.DEFAULT_LOAD_LIVE, false)) {
-            //           jumpActivity(LivePlayActivity.class);
-            //       }
+            // 自动进入直播（酷9风格）
             if (!useCacheConfig) {
                 jumpActivity(LivePlayActivity.class);
-                // 如果需要"返回键直接退出App"而不是回到首页，取消下面这行的注释：
-                // finish();
             }
-            // ============================================
             
-            //爬虫预热 仅首次加载
             if(!useCacheConfig) warmSearchSpidersOnce();
             return;
         }
@@ -388,7 +383,6 @@ public class HomeActivity extends BaseActivity {
                         mHandler.postDelayed(new Runnable() {
                             @Override
                             public void run() {
-//                                if (!useCacheConfig) Toast.makeText(HomeActivity.this, "自定义jar加载成功", Toast.LENGTH_SHORT).show();
                                 initData();
                             }
                         }, 50);
@@ -629,40 +623,46 @@ public class HomeActivity extends BaseActivity {
         // 检查 fragments 状态
         if (this.fragments.size() <= 0 || this.sortFocused >= this.fragments.size() || this.sortFocused < 0) {
             // 无有效 fragment，直接进入设置
-            jumpActivity(SettingActivity.class);
+            jumpToSettingSafely();
             return;
         }
 
         BaseLazyFragment baseLazyFragment = this.fragments.get(this.sortFocused);
         if (baseLazyFragment instanceof GridFragment) {
             GridFragment grid = (GridFragment) baseLazyFragment;
-            // 如果当前 Fragment 能恢复之前保存的 UI 状态，则直接返回
             if (grid.restoreView()) {
                 return;
             }
-            // 如果 sortFocusView 存在且没有获取焦点，则请求焦点
             if (this.sortFocusView != null && !this.sortFocusView.isFocused()) {
                 this.sortFocusView.requestFocus();
-            }
-            // 如果当前不是第一个界面，则将列表设置到第一项
-            else if (this.sortFocused != 0) {
+            } else if (this.sortFocused != 0) {
                 this.mGridView.setSelection(0);
             } else {
                 // 已经是最顶层的首页，按返回键进入设置
-                jumpActivity(SettingActivity.class);
+                jumpToSettingSafely();
             }
         } else if (baseLazyFragment instanceof UserFragment && UserFragment.tvHotList.canScrollVertically(-1)) {
-            // 如果 UserFragment 列表可以向上滚动，则滚动到顶部
             UserFragment.tvHotList.scrollToPosition(0);
             this.mGridView.setSelection(0);
         } else {
-            // 其他情况，直接进入设置
+            jumpToSettingSafely();
+        }
+    }
+
+    /**
+     * 安全跳转到设置页面（捕获异常防止闪退）
+     */
+    private void jumpToSettingSafely() {
+        try {
             jumpActivity(SettingActivity.class);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "无法打开设置页面", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void doExit() {
-        // 如果两次返回间隔小于 2000 毫秒，则退出应用
+        // 保留原有退出逻辑（但酷9风格下很少用到，可保留）
         if (System.currentTimeMillis() - mExitTime < 2000) {
             unregisterEventBus();
             ControlManager.get().stopServer();
@@ -680,7 +680,6 @@ public class HomeActivity extends BaseActivity {
                 finish();
             }
         } else {
-            // 否则仅提示用户，再按一次退出应用
             mExitTime = System.currentTimeMillis();
             Toast.makeText(mContext, "再按一次返回键退出应用", Toast.LENGTH_SHORT).show();
         }
@@ -757,7 +756,7 @@ public class HomeActivity extends BaseActivity {
     };
 
     private long menuKeyDownTime = 0;
-    private static final long LONG_PRESS_THRESHOLD = 2000; // 设置长按的阈值，单位是毫秒
+    private static final long LONG_PRESS_THRESHOLD = 2000;
     @Override
     public boolean dispatchKeyEvent(KeyEvent event) {
         if (topHide < 0)
@@ -769,8 +768,8 @@ public class HomeActivity extends BaseActivity {
             } else if (event.getAction() == KeyEvent.ACTION_UP) {
                 long pressDuration = System.currentTimeMillis() - menuKeyDownTime;
                 if (pressDuration >= LONG_PRESS_THRESHOLD) {
-                    jumpActivity(SettingActivity.class);;
-                }else {
+                    jumpToSettingSafely();
+                } else {
                     showSiteSwitch();
                 }
             }
@@ -786,7 +785,6 @@ public class HomeActivity extends BaseActivity {
         animatorSet.addListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
-
             }
 
             @Override
@@ -796,12 +794,10 @@ public class HomeActivity extends BaseActivity {
 
             @Override
             public void onAnimationCancel(Animator animation) {
-
             }
 
             @Override
             public void onAnimationRepeat(Animator animation) {
-
             }
         });
         if (hide && topHide == 0) {
@@ -858,11 +854,9 @@ public class HomeActivity extends BaseActivity {
         if (mSiteSwitchDialog == null) {
             mSiteSwitchDialog = new SelectDialog<>(HomeActivity.this);
             TvRecyclerView tvRecyclerView = mSiteSwitchDialog.findViewById(R.id.list);
-            // 根据 sites 数量动态计算列数
             int spanCount = (int) Math.floor(sites.size() / 20.0);
             spanCount = Math.min(spanCount, 2);
             tvRecyclerView.setLayoutManager(new V7GridLayoutManager(mSiteSwitchDialog.getContext(), spanCount + 1));
-            // 设置对话框宽度
             ConstraintLayout cl_root = mSiteSwitchDialog.findViewById(R.id.cl_root);
             ViewGroup.LayoutParams clp = cl_root.getLayoutParams();
             clp.width = AutoSizeUtils.mm2px(mSiteSwitchDialog.getContext(), 380 + 200 * spanCount);
@@ -894,8 +888,7 @@ public class HomeActivity extends BaseActivity {
             mSiteSwitchDialog.show();
     }
 
-    private void refreshHome()
-    {
+    private void refreshHome() {
         refreshHome(true);
     }
 
@@ -919,8 +912,7 @@ public class HomeActivity extends BaseActivity {
         UserFragment.homeHotVodAdapter.setNewData(absXml.videoList);
     }
 
-    private void refreshHome(final boolean restart)
-    {
+    private void refreshHome(final boolean restart) {
         if (Thread.currentThread() != android.os.Looper.getMainLooper().getThread()) {
             mHandler.post(new Runnable() {
                 @Override
@@ -973,8 +965,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    private void refreshEmpty()
-    {
+    private void refreshEmpty() {
         skipNextUpdate=true;
         showSuccess();
         cancelHomeSortLoading();
@@ -998,8 +989,7 @@ public class HomeActivity extends BaseActivity {
         previousHomeName = null;
     }
 
-    private void tvNameAnimation()
-    {
+    private void tvNameAnimation() {
         tvName.clearAnimation();
         AlphaAnimation blinkAnimation = new AlphaAnimation(0.0f, 1.0f);
         blinkAnimation.setDuration(500);
