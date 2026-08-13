@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- 酷9主题色 -->
+    <color name="color_1890FF">#1890FF</color>
     <color name="color_6200EE">#6200EE</color>
     <color name="color_3700B3">#3700B3</color>
     <color name="color_03DAC5">#03DAC5</color>
     <color name="title_fouse_n">#ffce7900</color>
-    <color name="color_1890FF">#1890FF</color>
     <color name="color_FFB800">#FF6600</color>
     <color name="color_00FF0A">#00FF0A</color>
     <color name="color_CBF46A">#CBF46A</color>
@@ -40,7 +41,18 @@
     <color name="color_scrollview_bg">#44000000</color>
     <color name="color_text_primary">#FFFFFAE0</color>
 
-    <!-- Unified dialog palette. Change these to update dialog surfaces globally. -->
+    <!-- 酷9新增颜色 -->
+    <color name="ku9_primary">#FF1890FF</color>
+    <color name="ku9_primary_dark">#FF096DD9</color>
+    <color name="ku9_background">#FF0D1117</color>
+    <color name="ku9_card_bg">#CC1A1A2E</color>
+    <color name="ku9_text_primary">#FFFFFFFF</color>
+    <color name="ku9_text_secondary">#B3FFFFFF</color>
+    <color name="ku9_text_hint">#80FFFFFF</color>
+    <color name="ku9_divider">#33FFFFFF</color>
+    <color name="ku9_focus_border">#80FFFFFF</color>
+
+    <!-- 统一对话框配色 -->
     <color name="dialog_panel_bg">#D91D202A</color>
     <color name="dialog_panel_stroke">#33FFFFFF</color>
     <color name="dialog_control_bg">#80353744</color>
@@ -50,7 +62,4 @@
     <color name="dialog_input_bg">#66353744</color>
     <color name="dialog_text_primary">#FFFFFFFF</color>
     <color name="dialog_text_hint">#80FFFFFF</color>
-
-
-
 </resources>
