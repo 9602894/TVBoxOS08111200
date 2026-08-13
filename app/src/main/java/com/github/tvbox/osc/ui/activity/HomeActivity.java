@@ -19,6 +19,7 @@ import android.view.animation.AccelerateInterpolator;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.BounceInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -293,6 +294,16 @@ public class HomeActivity extends BaseActivity {
                 return true;
             }
         });
+
+        // ========== 新增：设置按钮点击 ==========
+        ImageView tvSetting = findViewById(R.id.tvSetting);
+        tvSetting.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                jumpActivity(SettingActivity.class);
+            }
+        });
+
         setLoadSir(this.contentLayout);
         //mHandler.postDelayed(mFindFocus, 500);
     }
@@ -617,7 +628,8 @@ public class HomeActivity extends BaseActivity {
 
         // 检查 fragments 状态
         if (this.fragments.size() <= 0 || this.sortFocused >= this.fragments.size() || this.sortFocused < 0) {
-            doExit();
+            // 无有效 fragment，直接进入设置
+            jumpActivity(SettingActivity.class);
             return;
         }
 
@@ -636,14 +648,16 @@ public class HomeActivity extends BaseActivity {
             else if (this.sortFocused != 0) {
                 this.mGridView.setSelection(0);
             } else {
-                doExit();
+                // 已经是最顶层的首页，按返回键进入设置
+                jumpActivity(SettingActivity.class);
             }
         } else if (baseLazyFragment instanceof UserFragment && UserFragment.tvHotList.canScrollVertically(-1)) {
             // 如果 UserFragment 列表可以向上滚动，则滚动到顶部
             UserFragment.tvHotList.scrollToPosition(0);
             this.mGridView.setSelection(0);
         } else {
-            doExit();
+            // 其他情况，直接进入设置
+            jumpActivity(SettingActivity.class);
         }
     }
 
