@@ -9,6 +9,7 @@ import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
@@ -70,7 +71,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -84,6 +88,10 @@ import me.jessyan.autosize.utils.AutoSizeUtils;
 public class HomeActivity extends BaseActivity {
     private static final String TAG = "HomeActivity";
     
+    // 日志文件路径
+    private static String LOG_FILE_PATH = null;
+    private BufferedWriter logWriter = null;
+
     private LinearLayout topLayout;
     private LinearLayout contentLayout;
     private TextView tvDate;
@@ -125,6 +133,49 @@ public class HomeActivity extends BaseActivity {
         }
     };
 
+    // ========== 日志写入工具 ==========
+    private void writeLog(String msg) {
+        String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(new Date());
+        String line = time + " " + msg;
+        Log.i(TAG, msg); // 同时输出到 logcat
+        
+        if (logWriter != null) {
+            try {
+                logWriter.write(line);
+                logWriter.newLine();
+                logWriter.flush();
+            } catch (IOException e) {
+                // 忽略写入错误
+            }
+        }
+    }
+
+    private void initLogFile() {
+        try {
+            File dir = getExternalFilesDir(null); // 外部私有目录，无需权限
+            if (dir == null) {
+                dir = getFilesDir(); // 回退到内部私有目录
+            }
+            File logFile = new File(dir, "tvbox_log.txt");
+            LOG_FILE_PATH = logFile.getAbsolutePath();
+            
+            // 如果文件超过 1MB，则重命名备份
+            if (logFile.exists() && logFile.length() > 1024 * 1024) {
+                File backup = new File(dir, "tvbox_log_old.txt");
+                if (backup.exists()) backup.delete();
+                logFile.renameTo(backup);
+            }
+            
+            logWriter = new BufferedWriter(new FileWriter(logFile, true));
+            writeLog("========== Application Start ==========");
+            writeLog("Log file path: " + LOG_FILE_PATH);
+            Toast.makeText(this, "日志路径: " + LOG_FILE_PATH, Toast.LENGTH_LONG).show();
+        } catch (Exception e) {
+            // 如果初始化失败，logWriter 为 null，不影响应用运行
+            Log.e(TAG, "Failed to init log file", e);
+        }
+    }
+
     @Override
     protected int getLayoutResID() {
         return R.layout.activity_home;
@@ -139,35 +190,37 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     protected void init() {
-        Log.i(TAG, "init() called");
+        initLogFile(); // 最先初始化日志
+        writeLog("init() called");
+        
         try {
             EventBus.getDefault().register(this);
             eventBusRegistered = true;
-            Log.i(TAG, "EventBus registered");
+            writeLog("EventBus registered");
         } catch (Exception e) {
-            Log.e(TAG, "EventBus register failed", e);
+            writeLog("EventBus register failed: " + e.getMessage());
         }
         
         try {
             ControlManager.get().startServer();
-            Log.i(TAG, "ControlManager started");
+            writeLog("ControlManager started");
         } catch (Exception e) {
-            Log.e(TAG, "ControlManager start failed", e);
+            writeLog("ControlManager start failed: " + e.getMessage());
         }
         
         try {
             initView();
-            Log.i(TAG, "initView() completed");
+            writeLog("initView() completed");
         } catch (Exception e) {
-            Log.e(TAG, "initView() failed", e);
-            throw e; // rethrow to see crash
+            writeLog("initView() failed: " + e.getMessage());
+            throw e;
         }
         
         try {
             initViewModel();
-            Log.i(TAG, "initViewModel() completed");
+            writeLog("initViewModel() completed");
         } catch (Exception e) {
-            Log.e(TAG, "initViewModel() failed", e);
+            writeLog("initViewModel() failed: " + e.getMessage());
             throw e;
         }
         
@@ -176,21 +229,21 @@ public class HomeActivity extends BaseActivity {
         if (intent != null && intent.getExtras() != null) {
             Bundle bundle = intent.getExtras();
             useCacheConfig = bundle.getBoolean("useCache", false);
-            Log.i(TAG, "useCacheConfig = " + useCacheConfig);
+            writeLog("useCacheConfig = " + useCacheConfig);
         }
         
         try {
             initData();
-            Log.i(TAG, "initData() completed");
+            writeLog("initData() completed");
         } catch (Exception e) {
-            Log.e(TAG, "initData() failed", e);
+            writeLog("initData() failed: " + e.getMessage());
             throw e;
         }
-        Log.i(TAG, "init() finished successfully");
+        writeLog("init() finished successfully");
     }
 
     private void initView() {
-        Log.i(TAG, "initView() start");
+        writeLog("initView() start");
         this.topLayout = findViewById(R.id.topLayout);
         this.tvDate = findViewById(R.id.tvDate);
         this.tvName = findViewById(R.id.tvName);
@@ -339,29 +392,29 @@ public class HomeActivity extends BaseActivity {
             tvSetting.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Log.i(TAG, "Setting button clicked");
+                    writeLog("Setting button clicked");
                     jumpActivity(SettingActivity.class);
                 }
             });
-            Log.i(TAG, "Setting button initialized");
+            writeLog("Setting button initialized");
         } else {
-            Log.w(TAG, "tvSetting not found in layout, skip setting button init.");
+            writeLog("tvSetting not found in layout, skip setting button init.");
         }
 
         setLoadSir(this.contentLayout);
-        Log.i(TAG, "initView() end");
+        writeLog("initView() end");
     }
 
 
     private boolean skipNextUpdate = false;
 
     private void initViewModel() {
-        Log.i(TAG, "initViewModel() start");
+        writeLog("initViewModel() start");
         sourceViewModel = new ViewModelProvider(this).get(SourceViewModel.class);
         sourceViewModel.sortResult.observe(this, new Observer<AbsSortXml>() {
             @Override
             public void onChanged(AbsSortXml absXml) {
-                Log.i(TAG, "sortResult onChanged, sourceKey=" + (absXml != null ? absXml.sourceKey : "null"));
+                writeLog("sortResult onChanged, sourceKey=" + (absXml != null ? absXml.sourceKey : "null"));
                 if (skipNextUpdate) {
                     skipNextUpdate = false;
                     return;
@@ -392,7 +445,7 @@ public class HomeActivity extends BaseActivity {
                 previousHomeSource = null;
             }
         });
-        Log.i(TAG, "initViewModel() end");
+        writeLog("initViewModel() end");
     }
 
     private boolean dataInitOk = false;
@@ -401,7 +454,7 @@ public class HomeActivity extends BaseActivity {
     private TipDialog mConfigErrorDialog;
 
     private void initData() {
-        Log.i(TAG, "initData() start, dataInitOk=" + dataInitOk + ", jarInitOk=" + jarInitOk);
+        writeLog("initData() start, dataInitOk=" + dataInitOk + ", jarInitOk=" + jarInitOk);
         if (dataInitOk && jarInitOk) {
             loadHomeSort(false);
             if (hasPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
@@ -412,12 +465,12 @@ public class HomeActivity extends BaseActivity {
             
             // 自动进入直播（酷9风格）
             if (!useCacheConfig) {
-                Log.i(TAG, "Attempting to jump to LivePlayActivity");
+                writeLog("Attempting to jump to LivePlayActivity");
                 try {
                     jumpActivity(LivePlayActivity.class);
-                    Log.i(TAG, "jumpActivity(LivePlayActivity) executed");
+                    writeLog("jumpActivity(LivePlayActivity) executed");
                 } catch (Exception e) {
-                    Log.e(TAG, "jumpActivity(LivePlayActivity) failed", e);
+                    writeLog("jumpActivity(LivePlayActivity) failed: " + e.getMessage());
                     // 不抛出，让应用继续运行，但会停留在主页
                     Toast.makeText(this, "直播启动失败，进入主页", Toast.LENGTH_SHORT).show();
                 }
@@ -557,7 +610,7 @@ public class HomeActivity extends BaseActivity {
                 });
             }
         }, this);
-        Log.i(TAG, "initData() end");
+        writeLog("initData() end");
     }
 
     private void warmSearchSpidersOnce() {
@@ -659,7 +712,7 @@ public class HomeActivity extends BaseActivity {
     @SuppressLint("NotifyDataSetChanged")
     @Override
     public void onBackPressed() {
-        Log.i(TAG, "onBackPressed() called");
+        writeLog("onBackPressed() called");
         // 打断加载
         if (homeSortLoading) {
             cancelHomeSortLoading();
@@ -679,7 +732,7 @@ public class HomeActivity extends BaseActivity {
         // 检查 fragments 状态
         if (this.fragments.size() <= 0 || this.sortFocused >= this.fragments.size() || this.sortFocused < 0) {
             // 无有效 fragment，直接进入设置
-            Log.i(TAG, "No valid fragment, jump to setting");
+            writeLog("No valid fragment, jump to setting");
             jumpToSettingSafely();
             return;
         }
@@ -696,14 +749,14 @@ public class HomeActivity extends BaseActivity {
                 this.mGridView.setSelection(0);
             } else {
                 // 已经是最顶层的首页，按返回键进入设置
-                Log.i(TAG, "At top home page, jump to setting");
+                writeLog("At top home page, jump to setting");
                 jumpToSettingSafely();
             }
         } else if (baseLazyFragment instanceof UserFragment && UserFragment.tvHotList.canScrollVertically(-1)) {
             UserFragment.tvHotList.scrollToPosition(0);
             this.mGridView.setSelection(0);
         } else {
-            Log.i(TAG, "Other case, jump to setting");
+            writeLog("Other case, jump to setting");
             jumpToSettingSafely();
         }
     }
@@ -713,10 +766,10 @@ public class HomeActivity extends BaseActivity {
      */
     private void jumpToSettingSafely() {
         try {
-            Log.i(TAG, "jumpToSettingSafely: trying to start SettingActivity");
+            writeLog("jumpToSettingSafely: trying to start SettingActivity");
             jumpActivity(SettingActivity.class);
         } catch (Exception e) {
-            Log.e(TAG, "jumpToSettingSafely failed", e);
+            writeLog("jumpToSettingSafely failed: " + e.getMessage());
             Toast.makeText(this, "无法打开设置页面", Toast.LENGTH_SHORT).show();
         }
     }
@@ -893,6 +946,14 @@ public class HomeActivity extends BaseActivity {
         unregisterEventBus();
         if (isFinishing()) {
             ControlManager.get().stopServer();
+        }
+        // 关闭日志文件
+        if (logWriter != null) {
+            try {
+                logWriter.close();
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
