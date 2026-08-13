@@ -302,9 +302,6 @@ public class HomeActivity extends BaseActivity {
                     jumpActivity(SettingActivity.class);
                 }
             });
-        } else {
-            // 如果布局中没有 tvSetting，可以静默忽略，不影响使用
-            LOG.d("HomeActivity", "tvSetting not found in layout, skip setting button init.");
         }
 
         setLoadSir(this.contentLayout);
