@@ -71,16 +71,14 @@ public abstract class BaseActivity extends AppCompatActivity implements CustomAd
             th.printStackTrace();
         }
         // 确保外部存储目录存在，防止第三方库写日志闪退
-static {
-    try {
-        if (android.os.Environment.getExternalStorageState().equals(android.os.Environment.MEDIA_MOUNTED)) {
-            java.io.File f = new java.io.File("/sdcard/Android/data/com.github.tvbox.osc.jun/files");
-            if (!f.exists()) f.mkdirs();
+        try {
+            java.io.File extFiles = getExternalFilesDir(null);
+            if (extFiles != null && !extFiles.exists()) {
+                extFiles.mkdirs();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Throwable t) {
-        t.printStackTrace();
-    }
-}
         super.onCreate(savedInstanceState);
         setContentView(getLayoutResID());
         mContext = this;
