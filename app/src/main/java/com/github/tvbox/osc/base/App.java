@@ -36,11 +36,23 @@ public class App extends MultiDexApplication {
     public static String burl;
     private static String dashData;
 
+    
     @Override
-    public void onCreate() {
-        super.onCreate();
-        instance = this;
-        initParams();
+public void onCreate() {
+    super.onCreate();
+    instance = this;
+    
+    // 强制创建外部存储 files 目录，防止某些库写日志时闪退
+    try {
+        File extFiles = getExternalFilesDir(null);
+        if (extFiles != null && !extFiles.exists()) {
+            extFiles.mkdirs();
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    
+    initParams();
         // OKGo
         OkGoHelper.init(); //台标获取
         EpgUtil.init();
