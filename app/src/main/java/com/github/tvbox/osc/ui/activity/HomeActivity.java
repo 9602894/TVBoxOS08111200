@@ -10,7 +10,6 @@ import android.app.ActivityManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
@@ -304,8 +303,8 @@ public class HomeActivity extends BaseActivity {
                 }
             });
         } else {
-            // 如果布局中没有 tvSetting，静默忽略（使用 LOG.e 避免编译问题）
-            LOG.e("HomeActivity", "tvSetting not found in layout, skip setting button init.");
+            // 如果布局中没有 tvSetting，可以静默忽略，不影响使用
+            android.util.Log.e("HomeActivity", "tvSetting not found in layout, skip setting button init.");
         }
 
         setLoadSir(this.contentLayout);
