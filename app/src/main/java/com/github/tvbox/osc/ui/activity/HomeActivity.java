@@ -463,7 +463,10 @@ public class HomeActivity extends BaseActivity {
                 LOG.e("无");
             }
             
-            // 自动进入直播（酷9风格）
+            // ========== 关闭自动进入直播（酷9风格不自动跳转） ==========
+            // 原逻辑会跳转 LivePlayActivity，但该 Activity 存在 bug 导致闪退
+            // 注释掉以保持应用稳定，用户可通过其他入口手动进入直播
+            /*
             if (!useCacheConfig) {
                 writeLog("Attempting to jump to LivePlayActivity");
                 try {
@@ -471,10 +474,11 @@ public class HomeActivity extends BaseActivity {
                     writeLog("jumpActivity(LivePlayActivity) executed");
                 } catch (Exception e) {
                     writeLog("jumpActivity(LivePlayActivity) failed: " + e.getMessage());
-                    // 不抛出，让应用继续运行，但会停留在主页
                     Toast.makeText(this, "直播启动失败，进入主页", Toast.LENGTH_SHORT).show();
                 }
             }
+            */
+            // ===========================================================
             
             if(!useCacheConfig) warmSearchSpidersOnce();
             return;
