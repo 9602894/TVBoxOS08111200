@@ -1029,18 +1029,20 @@ public class LivePlayActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         if (tvRightSettingLayout != null && tvRightSettingLayout.getVisibility() == View.VISIBLE) {
-            tvRightSettingLayout.setVisibility(View.INVISIBLE);
+            mHandler.removeCallbacks(mHideSettingLayoutRun);
+            mHandler.post(mHideSettingLayoutRun);
             return;
         }
         if (tvLeftChannelListLayout != null && tvLeftChannelListLayout.getVisibility() == View.VISIBLE) {
-            tvLeftChannelListLayout.setVisibility(View.INVISIBLE);
+            mHandler.removeCallbacks(mHideChannelListRun);
+            mHandler.post(mHideChannelListRun);
             return;
         }
         if (backcontroller != null && backcontroller.getVisibility() == View.VISIBLE) {
             backcontroller.setVisibility(View.GONE);
             return;
         }
-        if (tvRightSettingLayout != null) tvRightSettingLayout.setVisibility(View.VISIBLE);
+        showSettingGroup();
     }
 
     private final Runnable mPlaySelectedChannel = new Runnable() {
@@ -2244,16 +2246,21 @@ public class LivePlayActivity extends BaseActivity {
             if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setFocusedGroupIndex(position);
             if (liveSettingItemAdapter != null) liveSettingItemAdapter.setFocusedItemIndex(-1);
         }
-        if (liveSettingGroupAdapter != null && (position == liveSettingGroupAdapter.getSelectedGroupIndex() || position < 0 || position >= liveSettingGroupList.size()))
+        if (liveSettingGroupAdapter != null && (position == liveSettingGroupAdapter.getSelectedGroupIndex() || position < 0 || position >= liveSettingGroupAdapter.getData().size()))
             return;
 
         if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setSelectedGroupIndex(position);
-        if (liveSettingItemAdapter != null && position >= 0 && position < liveSettingGroupList.size()) {
-            List<LiveSettingItem> items = liveSettingGroupList.get(position).getLiveSettingItems();
+
+        // Use filtered adapter data to get correct group
+        LiveSettingGroup selectedGroup = (liveSettingGroupAdapter != null && position >= 0 && position < liveSettingGroupAdapter.getData().size())
+                ? liveSettingGroupAdapter.getItem(position) : null;
+        if (liveSettingItemAdapter != null && selectedGroup != null) {
+            List<LiveSettingItem> items = selectedGroup.getLiveSettingItems();
             liveSettingItemAdapter.setNewData(items != null ? items : new ArrayList<>());
         }
 
-        switch (position) {
+        int realGroupIndex = selectedGroup != null ? selectedGroup.getGroupIndex() : -1;
+        switch (realGroupIndex) {
             case 0:
                 if (currentLiveChannelItem != null && currentLiveChannelItem.getSourceIndex() >= 0
                         && liveSettingItemAdapter != null && currentLiveChannelItem.getSourceIndex() < liveSettingItemAdapter.getData().size()) {
@@ -2323,15 +2330,19 @@ public class LivePlayActivity extends BaseActivity {
 
     private void clickSettingItem(int position) {
         int settingGroupIndex = liveSettingGroupAdapter != null ? liveSettingGroupAdapter.getSelectedGroupIndex() : -1;
-        if (settingGroupIndex >= 0 && settingGroupIndex < 3 && !isCurrentLiveChannelValid()) {
+        LiveSettingGroup selectedGroup = (settingGroupIndex >= 0 && liveSettingGroupAdapter != null)
+                ? liveSettingGroupAdapter.getItem(settingGroupIndex) : null;
+        int realGroupIndex = selectedGroup != null ? selectedGroup.getGroupIndex() : -1;
+
+        if (realGroupIndex >= 0 && realGroupIndex < 3 && !isCurrentLiveChannelValid()) {
             return;
         }
-        if (settingGroupIndex < 4) {
+        if (realGroupIndex < 4) {
             if (liveSettingItemAdapter != null && position == liveSettingItemAdapter.getSelectedItemIndex())
                 return;
             if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(position, true, true);
         }
-        switch (settingGroupIndex) {
+        switch (realGroupIndex) {
             case 0:
                 if (currentLiveChannelItem == null || position < 0 || position >= currentLiveChannelItem.getSourceNum()) break;
                 currentLiveChannelItem.setSourceIndex(position);
