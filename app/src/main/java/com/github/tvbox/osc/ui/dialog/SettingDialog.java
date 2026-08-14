@@ -60,17 +60,14 @@ public class SettingDialog extends BaseDialog {
     }
 
     private void initListener() {
-        // 直播订阅点击
         if (tvLiveSub != null) {
             tvLiveSub.setOnClickListener(v -> showLiveSubDialog());
         }
 
-        // EPG订阅点击
         if (tvEpgSub != null) {
             tvEpgSub.setOnClickListener(v -> showEpgSubDialog());
         }
 
-        // 清除直播订阅
         if (tvLiveClear != null) {
             tvLiveClear.setOnClickListener(v -> {
                 Hawk.put(HawkConfig.LIVE_API_URL, "");
@@ -81,7 +78,6 @@ public class SettingDialog extends BaseDialog {
             });
         }
 
-        // 清除EPG订阅
         if (tvEpgClear != null) {
             tvEpgClear.setOnClickListener(v -> {
                 Hawk.put(HawkConfig.EPG_URL, "");
@@ -93,9 +89,6 @@ public class SettingDialog extends BaseDialog {
         }
     }
 
-    /**
-     * 弹出直播订阅输入框
-     */
     private void showLiveSubDialog() {
         String current = Hawk.get(HawkConfig.LIVE_API_URL, "");
         new InputDialog(getContext())
@@ -117,9 +110,6 @@ public class SettingDialog extends BaseDialog {
                 .show();
     }
 
-    /**
-     * 弹出EPG订阅输入框
-     */
     private void showEpgSubDialog() {
         String current = Hawk.get(HawkConfig.EPG_URL, "");
         new InputDialog(getContext())
@@ -141,9 +131,6 @@ public class SettingDialog extends BaseDialog {
                 .show();
     }
 
-    /**
-     * 保存到历史记录
-     */
     private void saveToHistory(String key, String url) {
         try {
             List<String> history = Hawk.get(key, new ArrayList<>());
@@ -159,9 +146,6 @@ public class SettingDialog extends BaseDialog {
         }
     }
 
-    /**
-     * 通知直播页面刷新源
-     */
     private void notifyLiveRefresh() {
         try {
             android.content.Intent intent = new android.content.Intent("com.github.tvbox.osc.LIVE_REFRESH");
@@ -171,9 +155,6 @@ public class SettingDialog extends BaseDialog {
         }
     }
 
-    /**
-     * 通知EPG刷新
-     */
     private void notifyEpgRefresh() {
         try {
             android.content.Intent intent = new android.content.Intent("com.github.tvbox.osc.EPG_REFRESH");
