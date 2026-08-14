@@ -1228,6 +1228,7 @@ public class LivePlayActivity extends BaseActivity {
         }
         // 显示频道列表时隐藏底部EPG栏，防止遮挡
         if (ll_epg != null) ll_epg.setVisibility(View.GONE);
+        if (tvLeftChannelListLayout != null) tvLeftChannelListLayout.bringToFront();
         if (liveChannelGroupList == null || liveChannelGroupList.isEmpty()) return;
         if (tvLeftChannelListLayout != null && tvLeftChannelListLayout.getVisibility() == View.INVISIBLE) {
             if (currentLiveLookBackIndex > -1 && mRightEpgList != null) {
@@ -1771,6 +1772,7 @@ public class LivePlayActivity extends BaseActivity {
         }
         // 显示设置菜单时隐藏底部EPG栏，防止遮挡
         if (ll_epg != null) ll_epg.setVisibility(View.GONE);
+        if (tvRightSettingLayout != null) tvRightSettingLayout.bringToFront();
         if (tvRightSettingLayout != null && tvRightSettingLayout.getVisibility() == View.INVISIBLE) {
             ApiConfig.get().refreshLiveApiHistoryItems();
             loadCurrentSourceList();
@@ -1809,6 +1811,7 @@ public class LivePlayActivity extends BaseActivity {
                     RecyclerView.ViewHolder holder = mSettingGroupView.findViewHolderForAdapterPosition(settingGroupPosition < 0 ? 0 : settingGroupPosition);
                     if (holder != null) holder.itemView.requestFocus();
                 }
+                if (tvRightSettingLayout != null) tvRightSettingLayout.bringToFront();
                 if (tvRightSettingLayout != null) tvRightSettingLayout.setVisibility(View.VISIBLE);
                 if (tvRightSettingLayout != null) {
                     ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) tvRightSettingLayout.getLayoutParams();
