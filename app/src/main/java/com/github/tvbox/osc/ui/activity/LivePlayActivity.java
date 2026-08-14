@@ -2252,19 +2252,16 @@ public class LivePlayActivity extends BaseActivity {
             if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setFocusedGroupIndex(position);
             if (liveSettingItemAdapter != null) liveSettingItemAdapter.setFocusedItemIndex(-1);
         }
-        if (liveSettingGroupAdapter != null && (position == liveSettingGroupAdapter.getSelectedGroupIndex() || position < 0 || position >= liveSettingGroupAdapter.getData().size()))
+        if (liveSettingGroupAdapter != null && (position == liveSettingGroupAdapter.getSelectedGroupIndex() || position < 0 || position >= liveSettingGroupList.size()))
             return;
 
         if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setSelectedGroupIndex(position);
-        LiveSettingGroup selectedGroup = (liveSettingGroupAdapter != null && position >= 0 && position < liveSettingGroupAdapter.getData().size())
-                ? liveSettingGroupAdapter.getItem(position) : null;
-        if (liveSettingItemAdapter != null && selectedGroup != null) {
-            List<LiveSettingItem> items = selectedGroup.getLiveSettingItems();
+        if (liveSettingItemAdapter != null && position >= 0 && position < liveSettingGroupList.size()) {
+            List<LiveSettingItem> items = liveSettingGroupList.get(position).getLiveSettingItems();
             liveSettingItemAdapter.setNewData(items != null ? items : new ArrayList<>());
         }
 
-        int realGroupIndex = selectedGroup != null ? selectedGroup.getGroupIndex() : -1;
-        switch (realGroupIndex) {
+        switch (position) {
             case 0:
                 if (currentLiveChannelItem != null && currentLiveChannelItem.getSourceIndex() >= 0
                         && liveSettingItemAdapter != null && currentLiveChannelItem.getSourceIndex() < liveSettingItemAdapter.getData().size()) {
