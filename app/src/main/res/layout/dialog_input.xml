@@ -12,7 +12,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="输入"
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="#FFFFFF"
         android:textSize="@dimen/ts_30"
         android:textStyle="bold" />
 
@@ -21,12 +21,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="20dp"
-        android:background="@drawable/shape_edit_bg"
+        android:background="@drawable/input_dialog_api_input"
         android:hint="请输入..."
         android:padding="12dp"
         android:singleLine="true"
-        android:textColor="@color/color_FFFFFF"
-        android:textColorHint="@color/color_99FFFFFF"
+        android:textColor="#FFFFFF"
+        android:textColorHint="#99FFFFFF"
         android:textSize="@dimen/ts_24" />
 
     <LinearLayout
@@ -40,13 +40,13 @@
             android:id="@+id/tvCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_button_secondary"
+            android:background="@drawable/button_dialog_main"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingHorizontal="24dp"
             android:paddingVertical="10dp"
             android:text="取消"
-            android:textColor="@color/color_FFFFFF"
+            android:textColor="#FFFFFF"
             android:textSize="@dimen/ts_22" />
 
         <TextView
@@ -54,13 +54,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
-            android:background="@drawable/shape_button_primary"
+            android:background="@drawable/button_dialog_main"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingHorizontal="24dp"
             android:paddingVertical="10dp"
             android:text="确定"
-            android:textColor="@color/color_FFFFFF"
+            android:textColor="#FFFFFF"
             android:textSize="@dimen/ts_22" />
     </LinearLayout>
 </LinearLayout>
