@@ -15,10 +15,9 @@ import com.orhanobut.hawk.Hawk;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * 酷9设置弹窗修复类
- * 修复内容：直播订阅、EPG订阅点击无响应
- * 替换路径：app/src/main/java/com/github/tvbox/osc/ui/dialog/SettingDialog.java
- * 或根据反编译结构替换对应的设置弹窗类
+ * 设置弹窗修复类（适配酷9反编译项目）
+ * 修复：直播订阅、EPG订阅点击无响应
+ * 使用项目已有键名：LIVE_API_URL、EPG_URL
  */
 public class SettingDialog extends BaseDialog {
 
@@ -43,8 +42,8 @@ public class SettingDialog extends BaseDialog {
     }
 
     private void initData() {
-        // 回显当前配置
-        String liveUrl = Hawk.get(HawkConfig.LIVE_URL, "");
+        // 使用项目已有键名回显
+        String liveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
         String epgUrl = Hawk.get(HawkConfig.EPG_URL, "");
 
         if (tvLiveSub != null) {
@@ -56,46 +55,33 @@ public class SettingDialog extends BaseDialog {
     }
 
     private void initListener() {
-        // ========== 直播订阅点击修复 ==========
+        // 直播订阅点击
         if (tvLiveSub != null) {
-            tvLiveSub.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showLiveSubDialog();
-                }
-            });
+            tvLiveSub.setOnClickListener(v -> showLiveSubDialog());
         }
 
-        // ========== EPG订阅点击修复 ==========
+        // EPG订阅点击
         if (tvEpgSub != null) {
-            tvEpgSub.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    showEpgSubDialog();
-                }
-            });
+            tvEpgSub.setOnClickListener(v -> showEpgSubDialog());
         }
 
-        // 清除按钮
+        // 清除直播订阅
         if (tvLiveClear != null) {
-            tvLiveClear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Hawk.put(HawkConfig.LIVE_URL, "");
-                    Toast.makeText(getContext(), "直播订阅已清除", Toast.LENGTH_SHORT).show();
-                    initData();
-                }
+            tvLiveClear.setOnClickListener(v -> {
+                Hawk.put(HawkConfig.LIVE_API_URL, "");
+                Hawk.put(HawkConfig.LIVE_API_HISTORY, "");
+                Toast.makeText(getContext(), "直播订阅已清除，重启生效", Toast.LENGTH_SHORT).show();
+                initData();
             });
         }
 
+        // 清除EPG订阅
         if (tvEpgClear != null) {
-            tvEpgClear.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Hawk.put(HawkConfig.EPG_URL, "");
-                    Toast.makeText(getContext(), "EPG订阅已清除", Toast.LENGTH_SHORT).show();
-                    initData();
-                }
+            tvEpgClear.setOnClickListener(v -> {
+                Hawk.put(HawkConfig.EPG_URL, "");
+                Hawk.put(HawkConfig.EPG_HISTORY, "");
+                Toast.makeText(getContext(), "EPG订阅已清除", Toast.LENGTH_SHORT).show();
+                initData();
             });
         }
     }
@@ -104,24 +90,23 @@ public class SettingDialog extends BaseDialog {
      * 弹出直播订阅输入框
      */
     private void showLiveSubDialog() {
-        String current = Hawk.get(HawkConfig.LIVE_URL, "");
+        String current = Hawk.get(HawkConfig.LIVE_API_URL, "");
         new InputDialog(getContext())
                 .setTitle("直播订阅地址")
-                .setHint("请输入直播源订阅链接...")
+                .setHint("请输入直播源订阅链接 (支持m3u/txt格式)...")
                 .setDefaultText(current)
-                .setOnConfirmListener(new InputDialog.OnConfirmListener() {
-                    @Override
-                    public void onConfirm(String text) {
-                        if (text == null || text.trim().isEmpty()) {
-                            Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Hawk.put(HawkConfig.LIVE_URL, text.trim());
-                        Toast.makeText(getContext(), "直播订阅已保存，重启生效", Toast.LENGTH_LONG).show();
-                        initData();
-                        // 通知LivePlayActivity刷新源
-                        notifyLiveRefresh();
+                .setOnConfirmListener(text -> {
+                    if (text == null || text.trim().isEmpty()) {
+                        Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+                    String url = text.trim();
+                    Hawk.put(HawkConfig.LIVE_API_URL, url);
+                    // 保存到历史记录
+                    saveToHistory(HawkConfig.LIVE_API_HISTORY, url);
+                    Toast.makeText(getContext(), "直播订阅已保存，重启播放生效", Toast.LENGTH_LONG).show();
+                    initData();
+                    notifyLiveRefresh();
                 })
                 .show();
     }
@@ -135,21 +120,39 @@ public class SettingDialog extends BaseDialog {
                 .setTitle("EPG节目单地址")
                 .setHint("请输入EPG订阅链接 (XML格式)...")
                 .setDefaultText(current)
-                .setOnConfirmListener(new InputDialog.OnConfirmListener() {
-                    @Override
-                    public void onConfirm(String text) {
-                        if (text == null || text.trim().isEmpty()) {
-                            Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                        Hawk.put(HawkConfig.EPG_URL, text.trim());
-                        Toast.makeText(getContext(), "EPG订阅已保存", Toast.LENGTH_LONG).show();
-                        initData();
-                        // 通知EPG加载
-                        notifyEpgRefresh();
+                .setOnConfirmListener(text -> {
+                    if (text == null || text.trim().isEmpty()) {
+                        Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
+                        return;
                     }
+                    String url = text.trim();
+                    Hawk.put(HawkConfig.EPG_URL, url);
+                    saveToHistory(HawkConfig.EPG_HISTORY, url);
+                    Toast.makeText(getContext(), "EPG订阅已保存", Toast.LENGTH_LONG).show();
+                    initData();
+                    notifyEpgRefresh();
                 })
                 .show();
+    }
+
+    /**
+     * 保存到历史记录
+     */
+    private void saveToHistory(String key, String url) {
+        try {
+            java.util.List<String> history = Hawk.get(key, new java.util.ArrayList<>());
+            if (history == null) history = new java.util.ArrayList<>();
+            // 去重并置顶
+            history.remove(url);
+            history.add(0, url);
+            // 最多保留10条
+            if (history.size() > 10) {
+                history = history.subList(0, 10);
+            }
+            Hawk.put(key, history);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -157,7 +160,6 @@ public class SettingDialog extends BaseDialog {
      */
     private void notifyLiveRefresh() {
         try {
-            // 发送广播通知LivePlayActivity重新加载直播源
             android.content.Intent intent = new android.content.Intent("com.github.tvbox.osc.LIVE_REFRESH");
             getContext().sendBroadcast(intent);
         } catch (Exception e) {
