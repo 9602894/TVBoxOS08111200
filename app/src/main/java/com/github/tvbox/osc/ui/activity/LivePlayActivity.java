@@ -1214,7 +1214,6 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     @Override
-    @Override
     protected void onResume() {
         super.onResume();
         exitingLivePlay = false;
@@ -1226,9 +1225,7 @@ public class LivePlayActivity extends BaseActivity {
         filter.addAction("com.github.tvbox.osc.EPG_REFRESH");
         registerReceiver(liveRefreshReceiver, filter);
     }
-    }
 
-    @Override
     @Override
     protected void onPause() {
         super.onPause();
@@ -1241,9 +1238,7 @@ public class LivePlayActivity extends BaseActivity {
             mVideoView.pause();
         }
     }
-    }
 
-    @Override
     @Override
     protected void onDestroy() {
         super.onDestroy();
