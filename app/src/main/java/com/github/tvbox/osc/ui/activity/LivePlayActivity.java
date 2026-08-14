@@ -1428,7 +1428,7 @@ public class LivePlayActivity extends BaseActivity {
                         super.onAnimationEnd(animation);
                         tvLeftChannelListLayout.setVisibility(View.INVISIBLE);
                         // 恢复底部EPG栏显示
-                        if (ll_epg != null && currentProgramName != null && !"暂无信息".equals(tip_epg1 != null ? tip_epg1.getText().toString() : "")) {
+                        if (ll_epg != null && tv_curepg_left != null && !"暂无信息".equals(tip_epg1 != null ? tip_epg1.getText().toString() : "")) {
                             ll_epg.setVisibility(View.VISIBLE);
                         }
                     }
