@@ -2,64 +2,65 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#1E1E1E"
+    android:background="@drawable/shape_dialog_bg_main"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:padding="24dp">
 
     <TextView
-        android:id="@+id/tvTitle"
+        android:id="@+id/inputTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="输入"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold"
         android:layout_gravity="center_horizontal"
-        android:layout_marginBottom="16dp"/>
+        android:text="输入"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="@dimen/ts_30"
+        android:textStyle="bold" />
 
     <EditText
         android:id="@+id/etInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:background="@drawable/shape_edit_bg"
         android:hint="请输入..."
-        android:textColor="#FFFFFF"
-        android:textColorHint="#888888"
-        android:background="#2A2A2A"
         android:padding="12dp"
-        android:textSize="16sp"
         android:singleLine="true"
-        android:layout_marginBottom="20dp"/>
+        android:textColor="@color/color_FFFFFF"
+        android:textColorHint="@color/color_99FFFFFF"
+        android:textSize="@dimen/ts_24" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="end">
+        android:layout_marginTop="24dp"
+        android:gravity="end"
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/tvCancel"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/shape_button_secondary"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="10dp"
             android:text="取消"
-            android:textColor="#AAAAAA"
-            android:textSize="16sp"
-            android:padding="10dp 20dp"
-            android:layout_marginEnd="12dp"
-            android:background="#333333"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="@dimen/ts_22" />
 
         <TextView
             android:id="@+id/tvConfirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:background="@drawable/shape_button_primary"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:paddingHorizontal="24dp"
+            android:paddingVertical="10dp"
             android:text="确定"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:padding="10dp 20dp"
-            android:background="#00BFFF"
-            android:clickable="true"
-            android:focusable="true"/>
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="@dimen/ts_22" />
     </LinearLayout>
-
 </LinearLayout>
