@@ -66,257 +66,11 @@
         android:visibility="invisible" />
 
     <!-- 左侧频道列表面板 -->
-    <LinearLayout
-        android:id="@+id/tvLeftChannnelListLayout"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="left|center_vertical"
-        android:layout_margin="12dp"
-        android:background="@drawable/bg_ku9_card"
-        android:orientation="horizontal"
-        android:padding="0dp"
-        android:baselineAligned="false">
-
-        <LinearLayout
-            android:id="@+id/ll_typeSelect"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_margin="0dp"
-            android:background="@drawable/bg_channel_list_left"
-            android:baselineAligned="false"
-            android:padding="0dp">
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:orientation="horizontal">
-                <com.owen.tvrecyclerview.widget.TvRecyclerView
-                    android:id="@+id/mGroupGridView"
-                    android:layout_width="@dimen/vs_220"
-                    android:layout_height="wrap_content"
-                    android:divider="@null"
-                    android:fadeScrollbars="false"
-                    android:listSelector="@drawable/item_bg_selector_left"
-                    android:padding="10dp"
-                    android:scrollbars="none" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/divLoadEpgleft"
-                style="@style/epg_window_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:onClick="divLoadEpgLeft"
-                android:orientation="vertical"
-                android:visibility="gone">
-                <TextView
-                    android:id="@+id/tv_arrow0"
-                    android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:onClick="divLoadEpgLeft"
-                    android:paddingBottom="5dp"
-                    android:shadowColor="#CC000000"
-                    android:shadowDx="5.0"
-                    android:shadowRadius="5.0"
-                    android:text="@string/_more_"
-                    android:textColor="@color/color_FFFFFF"
-                    android:textStyle="bold" />
-                <ImageView
-                    android:id="@+id/iv_arrow2"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:gravity="center|left"
-                    android:onClick="divLoadEpgLeft"
-                    android:paddingLeft="-5dp"
-                    android:paddingTop="5dp"
-                    android:src="@drawable/scrollviewleft" />
-                <TextView
-                    android:id="@+id/tv_arrow3"
-                    android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:onClick="divLoadEpgLeft"
-                    android:paddingTop="5dp"
-                    android:shadowColor="#CC000000"
-                    android:shadowDx="5.0"
-                    android:shadowRadius="5.0"
-                    android:text="上一周"
-                    android:textColor="@color/color_FFFFFF"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <View
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_margin="1dp"
-                android:background="#FF333333" />
-
-            <com.owen.tvrecyclerview.widget.TvRecyclerView
-                android:id="@+id/mChannelGridView"
-                android:layout_width="@dimen/vs_300"
-                android:layout_height="match_parent"
-                android:divider="@null"
-                android:fadeScrollbars="false"
-                android:focusable="true"
-                android:listSelector="@drawable/item_bg_selector_right"
-                android:padding="5dp"
-                android:scrollbars="none" />
-
-            <View
-                android:id="@+id/divLoadEpgDivider"
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_margin="2dp"
-                android:background="#FF333333"
-                android:orientation="horizontal" />
-
-            <LinearLayout
-                android:id="@+id/divLoadEpg"
-                style="@style/epg_window_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:onClick="divLoadEpgRight"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/tv_arrow"
-                    android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:onClick="divLoadEpgRight"
-                    android:paddingBottom="5dp"
-                    android:shadowColor="#CC000000"
-                    android:shadowDx="5.0"
-                    android:shadowRadius="5.0"
-                    android:text="下一周"
-                    android:textColor="@color/color_FFFFFF"
-                    android:textStyle="bold" />
-                <ImageView
-                    android:id="@+id/iv_arrow"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="center|left"
-                    android:layout_marginLeft="1dp"
-                    android:gravity="center|left"
-                    android:onClick="divLoadEpgRight"
-                    android:paddingTop="5dp"
-                    android:src="@drawable/scrollview" />
-                <TextView
-                    android:id="@+id/tv_arrow2"
-                    android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:gravity="center"
-                    android:onClick="divLoadEpgRight"
-                    android:paddingTop="5dp"
-                    android:shadowColor="#CC000000"
-                    android:shadowDx="5.0"
-                    android:shadowRadius="5.0"
-                    android:text="今天"
-                    android:textColor="@color/color_FFFFFF"
-                    android:textStyle="bold" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/divEPG"
-                android:layout_width="@dimen/vs_360"
-                android:layout_height="match_parent"
-                android:layout_gravity="center_horizontal"
-                android:orientation="horizontal"
-                android:visibility="gone">
-                <com.owen.tvrecyclerview.widget.TvRecyclerView
-                    android:id="@+id/mEpgDateGridView"
-                    android:layout_width="@dimen/vs_100"
-                    android:layout_height="wrap_content"
-                    android:paddingLeft="5mm"
-                    android:paddingTop="10mm"
-                    android:paddingRight="5mm"
-                    android:paddingBottom="10mm"
-                    android:visibility="visible"
-                    android:listSelector="@drawable/item_bg_selector_right"
-                    android:layout_gravity="center_vertical"
-                    app:tv_selectedItemIsCentered="true"
-                    app:tv_verticalSpacingWithMargins="10mm" />
-                <com.owen.tvrecyclerview.widget.TvRecyclerView
-                    android:id="@+id/lv_epg"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="center|center_vertical"
-                    android:listSelector="@drawable/item_bg_selector_right"
-                    android:padding="@dimen/vs_15"
-                    app:tv_selectedItemIsCentered="true"
-                    android:visibility="visible"
-                    android:scrollbars="vertical"
-                    app:tv_verticalSpacingWithMargins="10mm" />
-                <TextView
-                    android:id="@+id/txtNoEpg"
-                    android:layout_width="@dimen/vs_300"
-                    android:layout_height="match_parent"
-                    android:layout_gravity="center"
-                    android:layout_marginTop="50px"
-                    android:gravity="center"
-                    android:paddingLeft="5dp"
-                    android:text="暂无节目信息"
-                    android:textColor="@color/color_FF0057"
-                    android:visibility="gone" />
-            </LinearLayout>
-
-        </LinearLayout>
+    
     </LinearLayout>
 
     <!-- 右侧设置面板 -->
-    <LinearLayout
-        android:id="@+id/tvRightSettingLayout"
-        android:layout_width="@dimen/vs_640"
-        android:layout_height="match_parent"
-        android:layout_margin="12dp"
-        android:layout_gravity="right"
-        android:background="@drawable/bg_ku9_card"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:visibility="visible">
-
-        <com.owen.tvrecyclerview.widget.TvRecyclerView
-            android:id="@+id/mSettingItemView"
-            android:layout_width="@dimen/vs_420"
-            android:layout_height="match_parent"
-            android:divider="@null"
-            android:fadeScrollbars="false"
-            android:gravity="center"
-            android:listSelector="@drawable/item_bg_selector_left"
-            android:padding="5dp"
-            android:scrollbars="none"
-            android:visibility="visible"
-            app:tv_selectedItemIsCentered="true"
-            app:tv_verticalSpacingWithMargins="4mm" />
-
-        <View
-            android:layout_width="1dp"
-            android:layout_height="match_parent"
-            android:layout_margin="1dp"
-            android:layout_gravity="center_horizontal"
-            android:background="#FF333333" />
-
-        <com.owen.tvrecyclerview.widget.TvRecyclerView
-            android:id="@+id/mSettingGroupView"
-            android:layout_width="@dimen/vs_200"
-            android:layout_height="match_parent"
-            android:divider="@null"
-            android:fadeScrollbars="false"
-            android:gravity="center"
-            android:listSelector="@drawable/item_bg_selector_right"
-            android:padding="10dp"
-            android:scrollbars="none"
-            android:visibility="visible"
-            app:tv_selectedItemIsCentered="true"
-            app:tv_verticalSpacingWithMargins="4mm" />
-    </LinearLayout>
+    
 
     <!-- 居中大号频道号 -->
     <TextView
@@ -848,4 +602,257 @@
                 android:includeFontPadding="false" />
         </LinearLayout>
     </RelativeLayout>
+
+
+    <!-- 频道列表菜单 (置顶) -->
+<LinearLayout
+        android:id="@+id/tvLeftChannnelListLayout"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="left|center_vertical"
+        android:layout_margin="12dp"
+        android:background="@drawable/bg_ku9_card"
+        android:orientation="horizontal"
+        android:padding="0dp"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:id="@+id/ll_typeSelect"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_margin="0dp"
+            android:background="@drawable/bg_channel_list_left"
+            android:baselineAligned="false"
+            android:padding="0dp">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:orientation="horizontal">
+                <com.owen.tvrecyclerview.widget.TvRecyclerView
+                    android:id="@+id/mGroupGridView"
+                    android:layout_width="@dimen/vs_220"
+                    android:layout_height="wrap_content"
+                    android:divider="@null"
+                    android:fadeScrollbars="false"
+                    android:listSelector="@drawable/item_bg_selector_left"
+                    android:padding="10dp"
+                    android:scrollbars="none" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/divLoadEpgleft"
+                style="@style/epg_window_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:onClick="divLoadEpgLeft"
+                android:orientation="vertical"
+                android:visibility="gone">
+                <TextView
+                    android:id="@+id/tv_arrow0"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:onClick="divLoadEpgLeft"
+                    android:paddingBottom="5dp"
+                    android:shadowColor="#CC000000"
+                    android:shadowDx="5.0"
+                    android:shadowRadius="5.0"
+                    android:text="@string/_more_"
+                    android:textColor="@color/color_FFFFFF"
+                    android:textStyle="bold" />
+                <ImageView
+                    android:id="@+id/iv_arrow2"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:gravity="center|left"
+                    android:onClick="divLoadEpgLeft"
+                    android:paddingLeft="-5dp"
+                    android:paddingTop="5dp"
+                    android:src="@drawable/scrollviewleft" />
+                <TextView
+                    android:id="@+id/tv_arrow3"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:onClick="divLoadEpgLeft"
+                    android:paddingTop="5dp"
+                    android:shadowColor="#CC000000"
+                    android:shadowDx="5.0"
+                    android:shadowRadius="5.0"
+                    android:text="上一周"
+                    android:textColor="@color/color_FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <View
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_margin="1dp"
+                android:background="#FF333333" />
+
+            <com.owen.tvrecyclerview.widget.TvRecyclerView
+                android:id="@+id/mChannelGridView"
+                android:layout_width="@dimen/vs_300"
+                android:layout_height="match_parent"
+                android:divider="@null"
+                android:fadeScrollbars="false"
+                android:focusable="true"
+                android:listSelector="@drawable/item_bg_selector_right"
+                android:padding="5dp"
+                android:scrollbars="none" />
+
+            <View
+                android:id="@+id/divLoadEpgDivider"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_margin="2dp"
+                android:background="#FF333333"
+                android:orientation="horizontal" />
+
+            <LinearLayout
+                android:id="@+id/divLoadEpg"
+                style="@style/epg_window_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:focusable="false"
+                android:focusableInTouchMode="false"
+                android:onClick="divLoadEpgRight"
+                android:orientation="vertical">
+                <TextView
+                    android:id="@+id/tv_arrow"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:onClick="divLoadEpgRight"
+                    android:paddingBottom="5dp"
+                    android:shadowColor="#CC000000"
+                    android:shadowDx="5.0"
+                    android:shadowRadius="5.0"
+                    android:text="下一周"
+                    android:textColor="@color/color_FFFFFF"
+                    android:textStyle="bold" />
+                <ImageView
+                    android:id="@+id/iv_arrow"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center|left"
+                    android:layout_marginLeft="1dp"
+                    android:gravity="center|left"
+                    android:onClick="divLoadEpgRight"
+                    android:paddingTop="5dp"
+                    android:src="@drawable/scrollview" />
+                <TextView
+                    android:id="@+id/tv_arrow2"
+                    android:layout_width="20dp"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:onClick="divLoadEpgRight"
+                    android:paddingTop="5dp"
+                    android:shadowColor="#CC000000"
+                    android:shadowDx="5.0"
+                    android:shadowRadius="5.0"
+                    android:text="今天"
+                    android:textColor="@color/color_FFFFFF"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/divEPG"
+                android:layout_width="@dimen/vs_360"
+                android:layout_height="match_parent"
+                android:layout_gravity="center_horizontal"
+                android:orientation="horizontal"
+                android:visibility="gone">
+                <com.owen.tvrecyclerview.widget.TvRecyclerView
+                    android:id="@+id/mEpgDateGridView"
+                    android:layout_width="@dimen/vs_100"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="5mm"
+                    android:paddingTop="10mm"
+                    android:paddingRight="5mm"
+                    android:paddingBottom="10mm"
+                    android:visibility="visible"
+                    android:listSelector="@drawable/item_bg_selector_right"
+                    android:layout_gravity="center_vertical"
+                    app:tv_selectedItemIsCentered="true"
+                    app:tv_verticalSpacingWithMargins="10mm" />
+                <com.owen.tvrecyclerview.widget.TvRecyclerView
+                    android:id="@+id/lv_epg"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center|center_vertical"
+                    android:listSelector="@drawable/item_bg_selector_right"
+                    android:padding="@dimen/vs_15"
+                    app:tv_selectedItemIsCentered="true"
+                    android:visibility="visible"
+                    android:scrollbars="vertical"
+                    app:tv_verticalSpacingWithMargins="10mm" />
+                <TextView
+                    android:id="@+id/txtNoEpg"
+                    android:layout_width="@dimen/vs_300"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:layout_marginTop="50px"
+                    android:gravity="center"
+                    android:paddingLeft="5dp"
+                    android:text="暂无节目信息"
+                    android:textColor="@color/color_FF0057"
+                    android:visibility="gone" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    <!-- 设置菜单 (置顶) -->
+<LinearLayout
+        android:id="@+id/tvRightSettingLayout"
+        android:layout_width="@dimen/vs_640"
+        android:layout_height="match_parent"
+        android:layout_margin="12dp"
+        android:layout_gravity="right"
+        android:background="@drawable/bg_ku9_card"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <com.owen.tvrecyclerview.widget.TvRecyclerView
+            android:id="@+id/mSettingItemView"
+            android:layout_width="@dimen/vs_420"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:fadeScrollbars="false"
+            android:gravity="center"
+            android:listSelector="@drawable/item_bg_selector_left"
+            android:padding="5dp"
+            android:scrollbars="none"
+            android:visibility="visible"
+            app:tv_selectedItemIsCentered="true"
+            app:tv_verticalSpacingWithMargins="4mm" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_margin="1dp"
+            android:layout_gravity="center_horizontal"
+            android:background="#FF333333" />
+
+        <com.owen.tvrecyclerview.widget.TvRecyclerView
+            android:id="@+id/mSettingGroupView"
+            android:layout_width="@dimen/vs_200"
+            android:layout_height="match_parent"
+            android:divider="@null"
+            android:fadeScrollbars="false"
+            android:gravity="center"
+            android:listSelector="@drawable/item_bg_selector_right"
+            android:padding="10dp"
+            android:scrollbars="none"
+            android:visibility="visible"
+            app:tv_selectedItemIsCentered="true"
+            app:tv_verticalSpacingWithMargins="4mm" />
+    </LinearLayout>
 </FrameLayout>
