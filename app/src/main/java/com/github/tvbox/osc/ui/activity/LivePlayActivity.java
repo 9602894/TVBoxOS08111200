@@ -1230,7 +1230,10 @@ public class LivePlayActivity extends BaseActivity {
         }
         // 显示频道列表时隐藏底部EPG栏，防止遮挡
         if (ll_epg != null) ll_epg.setVisibility(View.GONE);
-        if (tvLeftChannelListLayout != null) tvLeftChannelListLayout.bringToFront();
+        if (tvLeftChannelListLayout != null) {
+            tvLeftChannelListLayout.setTranslationX(0);
+            tvLeftChannelListLayout.bringToFront();
+        }
         if (liveChannelGroupList == null || liveChannelGroupList.isEmpty()) return;
         if (tvLeftChannelListLayout != null && tvLeftChannelListLayout.getVisibility() == View.INVISIBLE) {
             if (currentLiveLookBackIndex > -1 && mRightEpgList != null) {
@@ -1774,7 +1777,10 @@ public class LivePlayActivity extends BaseActivity {
         }
         // 显示设置菜单时隐藏底部EPG栏，防止遮挡
         if (ll_epg != null) ll_epg.setVisibility(View.GONE);
-        if (tvRightSettingLayout != null) tvRightSettingLayout.bringToFront();
+        if (tvRightSettingLayout != null) {
+            tvRightSettingLayout.setTranslationX(0);
+            tvRightSettingLayout.bringToFront();
+        }
         if (tvRightSettingLayout != null && tvRightSettingLayout.getVisibility() == View.INVISIBLE) {
             ApiConfig.get().refreshLiveApiHistoryItems();
             loadCurrentSourceList();
@@ -2250,8 +2256,6 @@ public class LivePlayActivity extends BaseActivity {
             return;
 
         if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setSelectedGroupIndex(position);
-
-        // Use filtered adapter data to get correct group
         LiveSettingGroup selectedGroup = (liveSettingGroupAdapter != null && position >= 0 && position < liveSettingGroupAdapter.getData().size())
                 ? liveSettingGroupAdapter.getItem(position) : null;
         if (liveSettingItemAdapter != null && selectedGroup != null) {
@@ -2280,10 +2284,26 @@ public class LivePlayActivity extends BaseActivity {
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(-1, false, false);
                 break;
             case 8:
-                if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(0, false, false);
+                if (position == 0) {
+                    showInputDialog("EPG订阅地址", Hawk.get(HawkConfig.EPG_URL, ""), val -> {
+                        if (!val.isEmpty()) {
+                            Hawk.put(HawkConfig.EPG_URL, val);
+                            epgStringAddress = val.isEmpty() ? DEFAULT_EPG_ADDRESS : val;
+                            Toast.makeText(this, "已保存EPG地址", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else if (position == 1) {
+                    hsEpg.clear();
+                    if (channel_Name != null) getEpg(new Date());
+                    Toast.makeText(this, "EPG已更新", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case 9:
-                if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(2, true, true);
+                float[] speedValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
+                if (position >= 0 && position < speedValues.length) {
+                    if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(position, true, true);
+                    if (mVideoView != null) mVideoView.setSpeed(speedValues[position]);
+                }
                 break;
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
@@ -2330,7 +2350,7 @@ public class LivePlayActivity extends BaseActivity {
 
     private void clickSettingItem(int position) {
         int settingGroupIndex = liveSettingGroupAdapter != null ? liveSettingGroupAdapter.getSelectedGroupIndex() : -1;
-        LiveSettingGroup selectedGroup = (settingGroupIndex >= 0 && liveSettingGroupAdapter != null)
+        LiveSettingGroup selectedGroup = (settingGroupIndex >= 0 && liveSettingGroupAdapter != null && settingGroupIndex < liveSettingGroupAdapter.getData().size())
                 ? liveSettingGroupAdapter.getItem(settingGroupIndex) : null;
         int realGroupIndex = selectedGroup != null ? selectedGroup.getGroupIndex() : -1;
 
