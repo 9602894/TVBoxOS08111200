@@ -329,7 +329,10 @@ public class LivePlayActivity extends BaseActivity {
                 if (ll_epg != null) ll_epg.setVisibility(View.GONE);
             } else {
                 if (backcontroller != null) backcontroller.setVisibility(View.GONE);
-                if (ll_epg != null) ll_epg.setVisibility(View.VISIBLE);
+                // 菜单显示时不恢复EPG栏，防止遮挡
+                if (ll_epg != null && !isListOrSettingLayoutVisible()) {
+                    ll_epg.setVisibility(View.VISIBLE);
+                }
             }
 
             if (iv_play != null) {
@@ -900,13 +903,19 @@ public class LivePlayActivity extends BaseActivity {
         if (countDownTimer != null) countDownTimer.cancel();
         if (!"暂无信息".equals(tip_epg1.getText().toString())) {
             if (ll_right_top_loading != null) ll_right_top_loading.setVisibility(View.VISIBLE);
-            if (ll_epg != null) ll_epg.setVisibility(View.VISIBLE);
+            // 菜单显示时不显示EPG栏，防止遮挡
+            if (ll_epg != null && !isListOrSettingLayoutVisible()) {
+                ll_epg.setVisibility(View.VISIBLE);
+            }
             countDownTimer = new CountDownTimer(postTimeout, 1000) {
                 public void onTick(long j) {}
                 public void onFinish() {
                     if (ll_right_top_loading != null) ll_right_top_loading.setVisibility(View.GONE);
                     if (ll_right_top_huikan != null) ll_right_top_huikan.setVisibility(View.GONE);
-                    if (ll_epg != null) ll_epg.setVisibility(View.GONE);
+                    // 菜单显示时不隐藏EPG栏（实际上这里应该保持当前状态）
+                    if (ll_epg != null && !isListOrSettingLayoutVisible()) {
+                        ll_epg.setVisibility(View.GONE);
+                    }
                 }
             };
             countDownTimer.start();
@@ -1760,6 +1769,8 @@ public class LivePlayActivity extends BaseActivity {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
         }
+        // 显示设置菜单时隐藏底部EPG栏，防止遮挡
+        if (ll_epg != null) ll_epg.setVisibility(View.GONE);
         if (tvRightSettingLayout != null && tvRightSettingLayout.getVisibility() == View.INVISIBLE) {
             ApiConfig.get().refreshLiveApiHistoryItems();
             loadCurrentSourceList();
@@ -1832,6 +1843,10 @@ public class LivePlayActivity extends BaseActivity {
                         super.onAnimationEnd(animation);
                         tvRightSettingLayout.setVisibility(View.INVISIBLE);
                         if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setSelectedGroupIndex(-1);
+                        // 恢复底部EPG栏显示
+                        if (ll_epg != null && tv_curepg_left != null && !"暂无信息".equals(tip_epg1 != null ? tip_epg1.getText().toString() : "")) {
+                            ll_epg.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
                 animator.start();
@@ -3215,8 +3230,11 @@ public class LivePlayActivity extends BaseActivity {
         } else {
             if (backcontroller != null) backcontroller.setVisibility(View.GONE);
             if (ll_right_top_huikan != null) ll_right_top_huikan.setVisibility(View.GONE);
+            // 菜单显示时不恢复EPG栏，防止遮挡
             if (!"暂无信息".equals(tip_epg1 != null ? tip_epg1.getText().toString() : "")) {
-                if (ll_epg != null) ll_epg.setVisibility(View.VISIBLE);
+                if (ll_epg != null && !isListOrSettingLayoutVisible()) {
+                    ll_epg.setVisibility(View.VISIBLE);
+                }
             }
         }
 
