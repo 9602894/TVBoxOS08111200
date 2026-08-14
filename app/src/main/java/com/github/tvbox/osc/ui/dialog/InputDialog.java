@@ -8,7 +8,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 
 import com.github.tvbox.osc.R;
-import com.github.tvbox.osc.base.BaseDialog;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -65,4 +64,3 @@ public class InputDialog extends BaseDialog {
         void onConfirm(String text);
     }
 }
-
