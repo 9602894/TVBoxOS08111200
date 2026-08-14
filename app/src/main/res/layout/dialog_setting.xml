@@ -1,146 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@drawable/shape_dialog_bg_main"
+    android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="24dp">
+    android:padding="20dp"
+    android:background="@drawable/shape_live_setting_dialog_bg">
 
     <TextView
+        android:id="@+id/tvTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="设置"
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="24sp"
         android:layout_gravity="center_horizontal"
-        android:text="订阅设置"
-        android:textColor="#FFFFFF"
-        android:textSize="@dimen/ts_30"
-        android:textStyle="bold" />
+        android:layout_marginBottom="20dp"/>
 
-    <View
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mSettingGroupView"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginVertical="16dp"
-        android:background="#33FFFFFF" />
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:overScrollMode="never"/>
 
-    <LinearLayout
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/mSettingItemView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingVertical="12dp">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="直播订阅"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/ts_26" />
-
-            <TextView
-                android:id="@+id/tvLiveStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="未配置"
-                android:textColor="#99FFFFFF"
-                android:textSize="@dimen/ts_20" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvLiveSub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_dialog_main"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="8dp"
-            android:text="设置"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/ts_22" />
-
-        <TextView
-            android:id="@+id/tvLiveClear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/button_dialog_main"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="8dp"
-            android:text="清除"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/ts_22" />
-    </LinearLayout>
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginVertical="8dp"
-        android:background="#22FFFFFF" />
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        android:paddingVertical="12dp">
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:orientation="vertical">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="EPG订阅"
-                android:textColor="#FFFFFF"
-                android:textSize="@dimen/ts_26" />
-
-            <TextView
-                android:id="@+id/tvEpgStatus"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:text="未配置"
-                android:textColor="#99FFFFFF"
-                android:textSize="@dimen/ts_20" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tvEpgSub"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@drawable/button_dialog_main"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="8dp"
-            android:text="设置"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/ts_22" />
-
-        <TextView
-            android:id="@+id/tvEpgClear"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/button_dialog_main"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:paddingHorizontal="20dp"
-            android:paddingVertical="8dp"
-            android:text="清除"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/ts_22" />
-    </LinearLayout>
+        android:layout_height="0dp"
+        android:layout_weight="2"
+        android:overScrollMode="never"/>
 
 </LinearLayout>
