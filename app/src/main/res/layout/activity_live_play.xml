@@ -15,7 +15,7 @@
         android:layout_height="match_parent" />
 
     <!-- 字幕 -->
-    <androidx.media3.ui.SubtitleView
+    com.google.android.exoplayer2.ui.SubtitleView
         android:id="@+id/mSubtitleView"
         android:layout_width="0dp"
     android:layout_height="0dp" />/>
