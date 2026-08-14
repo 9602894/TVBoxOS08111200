@@ -65,3 +65,4 @@ public class InputDialog extends BaseDialog {
         void onConfirm(String text);
     }
 }
+
