@@ -105,16 +105,16 @@ public class LivePlayRepair {
             line = line.trim();
             if (line.startsWith("#EXTINF")) {
                 // 提取频道名称和分组
-                int tvgNameIdx = line.indexOf("tvg-name="");
-                int groupIdx = line.indexOf("group-title="");
+                int tvgNameIdx = line.indexOf("tvg-name=\"");
+                int groupIdx = line.indexOf("group-title=\"");
                 if (tvgNameIdx > 0) {
                     int start = tvgNameIdx + 10;
-                    int end = line.indexOf(""", start);
+                    int end = line.indexOf("\"", start);
                     currentName = line.substring(start, end);
                 }
                 if (groupIdx > 0) {
                     int start = groupIdx + 13;
-                    int end = line.indexOf(""", start);
+                    int end = line.indexOf("\"", start);
                     currentGroup = line.substring(start, end);
                 }
                 // 从逗号后取名称（备用）
