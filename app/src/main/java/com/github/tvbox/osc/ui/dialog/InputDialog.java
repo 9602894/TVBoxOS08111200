@@ -12,9 +12,6 @@ import com.github.tvbox.osc.base.BaseDialog;
 
 import org.jetbrains.annotations.NotNull;
 
-/**
- * 通用输入对话框
- */
 public class InputDialog extends BaseDialog {
 
     private TextView tvTitle;
@@ -26,34 +23,19 @@ public class InputDialog extends BaseDialog {
     public InputDialog(@NonNull @NotNull Context context) {
         super(context);
         setContentView(R.layout.dialog_input);
-        initView();
-        initListener();
-    }
-
-    private void initView() {
-        tvTitle = findViewById(R.id.tvTitle);
+        tvTitle = findViewById(R.id.inputTitle);
         etInput = findViewById(R.id.etInput);
         tvConfirm = findViewById(R.id.tvConfirm);
         tvCancel = findViewById(R.id.tvCancel);
-    }
 
-    private void initListener() {
-        tvConfirm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (listener != null) {
-                    listener.onConfirm(etInput.getText().toString().trim());
-                }
-                dismiss();
+        tvConfirm.setOnClickListener(v -> {
+            if (listener != null) {
+                listener.onConfirm(etInput.getText().toString());
             }
+            dismiss();
         });
 
-        tvCancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                dismiss();
-            }
-        });
+        tvCancel.setOnClickListener(v -> dismiss());
     }
 
     public InputDialog setTitle(String title) {
@@ -67,7 +49,7 @@ public class InputDialog extends BaseDialog {
     }
 
     public InputDialog setDefaultText(String text) {
-        if (etInput != null && text != null) {
+        if (etInput != null) {
             etInput.setText(text);
             etInput.setSelection(text.length());
         }
