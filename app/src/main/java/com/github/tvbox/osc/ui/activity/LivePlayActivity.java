@@ -148,6 +148,28 @@ public class LivePlayActivity extends BaseActivity {
 
     public static int currentChannelGroupIndex = 0;
     private Handler mHandler = new Handler();
+    private android.content.BroadcastReceiver liveRefreshReceiver = new android.content.BroadcastReceiver() {
+        @Override
+        public void onReceive(android.content.Context context, android.content.Intent intent) {
+            String action = intent.getAction();
+            if ("com.github.tvbox.osc.LIVE_REFRESH".equals(action)) {
+                String liveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
+                if (!liveUrl.isEmpty()) {
+                    Toast.makeText(context, "直播源已更新，重新加载中...", Toast.LENGTH_SHORT).show();
+                    refreshLiveChannelListAndPlay("", -1);
+                }
+            } else if ("com.github.tvbox.osc.EPG_REFRESH".equals(action)) {
+                String epgUrl = Hawk.get(HawkConfig.EPG_URL, "");
+                if (!epgUrl.isEmpty()) {
+                    epgStringAddress = epgUrl;
+                    hsEpg.clear();
+                    if (channel_Name != null) getEpg(new Date());
+                    Toast.makeText(context, "EPG已更新", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+    };
+
     private int resolutionInfoRetryCount = 0;
     private boolean resolutionInfoPending = false;
     private boolean exitingLivePlay = false;
@@ -1192,31 +1214,46 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     @Override
+    @Override
     protected void onResume() {
         super.onResume();
         exitingLivePlay = false;
         if (mVideoView != null) {
             mVideoView.resume();
         }
+        android.content.IntentFilter filter = new android.content.IntentFilter();
+        filter.addAction("com.github.tvbox.osc.LIVE_REFRESH");
+        filter.addAction("com.github.tvbox.osc.EPG_REFRESH");
+        registerReceiver(liveRefreshReceiver, filter);
+    }
     }
 
     @Override
+    @Override
     protected void onPause() {
         super.onPause();
+        try {
+            unregisterReceiver(liveRefreshReceiver);
+        } catch (Exception e) {
+            // ignore
+        }
         if (mVideoView != null && !exitingLivePlay) {
             mVideoView.pause();
         }
     }
+    }
 
+    @Override
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        try {
+            unregisterReceiver(liveRefreshReceiver);
+        } catch (Exception e) {
+            // ignore
+        }
         Hawk.put(HawkConfig.PLAYER_IS_LIVE, false);
         hideSwitchChannelSnapshot();
-        if (mVideoView != null) {
-            mVideoView.release();
-            mVideoView = null;
-        }
         mHandler.removeCallbacks(mLoadEpgRun);
         mHandler.removeCallbacks(mUpdateResolutionInfoRun);
         mHandler.removeCallbacks(mHideResolutionInfoRun);
