@@ -14,10 +14,12 @@ import com.orhanobut.hawk.Hawk;
 
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * 设置弹窗修复类（适配酷9反编译项目）
  * 修复：直播订阅、EPG订阅点击无响应
- * 使用项目已有键名：LIVE_API_URL、EPG_URL
  */
 public class SettingDialog extends BaseDialog {
 
@@ -25,6 +27,8 @@ public class SettingDialog extends BaseDialog {
     private TextView tvEpgSub;
     private TextView tvLiveClear;
     private TextView tvEpgClear;
+    private TextView tvLiveStatus;
+    private TextView tvEpgStatus;
 
     public SettingDialog(@NonNull @NotNull Context context) {
         super(context);
@@ -39,18 +43,19 @@ public class SettingDialog extends BaseDialog {
         tvEpgSub = findViewById(R.id.tvEpgSub);
         tvLiveClear = findViewById(R.id.tvLiveClear);
         tvEpgClear = findViewById(R.id.tvEpgClear);
+        tvLiveStatus = findViewById(R.id.tvLiveStatus);
+        tvEpgStatus = findViewById(R.id.tvEpgStatus);
     }
 
     private void initData() {
-        // 使用项目已有键名回显
         String liveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
         String epgUrl = Hawk.get(HawkConfig.EPG_URL, "");
 
-        if (tvLiveSub != null) {
-            tvLiveSub.setText(liveUrl.isEmpty() ? "点击设置直播订阅" : "直播源已配置");
+        if (tvLiveStatus != null) {
+            tvLiveStatus.setText(liveUrl.isEmpty() ? "未配置" : "已配置");
         }
-        if (tvEpgSub != null) {
-            tvEpgSub.setText(epgUrl.isEmpty() ? "点击设置EPG订阅" : "EPG已配置");
+        if (tvEpgStatus != null) {
+            tvEpgStatus.setText(epgUrl.isEmpty() ? "未配置" : "已配置");
         }
     }
 
@@ -69,9 +74,10 @@ public class SettingDialog extends BaseDialog {
         if (tvLiveClear != null) {
             tvLiveClear.setOnClickListener(v -> {
                 Hawk.put(HawkConfig.LIVE_API_URL, "");
-                Hawk.put(HawkConfig.LIVE_API_HISTORY, "");
-                Toast.makeText(getContext(), "直播订阅已清除，重启生效", Toast.LENGTH_SHORT).show();
+                Hawk.put(HawkConfig.LIVE_API_HISTORY, new ArrayList<>());
+                Toast.makeText(getContext(), "直播订阅已清除，重启播放生效", Toast.LENGTH_SHORT).show();
                 initData();
+                notifyLiveRefresh();
             });
         }
 
@@ -79,9 +85,10 @@ public class SettingDialog extends BaseDialog {
         if (tvEpgClear != null) {
             tvEpgClear.setOnClickListener(v -> {
                 Hawk.put(HawkConfig.EPG_URL, "");
-                Hawk.put(HawkConfig.EPG_HISTORY, "");
+                Hawk.put(HawkConfig.EPG_HISTORY, new ArrayList<>());
                 Toast.makeText(getContext(), "EPG订阅已清除", Toast.LENGTH_SHORT).show();
                 initData();
+                notifyEpgRefresh();
             });
         }
     }
@@ -93,7 +100,7 @@ public class SettingDialog extends BaseDialog {
         String current = Hawk.get(HawkConfig.LIVE_API_URL, "");
         new InputDialog(getContext())
                 .setTitle("直播订阅地址")
-                .setHint("请输入直播源订阅链接 (支持m3u/txt格式)...")
+                .setHint("请输入直播源订阅链接 (支持m3u/txt/json)...")
                 .setDefaultText(current)
                 .setOnConfirmListener(text -> {
                     if (text == null || text.trim().isEmpty()) {
@@ -102,7 +109,6 @@ public class SettingDialog extends BaseDialog {
                     }
                     String url = text.trim();
                     Hawk.put(HawkConfig.LIVE_API_URL, url);
-                    // 保存到历史记录
                     saveToHistory(HawkConfig.LIVE_API_HISTORY, url);
                     Toast.makeText(getContext(), "直播订阅已保存，重启播放生效", Toast.LENGTH_LONG).show();
                     initData();
@@ -118,7 +124,7 @@ public class SettingDialog extends BaseDialog {
         String current = Hawk.get(HawkConfig.EPG_URL, "");
         new InputDialog(getContext())
                 .setTitle("EPG节目单地址")
-                .setHint("请输入EPG订阅链接 (XML格式)...")
+                .setHint("请输入EPG订阅链接 (XML/JSON格式)...")
                 .setDefaultText(current)
                 .setOnConfirmListener(text -> {
                     if (text == null || text.trim().isEmpty()) {
@@ -140,12 +146,10 @@ public class SettingDialog extends BaseDialog {
      */
     private void saveToHistory(String key, String url) {
         try {
-            java.util.List<String> history = Hawk.get(key, new java.util.ArrayList<>());
-            if (history == null) history = new java.util.ArrayList<>();
-            // 去重并置顶
+            List<String> history = Hawk.get(key, new ArrayList<>());
+            if (history == null) history = new ArrayList<>();
             history.remove(url);
             history.add(0, url);
-            // 最多保留10条
             if (history.size() > 10) {
                 history = history.subList(0, 10);
             }
