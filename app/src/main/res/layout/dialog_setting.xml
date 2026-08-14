@@ -21,7 +21,6 @@
         android:layout_marginVertical="16dp"
         android:background="@color/color_33FFFFFF" />
 
-    <!-- 直播订阅 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -86,7 +85,6 @@
         android:layout_marginVertical="8dp"
         android:background="@color/color_22FFFFFF" />
 
-    <!-- EPG订阅 -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
