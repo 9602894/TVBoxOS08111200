@@ -2379,8 +2379,10 @@ public class LivePlayActivity extends BaseActivity {
 
     private void clickSettingItem(int position) {
         int settingGroupIndex = liveSettingGroupAdapter != null ? liveSettingGroupAdapter.getSelectedGroupIndex() : -1;
-        LiveSettingGroup selectedGroup = (settingGroupIndex >= 0 && liveSettingGroupAdapter != null && settingGroupIndex < liveSettingGroupAdapter.getData().size())
-                ? liveSettingGroupAdapter.getItem(settingGroupIndex) : null;
+        // 修复：groupIndex -> listPosition 转换，解决直播订阅/EPG订阅点击无响应
+        int selectedPosition = liveSettingGroupAdapter != null ? liveSettingGroupAdapter.findPositionByGroupIndex(settingGroupIndex) : -1;
+        LiveSettingGroup selectedGroup = (selectedPosition >= 0 && liveSettingGroupAdapter != null)
+                ? liveSettingGroupAdapter.getItem(selectedPosition) : null;
         int realGroupIndex = selectedGroup != null ? selectedGroup.getGroupIndex() : -1;
 
         if (realGroupIndex >= 0 && realGroupIndex < 3 && !isCurrentLiveChannelValid()) {
@@ -2506,17 +2508,7 @@ public class LivePlayActivity extends BaseActivity {
                 }
                 break;
             case 8:
-                if (position == 0) {
-                    showInputDialog("EPG地址", Hawk.get(HawkConfig.EPG_URL, ""), val -> {
-                        Hawk.put(HawkConfig.EPG_URL, val);
-                        epgStringAddress = val.isEmpty() ? DEFAULT_EPG_ADDRESS : val;
-                        Toast.makeText(this, "已保存EPG地址", Toast.LENGTH_SHORT).show();
-                    });
-                } else if (position == 1) {
-                    hsEpg.clear();
-                    if (channel_Name != null) getEpg(new Date());
-                    Toast.makeText(this, "EPG已更新", Toast.LENGTH_SHORT).show();
-                }
+                // EPG组选择时不做item预选（item操作在clickSettingItem中处理）
                 break;
             case 9:
                 float[] speedValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
