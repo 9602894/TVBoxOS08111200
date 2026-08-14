@@ -45,7 +45,7 @@ public class LivePlayRepair {
      * 加载直播订阅源（替换原有的默认源加载）
      */
     public static void loadLiveSource(Context context) {
-        String liveUrl = Hawk.get(HawkConfig.LIVE_URL, "");
+        String liveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
         if (!TextUtils.isEmpty(liveUrl)) {
             // 从订阅地址加载
             loadLiveFromUrl(context, liveUrl);
