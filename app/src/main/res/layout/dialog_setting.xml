@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="订阅设置"
-        android:textColor="@color/color_FFFFFF"
+        android:textColor="#FFFFFF"
         android:textSize="@dimen/ts_30"
         android:textStyle="bold" />
 
@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginVertical="16dp"
-        android:background="@color/color_33FFFFFF" />
+        android:background="#33FFFFFF" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -38,7 +38,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="直播订阅"
-                android:textColor="@color/color_FFFFFF"
+                android:textColor="#FFFFFF"
                 android:textSize="@dimen/ts_26" />
 
             <TextView
@@ -47,7 +47,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="未配置"
-                android:textColor="@color/color_99FFFFFF"
+                android:textColor="#99FFFFFF"
                 android:textSize="@dimen/ts_20" />
         </LinearLayout>
 
@@ -55,13 +55,13 @@
             android:id="@+id/tvLiveSub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_button_primary"
+            android:background="@drawable/button_dialog_main"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingHorizontal="20dp"
             android:paddingVertical="8dp"
             android:text="设置"
-            android:textColor="@color/color_FFFFFF"
+            android:textColor="#FFFFFF"
             android:textSize="@dimen/ts_22" />
 
         <TextView
@@ -69,13 +69,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:background="@drawable/shape_button_secondary"
+            android:background="@drawable/button_dialog_main"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingHorizontal="20dp"
             android:paddingVertical="8dp"
             android:text="清除"
-            android:textColor="@color/color_FFFFFF"
+            android:textColor="#FFFFFF"
             android:textSize="@dimen/ts_22" />
     </LinearLayout>
 
@@ -83,7 +83,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_marginVertical="8dp"
-        android:background="@color/color_22FFFFFF" />
+        android:background="#22FFFFFF" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -102,7 +102,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="EPG订阅"
-                android:textColor="@color/color_FFFFFF"
+                android:textColor="#FFFFFF"
                 android:textSize="@dimen/ts_26" />
 
             <TextView
@@ -111,7 +111,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
                 android:text="未配置"
-                android:textColor="@color/color_99FFFFFF"
+                android:textColor="#99FFFFFF"
                 android:textSize="@dimen/ts_20" />
         </LinearLayout>
 
@@ -119,13 +119,13 @@
             android:id="@+id/tvEpgSub"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/shape_button_primary"
+            android:background="@drawable/button_dialog_main"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingHorizontal="20dp"
             android:paddingVertical="8dp"
             android:text="设置"
-            android:textColor="@color/color_FFFFFF"
+            android:textColor="#FFFFFF"
             android:textSize="@dimen/ts_22" />
 
         <TextView
@@ -133,13 +133,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="12dp"
-            android:background="@drawable/shape_button_secondary"
+            android:background="@drawable/button_dialog_main"
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:paddingHorizontal="20dp"
             android:paddingVertical="8dp"
             android:text="清除"
-            android:textColor="@color/color_FFFFFF"
+            android:textColor="#FFFFFF"
             android:textSize="@dimen/ts_22" />
     </LinearLayout>
 
