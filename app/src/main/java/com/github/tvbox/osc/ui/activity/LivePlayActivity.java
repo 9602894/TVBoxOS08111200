@@ -1217,6 +1217,8 @@ public class LivePlayActivity extends BaseActivity {
             mHandler.post(mHideSettingLayoutRun);
             return;
         }
+        // 显示频道列表时隐藏底部EPG栏，防止遮挡
+        if (ll_epg != null) ll_epg.setVisibility(View.GONE);
         if (liveChannelGroupList == null || liveChannelGroupList.isEmpty()) return;
         if (tvLeftChannelListLayout != null && tvLeftChannelListLayout.getVisibility() == View.INVISIBLE) {
             if (currentLiveLookBackIndex > -1 && mRightEpgList != null) {
@@ -1425,6 +1427,10 @@ public class LivePlayActivity extends BaseActivity {
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
                         tvLeftChannelListLayout.setVisibility(View.INVISIBLE);
+                        // 恢复底部EPG栏显示
+                        if (ll_epg != null && currentProgramName != null && !"暂无信息".equals(tip_epg1 != null ? tip_epg1.getText().toString() : "")) {
+                            ll_epg.setVisibility(View.VISIBLE);
+                        }
                     }
                 });
                 animator.start();
@@ -2246,8 +2252,10 @@ public class LivePlayActivity extends BaseActivity {
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(getCurrentLiveApiHistoryIndex(), true, true);
                 break;
             case 7:
-            case 8:
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(-1, false, false);
+                break;
+            case 8:
+                if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(0, false, false);
                 break;
             case 9:
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(2, true, true);
