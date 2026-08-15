@@ -17,6 +17,9 @@ public interface EpgChannelDao {
     @Query("SELECT COUNT(*) FROM epg_channel")
     int getCount();
 
+    @Query("SELECT * FROM epg_channel")
+    List<EpgChannel> getAll();
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<EpgChannel> channels);
 
