@@ -123,6 +123,89 @@ public class EpgUtil {
         return null;
     }
 
+
+    // ========== EPG节目单缓存 ==========
+    public static void saveEpgData(String channelName, String date, ArrayList<com.github.tvbox.osc.bean.Epginfo> list) {
+        if (channelName == null || date == null || list == null || list.isEmpty()) return;
+        new Thread(() -> {
+            try {
+                com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+                if (dao == null) return;
+                dao.delete(channelName, date);
+                java.util.ArrayList<com.github.tvbox.osc.bean.EpgData> dataList = new java.util.ArrayList<>();
+                for (int i = 0; i < list.size(); i++) {
+                    com.github.tvbox.osc.bean.Epginfo info = list.get(i);
+                    if (info == null || info.startdateTime == null || info.enddateTime == null) continue;
+                    com.github.tvbox.osc.bean.EpgData d = new com.github.tvbox.osc.bean.EpgData();
+                    d.channelName = channelName;
+                    d.date = date;
+                    d.title = info.title;
+                    d.start = info.start;
+                    d.end = info.end;
+                    d.startTime = info.startdateTime.getTime();
+                    d.endTime = info.enddateTime.getTime();
+                    d.idx = i;
+                    dataList.add(d);
+                }
+                dao.insertAll(dataList);
+            } catch (Exception e) {
+                LOG.e(TAG + " saveEpg error: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    public static java.util.ArrayList<com.github.tvbox.osc.bean.Epginfo> loadEpgData(String channelName, String date, Date baseDate) {
+        java.util.ArrayList<com.github.tvbox.osc.bean.Epginfo> result = new java.util.ArrayList<>();
+        if (channelName == null || date == null) return result;
+        try {
+            com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+            if (dao == null) return result;
+            java.util.List<com.github.tvbox.osc.bean.EpgData> list = dao.get(channelName, date);
+            if (list == null || list.isEmpty()) return result;
+            java.text.SimpleDateFormat tf = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
+            for (com.github.tvbox.osc.bean.EpgData d : list) {
+                if (d == null) continue;
+                com.github.tvbox.osc.bean.Epginfo info = new com.github.tvbox.osc.bean.Epginfo(baseDate, d.title, baseDate, d.start, d.end, d.idx);
+                info.startdateTime = new java.util.Date(d.startTime);
+                info.enddateTime = new java.util.Date(d.endTime);
+                info.start = d.start;
+                info.end = d.end;
+                info.datestart = Integer.parseInt(d.start.replace(":", ""));
+                info.dateend = Integer.parseInt(d.end.replace(":", ""));
+                result.add(info);
+            }
+        } catch (Exception e) {
+            LOG.e(TAG + " loadEpg error: " + e.getMessage());
+        }
+        return result;
+    }
+
+    public static boolean hasEpgData(String channelName, String date) {
+        if (channelName == null || date == null) return false;
+        try {
+            com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+            if (dao == null) return false;
+            return dao.count(channelName, date) > 0;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    public static void clearEpgData() {
+        new Thread(() -> {
+            try {
+                com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+                if (dao == null) return;
+                java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
+                java.util.Calendar cal = java.util.Calendar.getInstance();
+                cal.add(java.util.Calendar.DAY_OF_MONTH, -7);
+                dao.deleteExpired(sdf.format(cal.getTime()));
+            } catch (Exception e) {
+                LOG.e(TAG + " clearEpg error: " + e.getMessage());
+            }
+        }).start();
+    }
+
     private static String getString(JsonObject obj, String key) {
         if (obj == null || !obj.has(key) || obj.get(key).isJsonNull()) return "";
         try {
