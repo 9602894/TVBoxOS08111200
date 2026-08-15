@@ -3259,6 +3259,12 @@ public class LivePlayActivity extends BaseActivity {
         return epgList;
     }
     
+    private Date getDayStart(Date date) throws ParseException {
+        SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+        dayFormat.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
+        return dayFormat.parse(dayFormat.format(date));
+    }
+
     private Date parseXmlTvDate(String dateText) {
         if (dateText == null || dateText.trim().isEmpty()) return null;
         String trimDate = dateText.trim();
