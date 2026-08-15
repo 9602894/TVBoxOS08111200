@@ -53,7 +53,7 @@ public class AppDataManager {
         }
     };
 
-    static final Migration MIGRATION_2_3 = new Migration(2, 3) {
+    static final Migration MIGRATION_2_3_EPG = new Migration(2, 3) {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {
             database.execSQL(
@@ -65,11 +65,6 @@ public class AppDataManager {
                 + "PRIMARY KEY(`channelName`, `date`, `idx`))"
             );
         }
-    };
-
-    static final Migration MIGRATION_2_3_OLD = new Migration(2, 3) {
-        @Override
-        public void migrate(@NonNull SupportSQLiteDatabase database) {}
     };
 
     static final Migration MIGRATION_1_2_OLD = new Migration(1, 2) {
@@ -130,7 +125,7 @@ public class AppDataManager {
         if (dbInstance == null)
             dbInstance = Room.databaseBuilder(App.getInstance(), AppDataBase.class, dbPath())
                     .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_2_3_OLD)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3_EPG, MIGRATION_2_3_OLD)
                     .addCallback(new RoomDatabase.Callback() {
                         @Override public void onCreate(@NonNull SupportSQLiteDatabase db) { super.onCreate(db); }
                         @Override public void onOpen(@NonNull SupportSQLiteDatabase db) { super.onOpen(db); }
