@@ -456,13 +456,13 @@ public class LivePlayActivity extends BaseActivity {
                 liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
             }
             int settingGroupIndex = getDefaultSettingGroupIndex();
-            if (liveSettingGroupList != null && !liveSettingGroupList.isEmpty()
-                    && settingGroupIndex >= 0 && settingGroupIndex < liveSettingGroupList.size()) {
+            LiveSettingGroup defaultGroup = findSettingGroupByIndex(settingGroupIndex);
+            if (defaultGroup != null) {
                 if (liveSettingGroupAdapter != null) {
                     liveSettingGroupAdapter.setSelectedGroupIndex(settingGroupIndex);
                 }
                 if (liveSettingItemAdapter != null) {
-                    List<LiveSettingItem> items = liveSettingGroupList.get(settingGroupIndex).getLiveSettingItems();
+                    List<LiveSettingItem> items = defaultGroup.getLiveSettingItems();
                     liveSettingItemAdapter.setNewData(items != null ? items : new ArrayList<>());
                 }
             }
@@ -2280,7 +2280,8 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     /**
-     * 通过groupIndex在liveSettingGroupList中查找对应的组
+     * 通过groupIndex在liveSettingGroupList中安全查找对应的组
+     * 修复：不能假设列表索引等于groupIndex
      */
     private LiveSettingGroup findSettingGroupByIndex(int groupIndex) {
         if (liveSettingGroupList == null) return null;
@@ -2326,7 +2327,7 @@ public class LivePlayActivity extends BaseActivity {
             case 7:
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(-1, false, false);
                 break;
-            // case 8,9: item操作在clickSettingItem中处理
+            // case 8,9: item操作在clickSettingItem中处理，此处不做重复操作
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
         if (scrollToPosition < 0) scrollToPosition = 0;
@@ -2483,7 +2484,6 @@ public class LivePlayActivity extends BaseActivity {
             }
             case 7:
                 if (position == 0) {
-                    // 关联TVBox主配置：默认值优先取API_URL，保存时同步到API_URL
                     String defaultLiveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
                     if (defaultLiveUrl.isEmpty()) {
                         defaultLiveUrl = Hawk.get(HawkConfig.API_URL, "");
@@ -2491,13 +2491,12 @@ public class LivePlayActivity extends BaseActivity {
                     showInputDialog("直播订阅地址", defaultLiveUrl, val -> {
                         if (!val.isEmpty()) {
                             Hawk.put(HawkConfig.LIVE_API_URL, val);
-                            Hawk.put(HawkConfig.API_URL, val); // 同步到TVBox主配置
+                            Hawk.put(HawkConfig.API_URL, val);
                             HistoryHelper.setLiveApiHistory(val);
                             Toast.makeText(this, "已保存，点击'更新订阅'生效", Toast.LENGTH_SHORT).show();
                         }
                     });
                 } else if (position == 1) {
-                    // 真正重新加载直播配置
                     String liveApiUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
                     if (liveApiUrl.isEmpty()) {
                         Toast.makeText(this, "请先设置直播订阅地址", Toast.LENGTH_SHORT).show();
@@ -2843,29 +2842,35 @@ public class LivePlayActivity extends BaseActivity {
         if (liveSettingGroupList == null) {
             liveSettingGroupList = new ArrayList<>();
         }
-        if (liveSettingGroupList.size() < 7) {
-            // 酷9修复：即使设置组不足，也不直接return，确保基础设置组存在
-            LOG.i("echo-liveSettingGroupList size < 7, creating minimal groups");
+        // 先移除已有的酷9自定义组(groupIndex>=7)，防止重复添加导致列表索引和groupIndex不一致
+        java.util.Iterator<LiveSettingGroup> it = liveSettingGroupList.iterator();
+        while (it.hasNext()) {
+            LiveSettingGroup g = it.next();
+            if (g != null && g.getGroupIndex() >= 7) {
+                it.remove();
+            }
         }
-        if (liveSettingGroupList.size() >= 7) {
-            if (liveSettingGroupList.get(3) != null && liveSettingGroupList.get(3).getLiveSettingItems() != null) {
-                int timeoutIdx = Hawk.get(HawkConfig.LIVE_CONNECT_TIMEOUT, 1);
-                if (timeoutIdx >= 0 && timeoutIdx < liveSettingGroupList.get(3).getLiveSettingItems().size()) {
-                    liveSettingGroupList.get(3).getLiveSettingItems().get(timeoutIdx).setItemSelected(true);
-                }
+        // 使用findSettingGroupByIndex按groupIndex查找，不再假设列表索引等于groupIndex
+        LiveSettingGroup timeoutGroup = findSettingGroupByIndex(3);
+        if (timeoutGroup != null && timeoutGroup.getLiveSettingItems() != null) {
+            int timeoutIdx = Hawk.get(HawkConfig.LIVE_CONNECT_TIMEOUT, 1);
+            if (timeoutIdx >= 0 && timeoutIdx < timeoutGroup.getLiveSettingItems().size()) {
+                timeoutGroup.getLiveSettingItems().get(timeoutIdx).setItemSelected(true);
             }
-            if (liveSettingGroupList.get(4) != null && liveSettingGroupList.get(4).getLiveSettingItems() != null
-                    && liveSettingGroupList.get(4).getLiveSettingItems().size() > 3) {
-                liveSettingGroupList.get(4).getLiveSettingItems().get(0).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_TIME, false));
-                liveSettingGroupList.get(4).getLiveSettingItems().get(1).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_NET_SPEED, false));
-                liveSettingGroupList.get(4).getLiveSettingItems().get(2).setItemSelected(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false));
-                liveSettingGroupList.get(4).getLiveSettingItems().get(3).setItemSelected(Hawk.get(HawkConfig.LIVE_CROSS_GROUP, false));
-            }
-            int liveGroupIndex = ApiConfig.getLiveGroupIndex();
-            if (liveSettingGroupList.get(5) != null && liveSettingGroupList.get(5).getLiveSettingItems() != null
-                    && liveGroupIndex >= 0 && liveGroupIndex < liveSettingGroupList.get(5).getLiveSettingItems().size()) {
-                liveSettingGroupList.get(5).getLiveSettingItems().get(liveGroupIndex).setItemSelected(true);
-            }
+        }
+        LiveSettingGroup displayGroup = findSettingGroupByIndex(4);
+        if (displayGroup != null && displayGroup.getLiveSettingItems() != null
+                && displayGroup.getLiveSettingItems().size() > 3) {
+            displayGroup.getLiveSettingItems().get(0).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_TIME, false));
+            displayGroup.getLiveSettingItems().get(1).setItemSelected(Hawk.get(HawkConfig.LIVE_SHOW_NET_SPEED, false));
+            displayGroup.getLiveSettingItems().get(2).setItemSelected(Hawk.get(HawkConfig.LIVE_CHANNEL_REVERSE, false));
+            displayGroup.getLiveSettingItems().get(3).setItemSelected(Hawk.get(HawkConfig.LIVE_CROSS_GROUP, false));
+        }
+        int liveGroupIndex = ApiConfig.getLiveGroupIndex();
+        LiveSettingGroup lineGroup = findSettingGroupByIndex(5);
+        if (lineGroup != null && lineGroup.getLiveSettingItems() != null
+                && liveGroupIndex >= 0 && liveGroupIndex < lineGroup.getLiveSettingItems().size()) {
+            lineGroup.getLiveSettingItems().get(liveGroupIndex).setItemSelected(true);
         }
 
         LiveSettingGroup sourceGroup = new LiveSettingGroup();
@@ -2925,8 +2930,9 @@ public class LivePlayActivity extends BaseActivity {
                 liveSettingItemList.add(liveSettingItem);
             }
         }
-        if (liveSettingGroupList != null && !liveSettingGroupList.isEmpty() && liveSettingGroupList.get(0) != null) {
-            liveSettingGroupList.get(0).setLiveSettingItems(liveSettingItemList);
+        LiveSettingGroup sourceGroup = findSettingGroupByIndex(0);
+        if (sourceGroup != null) {
+            sourceGroup.setLiveSettingItems(liveSettingItemList);
         }
     }
 
