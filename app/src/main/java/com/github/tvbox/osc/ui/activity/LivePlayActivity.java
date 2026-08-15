@@ -1114,9 +1114,8 @@ public class LivePlayActivity extends BaseActivity {
             backcontroller.setVisibility(View.GONE);
             return;
         }
-        // 酷9：返回键直接退出直播
-        exitingLivePlay = true;
-        super.onBackPressed();
+        // 酷9：返回键弹出设置面板
+        showSettingGroup();
     }
 
     private final Runnable mPlaySelectedChannel = new Runnable() {
