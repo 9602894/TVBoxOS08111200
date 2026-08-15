@@ -2279,17 +2279,32 @@ public class LivePlayActivity extends BaseActivity {
         selectSettingGroup(liveSettingGroupAdapter.getData().get(position).getGroupIndex(), focus);
     }
 
+    /**
+     * 通过groupIndex在liveSettingGroupList中查找对应的组
+     * 修复：groupIndex不一定等于列表索引，不能直接用get(position)
+     */
+    private LiveSettingGroup findSettingGroupByIndex(int groupIndex) {
+        if (liveSettingGroupList == null) return null;
+        for (LiveSettingGroup group : liveSettingGroupList) {
+            if (group != null && group.getGroupIndex() == groupIndex) {
+                return group;
+            }
+        }
+        return null;
+    }
+
     private void selectSettingGroup(int position, boolean focus) {
         if (focus) {
             if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setFocusedGroupIndex(position);
             if (liveSettingItemAdapter != null) liveSettingItemAdapter.setFocusedItemIndex(-1);
         }
-        if (liveSettingGroupAdapter != null && (position == liveSettingGroupAdapter.getSelectedGroupIndex() || position < 0 || position >= liveSettingGroupList.size()))
+        LiveSettingGroup targetGroup = findSettingGroupByIndex(position);
+        if (liveSettingGroupAdapter != null && (position == liveSettingGroupAdapter.getSelectedGroupIndex() || targetGroup == null))
             return;
 
         if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setSelectedGroupIndex(position);
-        if (liveSettingItemAdapter != null && position >= 0 && position < liveSettingGroupList.size()) {
-            List<LiveSettingItem> items = liveSettingGroupList.get(position).getLiveSettingItems();
+        if (liveSettingItemAdapter != null && targetGroup != null) {
+            List<LiveSettingItem> items = targetGroup.getLiveSettingItems();
             liveSettingItemAdapter.setNewData(items != null ? items : new ArrayList<>());
         }
 
@@ -2312,7 +2327,7 @@ public class LivePlayActivity extends BaseActivity {
             case 7:
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(-1, false, false);
                 break;
-            // case 8,9 removed: item logic belongs in clickSettingItem, not here
+            // case 8,9: item预选逻辑在clickSettingItem中处理，此处不做重复操作
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
         if (scrollToPosition < 0) scrollToPosition = 0;
@@ -2474,7 +2489,7 @@ public class LivePlayActivity extends BaseActivity {
             }
             case 7:
                 if (position == 0) {
-                    // 关联TVBox主配置地址：默认值优先取API_URL，实现直播订阅与主配置互通
+                    // 关联TVBox主配置地址：默认值优先取API_URL，保存时同步到API_URL
                     String defaultLiveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
                     if (defaultLiveUrl.isEmpty()) {
                         defaultLiveUrl = Hawk.get(HawkConfig.API_URL, "");
