@@ -1,66 +1,37 @@
 package com.github.tvbox.osc.util;
 
-import android.content.res.AssetManager;
+import com.github.tvbox.osc.data.EpgDatabaseManager;
 
-import com.github.tvbox.osc.base.App;
-import com.google.gson.Gson;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.lang.reflect.Type;
-import java.util.HashMap;
-
+/**
+ * EPG工具类 - 数据库版
+ * 
+ * 修复：原版本将60M epg_data.json全部加载到HashMap，导致OOM和启动崩溃
+ * 新版本：通过EpgDatabaseManager查询SQLite数据库，内存占用极低
+ * 
+ * 保持API兼容，LivePlayActivity等调用方无需修改
+ */
 public class EpgUtil {
 
-    private static JsonObject epgDoc = null;
-    private static HashMap<String, JsonObject> epgHashMap = new HashMap<>();
-
-    public static void init() {
-        if(epgDoc != null)
-            return;
-        try {
-            AssetManager assetManager = App.getInstance().getAssets(); //获得assets资源管理器（assets中的文件无法直接访问，可以使用AssetManager访问）
-            InputStreamReader inputStreamReader = new InputStreamReader(assetManager.open("epg_data.json"),"UTF-8"); //使用IO流读取json文件内容
-            BufferedReader br = new BufferedReader(inputStreamReader);//使用字符高效流
-            String line;
-            StringBuilder builder = new StringBuilder();
-            while ((line = br.readLine())!=null){
-                builder.append(line);
-            }
-            br.close();
-            inputStreamReader.close();
-            if(!builder.toString().isEmpty()){
-                epgDoc =  new Gson().fromJson(builder.toString(), (Type)JsonObject.class);// 从builder中读取了json中的数据。
-                for (JsonElement opt : epgDoc.get("epgs").getAsJsonArray()) {
-                    JsonObject obj = (JsonObject) opt;
-                    String name = obj.get("name").getAsString().trim();
-                    String[] names  = name.split(",");
-                    for (String string : names) {
-                        epgHashMap.put(string,obj);
-                    }
-                }
-                return;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+    /**
+     * 查询频道信息
+     * @param channelName 频道名称
+     * @return String[]{logoUrl, epgid} 或 null
+     */
+    public static String[] getEpgInfo(String channelName) {
+        return EpgDatabaseManager.getInstance().getEpgInfo(channelName);
     }
 
-    public static String[] getEpgInfo(String channelName) {
-        try {
-            if(epgHashMap.containsKey(channelName)){
-                JsonObject obj = epgHashMap.get(channelName);
-                return new String[] {
-                        obj.get("logo").getAsString(),
-                        obj.get("epgid").getAsString()
-                };
-            }
-        }catch (Exception ex) {
-            ex.printStackTrace();
-        }
-        return null;
+    /**
+     * 初始化（在Application中调用）
+     */
+    public static void init() {
+        EpgDatabaseManager.getInstance().initAsync();
+    }
+
+    /**
+     * 同步初始化（用于需要立即使用的情况）
+     */
+    public static void initSync() {
+        EpgDatabaseManager.getInstance().initSync();
     }
 }
