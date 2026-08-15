@@ -601,8 +601,17 @@ public class LivePlayActivity extends BaseActivity {
 
         String savedEpgKey = channelName + "_" + Objects.requireNonNull(liveEpgDateAdapter.getItem(liveEpgDateAdapter.getSelectedIndex())).getDatePresented();
 
+        // 先查内存缓存
         if (hsEpg.containsKey(savedEpgKey)) {
             showEpg(date, hsEpg.get(savedEpgKey));
+            showBottomEpg();
+            return;
+        }
+        // 再查数据库缓存
+        ArrayList<Epginfo> dbEpg = EpgUtil.loadEpgData(channel_Name.getChannelName(), dateStr, date);
+        if (!dbEpg.isEmpty()) {
+            hsEpg.put(savedEpgKey, dbEpg);
+            showEpg(date, dbEpg);
             showBottomEpg();
             return;
         }
@@ -727,6 +736,12 @@ public class LivePlayActivity extends BaseActivity {
         }
         if (!arrayList.isEmpty()) {
             hsEpg.put(savedEpgKey, arrayList);
+            // 保存到数据库
+            String dbDate = timeFormat.format(date);
+            String dbChannel = channel_Name != null ? channel_Name.getChannelName() : "";
+            if (!dbChannel.isEmpty()) {
+                EpgUtil.saveEpgData(dbChannel, dbDate, arrayList);
+            }
         }
         if (!isCurrentEpgRequest(savedEpgKey)) return;
         showEpg(date, arrayList);
@@ -1768,7 +1783,9 @@ public class LivePlayActivity extends BaseActivity {
     private boolean hasCurrentEpgCache() {
         if (channel_Name == null || liveEpgDateAdapter == null || liveEpgDateAdapter.getSelectedIndex() < 0) return false;
         String currentEpgKey = channel_Name.getChannelName() + "_" + Objects.requireNonNull(liveEpgDateAdapter.getItem(liveEpgDateAdapter.getSelectedIndex())).getDatePresented();
-        return hsEpg.containsKey(currentEpgKey);
+        if (hsEpg.containsKey(currentEpgKey)) return true;
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        return EpgUtil.hasEpgData(channel_Name.getChannelName(), sdf.format(new Date()));
     }
 
     private void playNext() {
@@ -3175,81 +3192,73 @@ public class LivePlayActivity extends BaseActivity {
         return true;
     }
 
-    private ArrayList<Epginfo> parseXmlEpg(String xml, String channelName, Date date) {
+        private ArrayList<Epginfo> parseXmlEpg(String xml, String channelName, Date date) {
         ArrayList<Epginfo> epgList = new ArrayList<>();
         if (xml == null || channelName == null || date == null) return epgList;
         try {
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setIgnoringComments(true);
-            factory.setCoalescing(true);
-            try {
-                factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-                factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-                factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-            } catch (Exception ignored) {}
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            builder.setEntityResolver((publicId, systemId) -> new InputSource(new StringReader("")));
-            Document document = builder.parse(new InputSource(new StringReader(xml)));
-            document.getDocumentElement().normalize();
-
             String targetName = normalizeEpgChannelName(channelName);
-            ArrayList<String> channelIds = new ArrayList<>();
-            NodeList channelNodes = document.getElementsByTagName("channel");
-            for (int i = 0; i < channelNodes.getLength(); i++) {
-                Node channelNode = channelNodes.item(i);
-                if (channelNode.getNodeType() != Node.ELEMENT_NODE) continue;
-                Element channelElement = (Element) channelNode;
-                String channelId = channelElement.getAttribute("id");
-                if (targetName.equals(normalizeEpgChannelName(channelId))) {
-                    channelIds.add(channelId);
-                    continue;
-                }
-                NodeList displayNameNodes = channelElement.getElementsByTagName("display-name");
-                for (int j = 0; j < displayNameNodes.getLength(); j++) {
-                    String displayName = displayNameNodes.item(j).getTextContent();
-                    if (targetName.equals(normalizeEpgChannelName(displayName))) {
-                        channelIds.add(channelId);
-                        break;
-                    }
-                }
-            }
-
             Date dayStart = getDayStart(date);
             Date dayEnd = new Date(dayStart.getTime() + TimeUnit.DAYS.toMillis(1));
-            NodeList programmeNodes = document.getElementsByTagName("programme");
-            for (int i = 0; i < programmeNodes.getLength(); i++) {
-                Node programmeNode = programmeNodes.item(i);
-                if (programmeNode.getNodeType() != Node.ELEMENT_NODE) continue;
-                Element programmeElement = (Element) programmeNode;
-                String programmeChannel = programmeElement.getAttribute("channel");
-                if (!channelIds.contains(programmeChannel) && !targetName.equals(normalizeEpgChannelName(programmeChannel))) {
-                    continue;
-                }
 
-                Date startDate = parseXmlTvDate(programmeElement.getAttribute("start"));
-                Date endDate = parseXmlTvDate(programmeElement.getAttribute("stop"));
-                if (startDate == null || endDate == null || !endDate.after(startDate)) continue;
-                if (!startDate.before(dayEnd) || !endDate.after(dayStart)) continue;
+            // 使用XmlPullParser流式解析，内存占用极低
+            org.xmlpull.v1.XmlPullParser parser = org.xmlpull.v1.XmlPullParserFactory.newInstance().newPullParser();
+            parser.setInput(new java.io.StringReader(xml));
 
-                String title = "";
-                NodeList titleNodes = programmeElement.getElementsByTagName("title");
-                if (titleNodes.getLength() > 0) {
-                    title = titleNodes.item(0).getTextContent();
+            ArrayList<String> channelIds = new ArrayList<>();
+            String currentChannelId = null;
+            String currentTitle = null;
+            String currentStart = null;
+            String currentStop = null;
+            boolean inTargetChannel = false;
+
+            int eventType = parser.getEventType();
+            while (eventType != org.xmlpull.v1.XmlPullParser.END_DOCUMENT) {
+                String tagName = parser.getName();
+
+                if (eventType == org.xmlpull.v1.XmlPullParser.START_TAG) {
+                    if ("channel".equals(tagName)) {
+                        currentChannelId = parser.getAttributeValue(null, "id");
+                        inTargetChannel = false;
+                    } else if ("display-name".equals(tagName) && currentChannelId != null) {
+                        String displayName = parser.nextText();
+                        if (targetName.equals(normalizeEpgChannelName(displayName))) {
+                            channelIds.add(currentChannelId);
+                            inTargetChannel = true;
+                        }
+                    } else if ("programme".equals(tagName)) {
+                        currentChannelId = parser.getAttributeValue(null, "channel");
+                        currentStart = parser.getAttributeValue(null, "start");
+                        currentStop = parser.getAttributeValue(null, "stop");
+                        currentTitle = null;
+                    } else if ("title".equals(tagName)) {
+                        currentTitle = parser.nextText();
+                    }
+                } else if (eventType == org.xmlpull.v1.XmlPullParser.END_TAG) {
+                    if ("programme".equals(tagName) && currentStart != null && currentStop != null) {
+                        if (channelIds.contains(currentChannelId) || targetName.equals(normalizeEpgChannelName(currentChannelId))) {
+                            Date startDate = parseXmlTvDate(currentStart);
+                            Date endDate = parseXmlTvDate(currentStop);
+                            if (startDate != null && endDate != null && endDate.after(startDate)
+                                    && startDate.before(dayEnd) && endDate.after(dayStart)) {
+                                epgList.add(createXmlEpgInfo(date, currentTitle != null ? currentTitle : "", startDate, endDate, epgList.size()));
+                            }
+                        }
+                        currentStart = null;
+                        currentStop = null;
+                        currentTitle = null;
+                    } else if ("channel".equals(tagName)) {
+                        currentChannelId = null;
+                        inTargetChannel = false;
+                    }
                 }
-                epgList.add(createXmlEpgInfo(date, title, startDate, endDate, epgList.size()));
+                eventType = parser.next();
             }
-        } catch (Exception exception) {
-            exception.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return epgList;
     }
-
-    private Date getDayStart(Date date) throws ParseException {
-        SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-        dayFormat.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
-        return dayFormat.parse(dayFormat.format(date));
-    }
-
+    
     private Date parseXmlTvDate(String dateText) {
         if (dateText == null || dateText.trim().isEmpty()) return null;
         String trimDate = dateText.trim();
