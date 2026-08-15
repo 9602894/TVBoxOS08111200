@@ -2688,7 +2688,7 @@ public class LivePlayActivity extends BaseActivity {
             };
             Executors.newSingleThreadExecutor().execute(waitResponse);
         } else {
-            OkGo.get(url).execute(new AbsCallback<String>() {
+            OkGo.<String>get(url).execute(new AbsCallback<String>() {
                 @Override
                 public String convertResponse(okhttp3.Response response) throws Throwable {
                     return response.body() != null ? response.body().string() : "";
