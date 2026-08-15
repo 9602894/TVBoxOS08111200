@@ -41,7 +41,6 @@ import com.github.tvbox.osc.R;
 import com.github.tvbox.osc.api.ApiConfig;
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.base.BaseActivity;
-import com.github.tvbox.osc.bean.EpgData;
 import com.github.tvbox.osc.bean.Epginfo;
 import com.github.tvbox.osc.bean.LiveChannelGroup;
 import com.github.tvbox.osc.bean.LiveChannelItem;
@@ -50,7 +49,6 @@ import com.github.tvbox.osc.bean.LiveEpgDate;
 import com.github.tvbox.osc.bean.LivePlayerManager;
 import com.github.tvbox.osc.bean.LiveSettingGroup;
 import com.github.tvbox.osc.bean.LiveSettingItem;
-import com.github.tvbox.osc.data.EpgDatabaseManager;
 import com.github.tvbox.osc.player.controller.LiveController;
 import com.github.tvbox.osc.ui.adapter.LiveChannelGroupAdapter;
 import com.github.tvbox.osc.ui.adapter.LiveChannelItemAdapter;
@@ -71,8 +69,6 @@ import com.github.tvbox.osc.util.PlayerHelper;
 import com.github.tvbox.osc.util.HistoryHelper;
 import com.github.tvbox.osc.util.live.TxtSubscribe;
 import com.google.gson.JsonArray;
-import org.apache.commons.lang3.StringUtils;
-
 import com.google.gson.JsonObject;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.AbsCallback;
@@ -102,7 +98,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 import java.util.TimeZone;
 import java.util.concurrent.Callable;
@@ -121,16 +116,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import xyz.doikki.videoplayer.exo.ExoMediaSourceHelper;
 import xyz.doikki.videoplayer.player.VideoView;
 
-/**
- * 酷9风格直播播放页 - 修复版（EPG数据库化）
- * 
- * 修复内容：
- * 1. EPG订阅点击崩溃：空指针保护、数组越界保护、异步异常捕获
- * 2. 60M epg_data.json导致的OOM：改用SQLite数据库存储，按需查询
- * 3. hsEpg内存缓存无上限：改用数据库持久化+小内存缓存
- * 4. EPG解析异常：增加JSON/XML解析容错
- * 5. 台标下载失败保护：增加null检查和默认处理
- */
 public class LivePlayActivity extends BaseActivity {
     public static Context context;
     private VideoView mVideoView;
@@ -169,8 +154,6 @@ public class LivePlayActivity extends BaseActivity {
                 String epgUrl = Hawk.get(HawkConfig.EPG_URL, "");
                 if (!epgUrl.isEmpty()) {
                     epgStringAddress = epgUrl;
-                    // 清空数据库EPG缓存
-                    EpgDatabaseManager.getInstance().clearAllEpgData();
                     if (channel_Name != null) getEpg(new Date());
                     Toast.makeText(context, "EPG已更新", Toast.LENGTH_SHORT).show();
                 }
@@ -186,8 +169,8 @@ public class LivePlayActivity extends BaseActivity {
     private static final long RESOLUTION_INFO_RETRY_DELAY = 300L;
     private static final long RESOLUTION_INFO_HIDE_DELAY = 3000L;
     private static final String DEFAULT_EPG_ADDRESS = "http://epg.51zmt.top:8000/api/diyp/?ch={name}&date={date}";
-    private static final Pattern CATCHUP_TOKEN_PATTERN = Pattern.compile("(\\$?\\{[^}]*\\})");
-    private static final Pattern CATCHUP_TAG_PATTERN = Pattern.compile("\\{([^}]*)\\}");
+    private static final Pattern CATCHUP_TOKEN_PATTERN = Pattern.compile("(\\\\$?\\\\{[^}]*\\\\})");
+    private static final Pattern CATCHUP_TAG_PATTERN = Pattern.compile("\\\\{([^}]*)\\\\}");
     private final Runnable mLoadEpgRun = new Runnable() {
         @Override
         public void run() {
@@ -212,9 +195,7 @@ public class LivePlayActivity extends BaseActivity {
     private ArrayList<Integer> channelGroupPasswordConfirmed = new ArrayList<>();
 
     private static LiveChannelItem channel_Name = null;
-    // 修复：hsEpg改为小容量内存缓存，主数据存数据库
     private static Hashtable<String, ArrayList<Epginfo>> hsEpg = new Hashtable<>();
-    private static final int MAX_MEMORY_EPG_CACHE = 50; // 最多内存缓存50个频道的EPG
     private CountDownTimer countDownTimer;
     private View ll_right_top_loading;
     private View ll_right_top_huikan;
@@ -577,13 +558,6 @@ public class LivePlayActivity extends BaseActivity {
         return str.substring(0, spaceIndex);
     }
 
-    /**
-     * 获取EPG - 修复版
-     * 1. 先从数据库查询缓存
-     * 2. 数据库没有则网络请求
-     * 3. 网络请求成功后保存到数据库
-     * 4. 内存缓存增加容量限制防止OOM
-     */
     public void getEpg(Date date) {
         if (channel_Name == null) return;
         String channelName = channel_Name.getChannelName();
@@ -627,17 +601,6 @@ public class LivePlayActivity extends BaseActivity {
 
         String savedEpgKey = channelName + "_" + Objects.requireNonNull(liveEpgDateAdapter.getItem(liveEpgDateAdapter.getSelectedIndex())).getDatePresented();
 
-        // === 修复1：先从数据库查询缓存 ===
-        if (!hsEpg.containsKey(savedEpgKey)) {
-            List<EpgData> dbData = EpgDatabaseManager.getInstance().loadEpgData(channelName, dateStr);
-            if (dbData != null && !dbData.isEmpty()) {
-                ArrayList<Epginfo> cachedList = convertDbToEpginfo(dbData, date);
-                if (!cachedList.isEmpty()) {
-                    putEpgToCache(savedEpgKey, cachedList);
-                }
-            }
-        }
-
         if (hsEpg.containsKey(savedEpgKey)) {
             showEpg(date, hsEpg.get(savedEpgKey));
             showBottomEpg();
@@ -646,76 +609,6 @@ public class LivePlayActivity extends BaseActivity {
 
         updateEpgPanelState(false);
         requestEpg(url, date, channelNameReal, finalEpgTagName, savedEpgKey, epgQueryNames, timeFormat, 0);
-    }
-
-    /**
-     * 将数据库EpgData转换为Epginfo
-     */
-    private ArrayList<Epginfo> convertDbToEpginfo(List<EpgData> dbData, Date date) {
-        ArrayList<Epginfo> result = new ArrayList<>();
-        if (dbData == null) return result;
-
-        SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
-        int index = 0;
-        for (EpgData data : dbData) {
-            if (data == null) continue;
-            try {
-                Epginfo info = new Epginfo(date, data.title, date, data.startTime, data.endTime, index++);
-                info.startdateTime = new Date(data.startDateTime);
-                info.enddateTime = new Date(data.endDateTime);
-                info.start = data.startTime;
-                info.end = data.endTime;
-                info.datestart = Integer.parseInt(data.startTime.replace(":", ""));
-                info.dateend = Integer.parseInt(data.endTime.replace(":", ""));
-                result.add(info);
-            } catch (Exception e) {
-                LOG.e("convertDbToEpginfo error: " + e.getMessage());
-            }
-        }
-        return result;
-    }
-
-    /**
-     * 将Epginfo转换为EpgData存入数据库
-     */
-    private void saveEpgToDatabase(String channelName, String dateStr, ArrayList<Epginfo> epgList) {
-        if (epgList == null || epgList.isEmpty()) return;
-
-        List<EpgData> dataList = new ArrayList<>();
-        for (int i = 0; i < epgList.size(); i++) {
-            Epginfo info = epgList.get(i);
-            if (info == null || info.startdateTime == null || info.enddateTime == null) continue;
-
-            EpgData data = new EpgData();
-            data.channelName = channelName;
-            data.date = dateStr;
-            data.title = info.title;
-            data.startTime = info.start;
-            data.endTime = info.end;
-            data.startDateTime = info.startdateTime.getTime();
-            data.endDateTime = info.enddateTime.getTime();
-            data.epgIndex = i;
-            dataList.add(data);
-        }
-
-        EpgDatabaseManager.getInstance().saveEpgData(channelName, dateStr, dataList);
-    }
-
-    /**
-     * 安全的内存缓存写入，限制容量防止OOM
-     */
-    private void putEpgToCache(String key, ArrayList<Epginfo> value) {
-        if (hsEpg.size() >= MAX_MEMORY_EPG_CACHE) {
-            // 清理最早的缓存
-            java.util.Enumeration<String> keys = hsEpg.keys();
-            int removeCount = 0;
-            while (keys.hasMoreElements() && hsEpg.size() > MAX_MEMORY_EPG_CACHE / 2) {
-                hsEpg.remove(keys.nextElement());
-                removeCount++;
-            }
-            LOG.i("epg cache cleaned, removed=" + removeCount + ", remaining=" + hsEpg.size());
-        }
-        hsEpg.put(key, value);
     }
 
     private String buildEpgUrl(String address, String epgTagName, Date date, SimpleDateFormat timeFormat) {
@@ -832,17 +725,9 @@ public class LivePlayActivity extends BaseActivity {
         if (arrayList.isEmpty() && requestNextEpgQueryName(date, channelNameReal, finalEpgTagName, savedEpgKey, epgQueryNames, timeFormat, queryIndex)) {
             return;
         }
-
-        // === 修复2：保存到数据库和内存缓存 ===
         if (!arrayList.isEmpty()) {
-            String dateStr = timeFormat.format(date);
-            String channelName = channel_Name != null ? channel_Name.getChannelName() : "";
-            if (!channelName.isEmpty()) {
-                saveEpgToDatabase(channelName, dateStr, arrayList);
-            }
-            putEpgToCache(savedEpgKey, arrayList);
+            hsEpg.put(savedEpgKey, arrayList);
         }
-
         if (!isCurrentEpgRequest(savedEpgKey)) return;
         showEpg(date, arrayList);
         showBottomEpg();
@@ -1114,7 +999,7 @@ public class LivePlayActivity extends BaseActivity {
     private void updateChannelIcon(String channelName, String logoUrl) {
         if (channel_Name == null || channel_Name.getChannelName() == null || !channel_Name.getChannelName().equals(channelName)) return;
         if (imgLiveIcon == null) return;
-        if (StringUtils.isEmpty(logoUrl)) {
+        if (org.apache.commons.lang3.StringUtils.isEmpty(logoUrl)) {
             imgLiveIcon.setImageDrawable(null);
             if (liveIconNullBg != null) liveIconNullBg.setVisibility(View.VISIBLE);
             if (liveIconNullText != null) {
@@ -1883,13 +1768,7 @@ public class LivePlayActivity extends BaseActivity {
     private boolean hasCurrentEpgCache() {
         if (channel_Name == null || liveEpgDateAdapter == null || liveEpgDateAdapter.getSelectedIndex() < 0) return false;
         String currentEpgKey = channel_Name.getChannelName() + "_" + Objects.requireNonNull(liveEpgDateAdapter.getItem(liveEpgDateAdapter.getSelectedIndex())).getDatePresented();
-
-        // 修复：同时检查内存缓存和数据库
-        if (hsEpg.containsKey(currentEpgKey)) return true;
-
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-        String dateStr = sdf.format(new Date());
-        return EpgDatabaseManager.getInstance().hasEpgData(channel_Name.getChannelName(), dateStr);
+        return hsEpg.containsKey(currentEpgKey);
     }
 
     private void playNext() {
@@ -2646,8 +2525,6 @@ public class LivePlayActivity extends BaseActivity {
                         }
                     });
                 } else if (position == 1) {
-                    // === 修复：清空数据库EPG缓存 ===
-                    EpgDatabaseManager.getInstance().clearAllEpgData();
                     hsEpg.clear();
                     if (channel_Name != null) getEpg(new Date());
                     Toast.makeText(this, "EPG已更新", Toast.LENGTH_SHORT).show();
