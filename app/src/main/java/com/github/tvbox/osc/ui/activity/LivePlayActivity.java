@@ -2312,28 +2312,7 @@ public class LivePlayActivity extends BaseActivity {
             case 7:
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(-1, false, false);
                 break;
-            case 8:
-                if (position == 0) {
-                    showInputDialog("EPG订阅地址", Hawk.get(HawkConfig.EPG_URL, ""), val -> {
-                        if (!val.isEmpty()) {
-                            Hawk.put(HawkConfig.EPG_URL, val);
-                            epgStringAddress = val.isEmpty() ? DEFAULT_EPG_ADDRESS : val;
-                            Toast.makeText(this, "已保存EPG地址", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                } else if (position == 1) {
-                    hsEpg.clear();
-                    if (channel_Name != null) getEpg(new Date());
-                    Toast.makeText(this, "EPG已更新", Toast.LENGTH_SHORT).show();
-                }
-                break;
-            case 9:
-                float[] speedValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
-                if (position >= 0 && position < speedValues.length) {
-                    if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(position, true, true);
-                    if (mVideoView != null) mVideoView.setSpeed(speedValues[position]);
-                }
-                break;
+            // case 8,9 removed: item logic belongs in clickSettingItem, not here
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
         if (scrollToPosition < 0) scrollToPosition = 0;
@@ -2495,9 +2474,15 @@ public class LivePlayActivity extends BaseActivity {
             }
             case 7:
                 if (position == 0) {
-                    showInputDialog("直播订阅地址", Hawk.get(HawkConfig.LIVE_API_URL, ""), val -> {
+                    // 关联TVBox主配置地址：默认值优先取API_URL，实现直播订阅与主配置互通
+                    String defaultLiveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
+                    if (defaultLiveUrl.isEmpty()) {
+                        defaultLiveUrl = Hawk.get(HawkConfig.API_URL, "");
+                    }
+                    showInputDialog("直播订阅地址", defaultLiveUrl, val -> {
                         if (!val.isEmpty()) {
                             Hawk.put(HawkConfig.LIVE_API_URL, val);
+                            Hawk.put(HawkConfig.API_URL, val); // 同步到TVBox主配置
                             HistoryHelper.setLiveApiHistory(val);
                             Toast.makeText(this, "已保存，点击'更新订阅'生效", Toast.LENGTH_SHORT).show();
                         }
@@ -2508,7 +2493,19 @@ public class LivePlayActivity extends BaseActivity {
                 }
                 break;
             case 8:
-                // EPG组选择时不做item预选（item操作在clickSettingItem中处理）
+                if (position == 0) {
+                    showInputDialog("EPG订阅地址", Hawk.get(HawkConfig.EPG_URL, ""), val -> {
+                        if (!val.isEmpty()) {
+                            Hawk.put(HawkConfig.EPG_URL, val);
+                            epgStringAddress = val;
+                            Toast.makeText(this, "已保存EPG地址", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                } else if (position == 1) {
+                    hsEpg.clear();
+                    if (channel_Name != null) getEpg(new Date());
+                    Toast.makeText(this, "EPG已更新", Toast.LENGTH_SHORT).show();
+                }
                 break;
             case 9:
                 float[] speedValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
