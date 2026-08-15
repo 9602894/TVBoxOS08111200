@@ -996,6 +996,7 @@ public class LivePlayActivity extends BaseActivity {
     
         // 酷9：更新底部信息栏显示
         updateBottomInfoBar();
+    }
 
 
     private void setDefaultBottomEpg(TextView currentProgramName, TextView nextProgramName) {
