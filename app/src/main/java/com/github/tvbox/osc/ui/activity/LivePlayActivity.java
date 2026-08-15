@@ -2281,7 +2281,6 @@ public class LivePlayActivity extends BaseActivity {
 
     /**
      * 通过groupIndex在liveSettingGroupList中查找对应的组
-     * 修复：groupIndex不一定等于列表索引，不能直接用get(position)
      */
     private LiveSettingGroup findSettingGroupByIndex(int groupIndex) {
         if (liveSettingGroupList == null) return null;
@@ -2327,7 +2326,7 @@ public class LivePlayActivity extends BaseActivity {
             case 7:
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(-1, false, false);
                 break;
-            // case 8,9: item预选逻辑在clickSettingItem中处理，此处不做重复操作
+            // case 8,9: item操作在clickSettingItem中处理
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
         if (scrollToPosition < 0) scrollToPosition = 0;
@@ -2372,12 +2371,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void clickSettingItem(int position) {
-        int settingGroupIndex = liveSettingGroupAdapter != null ? liveSettingGroupAdapter.getSelectedGroupIndex() : -1;
-        // 修复：groupIndex -> listPosition 转换，解决直播订阅/EPG订阅点击无响应
-        int selectedPosition = liveSettingGroupAdapter != null ? liveSettingGroupAdapter.findPositionByGroupIndex(settingGroupIndex) : -1;
-        LiveSettingGroup selectedGroup = (selectedPosition >= 0 && liveSettingGroupAdapter != null)
-                ? liveSettingGroupAdapter.getItem(selectedPosition) : null;
-        int realGroupIndex = selectedGroup != null ? selectedGroup.getGroupIndex() : -1;
+        int realGroupIndex = liveSettingGroupAdapter != null ? liveSettingGroupAdapter.getSelectedGroupIndex() : -1;
 
         if (realGroupIndex >= 0 && realGroupIndex < 3 && !isCurrentLiveChannelValid()) {
             return;
@@ -2489,7 +2483,7 @@ public class LivePlayActivity extends BaseActivity {
             }
             case 7:
                 if (position == 0) {
-                    // 关联TVBox主配置地址：默认值优先取API_URL，保存时同步到API_URL
+                    // 关联TVBox主配置：默认值优先取API_URL，保存时同步到API_URL
                     String defaultLiveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
                     if (defaultLiveUrl.isEmpty()) {
                         defaultLiveUrl = Hawk.get(HawkConfig.API_URL, "");
@@ -2503,8 +2497,37 @@ public class LivePlayActivity extends BaseActivity {
                         }
                     });
                 } else if (position == 1) {
+                    // 真正重新加载直播配置
+                    String liveApiUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
+                    if (liveApiUrl.isEmpty()) {
+                        Toast.makeText(this, "请先设置直播订阅地址", Toast.LENGTH_SHORT).show();
+                        break;
+                    }
                     Toast.makeText(this, "正在更新订阅...", Toast.LENGTH_SHORT).show();
-                    refreshLiveChannelListAndPlay("", -1);
+                    final int reqId = ++liveConfigRequestId;
+                    String cfgChannelName = getPreferredLiveRefreshChannelName();
+                    int cfgSourceIndex = getPreferredLiveRefreshSourceIndex();
+                    ApiConfig.get().loadLiveConfig(true, new ApiConfig.LoadConfigCallback() {
+                        @Override public void success() {
+                            mHandler.post(() -> {
+                                if (reqId != liveConfigRequestId || isFinishing()) return;
+                                refreshLiveChannelListAndPlay(cfgChannelName, cfgSourceIndex);
+                                Toast.makeText(LivePlayActivity.this, "订阅更新成功", Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                        @Override public void error(String msg) {
+                            mHandler.post(() -> {
+                                if (reqId != liveConfigRequestId || isFinishing()) return;
+                                Toast.makeText(LivePlayActivity.this, msg, Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                        @Override public void notice(String msg) {
+                            mHandler.post(() -> {
+                                if (reqId != liveConfigRequestId || isFinishing()) return;
+                                Toast.makeText(LivePlayActivity.this, msg, Toast.LENGTH_SHORT).show();
+                            });
+                        }
+                    });
                 }
                 break;
             case 8:
