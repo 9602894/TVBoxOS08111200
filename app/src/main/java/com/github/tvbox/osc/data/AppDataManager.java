@@ -12,6 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.cache.EpgChannelDao;
+import com.github.tvbox.osc.cache.EpgDataDao;
 import com.github.tvbox.osc.util.EpgUtil;
 import com.github.tvbox.osc.util.FileUtils;
 
