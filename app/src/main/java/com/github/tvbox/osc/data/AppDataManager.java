@@ -54,6 +54,20 @@ public class AppDataManager {
 
     static final Migration MIGRATION_2_3 = new Migration(2, 3) {
         @Override
+        public void migrate(@NonNull SupportSQLiteDatabase database) {
+            database.execSQL(
+                "CREATE TABLE IF NOT EXISTS `epg_data` ("
+                + "`channelName` TEXT NOT NULL, `date` TEXT NOT NULL, "
+                + "`title` TEXT, `start` TEXT, `end` TEXT, "
+                + "`startTime` INTEGER NOT NULL, `endTime` INTEGER NOT NULL, "
+                + "`idx` INTEGER NOT NULL, "
+                + "PRIMARY KEY(`channelName`, `date`, `idx`))"
+            );
+        }
+    };
+
+    static final Migration MIGRATION_2_3_OLD = new Migration(2, 3) {
+        @Override
         public void migrate(@NonNull SupportSQLiteDatabase database) {}
     };
 
@@ -115,12 +129,17 @@ public class AppDataManager {
         if (dbInstance == null)
             dbInstance = Room.databaseBuilder(App.getInstance(), AppDataBase.class, dbPath())
                     .setJournalMode(RoomDatabase.JournalMode.TRUNCATE)
-                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3)
+                    .addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_2_3_OLD)
                     .addCallback(new RoomDatabase.Callback() {
                         @Override public void onCreate(@NonNull SupportSQLiteDatabase db) { super.onCreate(db); }
                         @Override public void onOpen(@NonNull SupportSQLiteDatabase db) { super.onOpen(db); }
                     }).allowMainThreadQueries().build();
         return dbInstance;
+    }
+
+    public EpgDataDao getEpgDataDao() {
+        AppDataBase db = get();
+        return db != null ? db.getEpgDataDao() : null;
     }
 
     public EpgChannelDao getEpgChannelDao() {
