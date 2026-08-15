@@ -990,24 +990,27 @@ public class LivePlayActivity extends BaseActivity {
 
     private void updateCurrentChannelIcon() {
         if (channel_Name == null || channel_Name.getChannelName() == null) return;
-        String channelName = channel_Name.getChannelName();
-        String channelNameReal = normalizeEpgChannelName(getFirstPartBeforeSpace(channelName));
-        String epgTagName = channelNameReal;
-        String iconUrl = null;
-        if (channel_Name.getChannelLogo() != null && !channel_Name.getChannelLogo().isEmpty()) {
-            iconUrl = channel_Name.getChannelLogo();
-        } else if (logoUrl == null || logoUrl.isEmpty()) {
-            String[] epgInfo = EpgUtil.getEpgInfo(channelNameReal);
-            if (epgInfo != null) {
-                iconUrl = epgInfo[0];
-                if (epgInfo.length > 1 && !epgInfo[1].isEmpty()) {
-                    epgTagName = epgInfo[1];
+        final String channelName = channel_Name.getChannelName();
+        final String channelNameReal = normalizeEpgChannelName(getFirstPartBeforeSpace(channelName));
+        // 异步查台标，不阻塞主线程
+        mHandler.post(() -> {
+            String epgTagName = channelNameReal;
+            String iconUrl = null;
+            if (channel_Name.getChannelLogo() != null && !channel_Name.getChannelLogo().isEmpty()) {
+                iconUrl = channel_Name.getChannelLogo();
+            } else if (logoUrl == null || logoUrl.isEmpty()) {
+                String[] epgInfo = EpgUtil.getEpgInfo(channelNameReal);
+                if (epgInfo != null) {
+                    iconUrl = epgInfo[0];
+                    if (epgInfo.length > 1 && !epgInfo[1].isEmpty()) {
+                        epgTagName = epgInfo[1];
+                    }
                 }
+            } else if (!logoUrl.equals("false")) {
+                iconUrl = logoUrl.replace("{name}", epgTagName);
             }
-        } else if (!logoUrl.equals("false")) {
-            iconUrl = logoUrl.replace("{name}", epgTagName);
-        }
-        updateChannelIcon(channelName, iconUrl);
+            updateChannelIcon(channelName, iconUrl);
+        });
     }
 
     @SuppressLint("SetTextI18n")
