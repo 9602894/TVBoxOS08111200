@@ -1094,8 +1094,6 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     @Override
-    
-    @Override
     public void onBackPressed() {
         if (isBottomInfoBarShowing) {
             hideBottomInfoBar();
