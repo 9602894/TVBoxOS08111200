@@ -5,7 +5,9 @@ import android.text.TextUtils;
 
 import com.github.tvbox.osc.base.App;
 import com.github.tvbox.osc.bean.EpgChannel;
+import com.github.tvbox.osc.bean.EpgData;
 import com.github.tvbox.osc.cache.EpgChannelDao;
+import com.github.tvbox.osc.cache.EpgDataDao;
 import com.github.tvbox.osc.data.AppDataManager;
 import com.github.tvbox.osc.util.LOG;
 import com.google.gson.JsonArray;
@@ -17,57 +19,59 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
- * EPG工具类 - 数据库版
- * 将epg_data.json导入SQLite，避免60M数据常驻内存导致OOM
+ * EPG工具类 - 内存缓存版（参考酷9优化）
+ * 
+ * 优化点：
+ * 1. 启动时异步将所有频道映射加载到内存HashMap（~1-2MB），查询O(1)不卡顿
+ * 2. EPG节目单缓存到数据库，避免重复网络请求
+ * 3. 主线程只做内存查询，绝不碰数据库
  */
 public class EpgUtil {
     private static final String TAG = "EpgUtil";
     private static final String EPG_DATA_JSON = "epg_data.json";
     private static final int BATCH_SIZE = 500;
-    private static Hashtable<String, String[]> hsEpg = new Hashtable<>();
-    private static volatile boolean loaded = false;
+
+    // 内存缓存：频道名 -> [logo, epgid]，查询O(1)，不卡顿
+    private static final Map<String, String[]> memCache = new HashMap<>();
+    private static volatile boolean cacheReady = false;
+
+    // EPG节目单内存缓存（最近50个频道）
+    private static final Map<String, ArrayList<com.github.tvbox.osc.bean.Epginfo>> epgMemCache = new HashMap<>();
+    private static final int MAX_EPG_CACHE = 50;
 
     public static void init() {
-        new Thread(() -> loadEpgData()).start();
+        new Thread(() -> {
+            loadEpgData();      // 导入JSON到数据库
+            preloadMemCache();  // 加载到内存HashMap
+        }).start();
     }
 
+    /** 从assets导入epg_data.json到数据库（只执行一次） */
     private static void loadEpgData() {
         try {
             EpgChannelDao dao = AppDataManager.get().getEpgChannelDao();
             if (dao == null) return;
-
             if (dao.getCount() > 0) {
-                loaded = true;
-                LOG.i(TAG + " EPG data already in DB, count=" + dao.getCount());
+                LOG.i(TAG + " DB already has data");
                 return;
             }
-
             AssetManager am = App.getInstance().getAssets();
             BufferedReader br = new BufferedReader(new InputStreamReader(am.open(EPG_DATA_JSON), "UTF-8"));
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = br.readLine()) != null) sb.append(line);
             br.close();
-
-            if (sb.length() == 0) {
-                LOG.e(TAG + " epg_data.json is empty");
-                return;
-            }
+            if (sb.length() == 0) return;
 
             JsonObject root = JsonParser.parseString(sb.toString()).getAsJsonObject();
-            if (root == null || !root.has("epgs")) {
-                LOG.e(TAG + " epg_data.json format error");
-                return;
-            }
-
+            if (root == null || !root.has("epgs")) return;
             JsonArray epgs = root.getAsJsonArray("epgs");
             List<EpgChannel> batch = new ArrayList<>();
-            int total = 0;
-
             for (JsonElement el : epgs) {
                 if (el == null || !el.isJsonObject()) continue;
                 JsonObject obj = el.getAsJsonObject();
@@ -75,9 +79,7 @@ public class EpgUtil {
                 String logo = getString(obj, "logo");
                 String epgid = getString(obj, "epgid");
                 if (TextUtils.isEmpty(name)) continue;
-
-                String[] names = name.split(",");
-                for (String n : names) {
+                for (String n : name.split(",")) {
                     String trim = n.trim();
                     if (TextUtils.isEmpty(trim)) continue;
                     EpgChannel ch = new EpgChannel();
@@ -88,56 +90,81 @@ public class EpgUtil {
                     ch.updateTime = System.currentTimeMillis();
                     batch.add(ch);
                 }
-
                 if (batch.size() >= BATCH_SIZE) {
                     dao.insertAll(batch);
-                    total += batch.size();
                     batch.clear();
                 }
             }
-            if (!batch.isEmpty()) {
-                dao.insertAll(batch);
-                total += batch.size();
-            }
-
-            loaded = true;
-            LOG.i(TAG + " EPG data imported, count=" + total);
+            if (!batch.isEmpty()) dao.insertAll(batch);
+            LOG.i(TAG + " imported " + dao.getCount() + " channels");
         } catch (Exception e) {
             LOG.e(TAG + " load error: " + e.getMessage());
         }
     }
 
-    public static String[] getEpgInfo(String channelName) {
-        if (!loaded || TextUtils.isEmpty(channelName)) return null;
+    /** 预加载所有频道映射到内存HashMap（~1-2MB，查询O(1)） */
+    private static void preloadMemCache() {
         try {
             EpgChannelDao dao = AppDataManager.get().getEpgChannelDao();
-            if (dao == null) return null;
-            EpgChannel ch = dao.getByName(channelName);
-            if (ch == null) {
-                String compact = channelName.replace("-", "").replace(" ", "").trim();
-                if (!compact.equals(channelName)) ch = dao.getByName(compact);
+            if (dao == null) return;
+            List<EpgChannel> list = dao.getAll();
+            if (list == null) return;
+            synchronized (memCache) {
+                for (EpgChannel ch : list) {
+                    if (ch == null || ch.name == null) continue;
+                    memCache.put(ch.name, new String[]{ch.logo, ch.epgid});
+                }
+                cacheReady = true;
             }
-            if (ch != null) return new String[]{ch.logo, ch.epgid};
+            LOG.i(TAG + " memCache loaded, size=" + memCache.size());
         } catch (Exception e) {
-            LOG.e(TAG + " getEpgInfo error: " + e.getMessage());
+            LOG.e(TAG + " preload error: " + e.getMessage());
+        }
+    }
+
+    /** 查台标和epgid - 只查内存，O(1)，不卡顿 */
+    public static String[] getEpgInfo(String channelName) {
+        if (TextUtils.isEmpty(channelName)) return null;
+        synchronized (memCache) {
+            String[] result = memCache.get(channelName);
+            if (result != null) return result;
+            // 模糊匹配：去掉空格横线
+            String compact = channelName.replace("-", "").replace(" ", "").trim();
+            if (!compact.equals(channelName)) {
+                result = memCache.get(compact);
+                if (result != null) return result;
+            }
         }
         return null;
     }
 
+    // ========== EPG节目单数据库缓存 ==========
 
-    // ========== EPG节目单缓存 ==========
     public static void saveEpgData(String channelName, String date, ArrayList<com.github.tvbox.osc.bean.Epginfo> list) {
         if (channelName == null || date == null || list == null || list.isEmpty()) return;
+        // 同时更新内存缓存
+        String key = channelName + "_" + date;
+        synchronized (epgMemCache) {
+            if (epgMemCache.size() >= MAX_EPG_CACHE) {
+                // 清理一半
+                ArrayList<String> keys = new ArrayList<>(epgMemCache.keySet());
+                for (int i = 0; i < keys.size() / 2; i++) {
+                    epgMemCache.remove(keys.get(i));
+                }
+            }
+            epgMemCache.put(key, new ArrayList<>(list));
+        }
+        // 异步存数据库
         new Thread(() -> {
             try {
-                com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+                EpgDataDao dao = AppDataManager.get().getEpgDataDao();
                 if (dao == null) return;
                 dao.delete(channelName, date);
-                java.util.ArrayList<com.github.tvbox.osc.bean.EpgData> dataList = new java.util.ArrayList<>();
+                ArrayList<EpgData> dataList = new ArrayList<>();
                 for (int i = 0; i < list.size(); i++) {
                     com.github.tvbox.osc.bean.Epginfo info = list.get(i);
                     if (info == null || info.startdateTime == null || info.enddateTime == null) continue;
-                    com.github.tvbox.osc.bean.EpgData d = new com.github.tvbox.osc.bean.EpgData();
+                    EpgData d = new EpgData();
                     d.channelName = channelName;
                     d.date = date;
                     d.title = info.title;
@@ -155,25 +182,38 @@ public class EpgUtil {
         }).start();
     }
 
-    public static java.util.ArrayList<com.github.tvbox.osc.bean.Epginfo> loadEpgData(String channelName, String date, Date baseDate) {
-        java.util.ArrayList<com.github.tvbox.osc.bean.Epginfo> result = new java.util.ArrayList<>();
+    public static ArrayList<com.github.tvbox.osc.bean.Epginfo> loadEpgData(String channelName, String date, Date baseDate) {
+        ArrayList<com.github.tvbox.osc.bean.Epginfo> result = new ArrayList<>();
         if (channelName == null || date == null) return result;
+        // 先查内存
+        String key = channelName + "_" + date;
+        synchronized (epgMemCache) {
+            ArrayList<com.github.tvbox.osc.bean.Epginfo> cached = epgMemCache.get(key);
+            if (cached != null) return new ArrayList<>(cached);
+        }
+        // 再查数据库
         try {
-            com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+            EpgDataDao dao = AppDataManager.get().getEpgDataDao();
             if (dao == null) return result;
-            java.util.List<com.github.tvbox.osc.bean.EpgData> list = dao.get(channelName, date);
+            List<EpgData> list = dao.get(channelName, date);
             if (list == null || list.isEmpty()) return result;
             java.text.SimpleDateFormat tf = new java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault());
-            for (com.github.tvbox.osc.bean.EpgData d : list) {
+            for (EpgData d : list) {
                 if (d == null) continue;
                 com.github.tvbox.osc.bean.Epginfo info = new com.github.tvbox.osc.bean.Epginfo(baseDate, d.title, baseDate, d.start, d.end, d.idx);
-                info.startdateTime = new java.util.Date(d.startTime);
-                info.enddateTime = new java.util.Date(d.endTime);
+                info.startdateTime = new Date(d.startTime);
+                info.enddateTime = new Date(d.endTime);
                 info.start = d.start;
                 info.end = d.end;
                 info.datestart = Integer.parseInt(d.start.replace(":", ""));
                 info.dateend = Integer.parseInt(d.end.replace(":", ""));
                 result.add(info);
+            }
+            // 放入内存缓存
+            synchronized (epgMemCache) {
+                if (epgMemCache.size() < MAX_EPG_CACHE) {
+                    epgMemCache.put(key, new ArrayList<>(result));
+                }
             }
         } catch (Exception e) {
             LOG.e(TAG + " loadEpg error: " + e.getMessage());
@@ -183,8 +223,12 @@ public class EpgUtil {
 
     public static boolean hasEpgData(String channelName, String date) {
         if (channelName == null || date == null) return false;
+        String key = channelName + "_" + date;
+        synchronized (epgMemCache) {
+            if (epgMemCache.containsKey(key)) return true;
+        }
         try {
-            com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+            EpgDataDao dao = AppDataManager.get().getEpgDataDao();
             if (dao == null) return false;
             return dao.count(channelName, date) > 0;
         } catch (Exception e) {
@@ -193,9 +237,12 @@ public class EpgUtil {
     }
 
     public static void clearEpgData() {
+        synchronized (epgMemCache) {
+            epgMemCache.clear();
+        }
         new Thread(() -> {
             try {
-                com.github.tvbox.osc.cache.EpgDataDao dao = com.github.tvbox.osc.data.AppDataManager.get().getEpgDataDao();
+                EpgDataDao dao = AppDataManager.get().getEpgDataDao();
                 if (dao == null) return;
                 java.text.SimpleDateFormat sdf = new java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault());
                 java.util.Calendar cal = java.util.Calendar.getInstance();
