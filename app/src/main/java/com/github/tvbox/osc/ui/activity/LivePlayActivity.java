@@ -141,22 +141,6 @@ public class LivePlayActivity extends BaseActivity {
     };
     private ImageView imgBottomIcon;
 
-    // ========== 酷9手势与窗口 ==========
-    private View gestureOverlay;
-    private GestureDetector gestureDetector;
-    private LinearLayout llBottomInfoBar;
-    private ProgressBar epgProgressBar;
-    private TextView tvCurrentProgramName;
-    private TextView tvNextProgramName;
-    private boolean isBottomInfoBarShowing = false;
-    private static final float GESTURE_EDGE_RATIO = 0.18f;
-    private static final long BOTTOM_INFO_SHOW_DURATION = 5000L;
-    private final Runnable mHideBottomInfoRun = new Runnable() {
-        @Override
-        public void run() {
-            hideBottomInfoBar();
-        }
-    };
     private View switchChannelSnapshotOverlay;
     private ImageView switchChannelSnapshotImage;
     private TextView tvChannelInfo;
@@ -385,14 +369,7 @@ public class LivePlayActivity extends BaseActivity {
             iv_play = findViewById(R.id.iv_play);
             tvSelectedChannel = findViewById(R.id.tv_selected_channel);
 
-        // ========== 酷9手势与窗口初始化 ==========
-        gestureOverlay = findViewById(R.id.gesture_overlay);
-        llBottomInfoBar = findViewById(R.id.ll_bottom_info_bar);
-        epgProgressBar = findViewById(R.id.epg_progress_bar);
-        tvCurrentProgramName = findViewById(R.id.tv_current_program_name);
-        tvNextProgramName = findViewById(R.id.tv_next_program_name);
-        initGestureDetector();
-
+        
             if (show) {
                 if (backcontroller != null) backcontroller.setVisibility(View.VISIBLE);
                 if (llBottomInfoBar != null) llBottomInfoBar.setVisibility(View.GONE);
