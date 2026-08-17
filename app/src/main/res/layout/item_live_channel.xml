@@ -6,7 +6,6 @@
     android:gravity="center_vertical"
     android:padding="8dp"
     android:background="@drawable/item_bg_selector_right">
-
     <TextView
         android:id="@+id/tvChannelNum"
         android:layout_width="wrap_content"
@@ -18,15 +17,12 @@
         android:textStyle="bold"
         android:singleLine="true"
         android:ellipsize="end" />
-
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical"
-        android:layout_marginStart="8dp"
-        android:layout_marginLeft="8dp">
-
+        android:layout_marginStart="8dp">
         <TextView
             android:id="@+id/tvChannelName"
             android:layout_width="wrap_content"
@@ -35,7 +31,6 @@
             android:textSize="16sp"
             android:singleLine="true"
             android:ellipsize="end" />
-
         <TextView
             android:id="@+id/tvCurrentProgram"
             android:layout_width="wrap_content"
@@ -46,7 +41,6 @@
             android:ellipsize="end"
             android:visibility="gone" />
     </LinearLayout>
-
     <ImageView
         android:id="@+id/ivChannelLogo"
         android:layout_width="32dp"

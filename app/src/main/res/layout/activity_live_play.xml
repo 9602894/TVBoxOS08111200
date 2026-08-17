@@ -20,6 +20,15 @@
         android:layout_width="0dp"
         android:layout_height="0dp" />
 
+    <!-- 手势覆盖层（新增） -->
+    <View
+        android:id="@+id/gesture_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:focusable="false" />
+
     <!-- 切换频道快照覆盖层 -->
     <FrameLayout
         android:id="@+id/switchChannelSnapshotOverlay"
@@ -369,6 +378,26 @@
             android:visibility="gone" />
     </LinearLayout>
 
+    <!-- 底部信息栏（新增，对应 llBottomInfoBar） -->
+    <LinearLayout
+        android:id="@+id/ll_bottom_info_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:layout_margin="12dp"
+        android:background="@drawable/bg_ku9_card"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="频道信息"
+            android:textColor="@android:color/white"
+            android:textSize="16sp" />
+    </LinearLayout>
+
     <!-- 底部EPG信息栏 -->
     <RelativeLayout
         android:id="@+id/ll_epg"
@@ -578,6 +607,22 @@
             android:text=""
             android:textColor="@color/color_FFFFFF"
             android:textSize="@dimen/ts_26" />
+
+        <!-- EPG 进度条（新增） -->
+        <ProgressBar
+            android:id="@+id/epg_progress_bar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="3dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="4dp"
+            android:layout_toRightOf="@+id/channelinfo"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:progressDrawable="@drawable/epg_progress_drawable"
+            android:max="100"
+            android:progress="0"
+            android:visibility="gone" />
 
         <RelativeLayout
             android:id="@+id/live_status_info"
