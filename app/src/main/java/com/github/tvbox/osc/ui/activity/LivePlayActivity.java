@@ -139,6 +139,24 @@ public class LivePlayActivity extends BaseActivity {
             hideBottomInfoBar();
         }
     };
+    private ImageView imgBottomIcon;
+
+    // ========== 酷9手势与窗口 ==========
+    private View gestureOverlay;
+    private GestureDetector gestureDetector;
+    private LinearLayout llBottomInfoBar;
+    private ProgressBar epgProgressBar;
+    private TextView tvCurrentProgramName;
+    private TextView tvNextProgramName;
+    private boolean isBottomInfoBarShowing = false;
+    private static final float GESTURE_EDGE_RATIO = 0.18f;
+    private static final long BOTTOM_INFO_SHOW_DURATION = 5000L;
+    private final Runnable mHideBottomInfoRun = new Runnable() {
+        @Override
+        public void run() {
+            hideBottomInfoBar();
+        }
+    };
     private View switchChannelSnapshotOverlay;
     private ImageView switchChannelSnapshotImage;
     private TextView tvChannelInfo;
@@ -310,6 +328,16 @@ public class LivePlayActivity extends BaseActivity {
             tvNetSpeed = findViewById(R.id.tvNetSpeed);
             tvResolution = findViewById(R.id.tvResolution);
 
+            imgBottomIcon = findViewById(R.id.img_bottom_icon);
+
+            // ========== 酷9手势与窗口初始化 ==========
+            gestureOverlay = findViewById(R.id.gesture_overlay);
+            llBottomInfoBar = findViewById(R.id.ll_bottom_info_bar);
+            epgProgressBar = findViewById(R.id.epg_progress_bar);
+            tvCurrentProgramName = findViewById(R.id.tv_current_program_name);
+            tvNextProgramName = findViewById(R.id.tv_next_program_name);
+            initGestureDetector();
+
             tip_chname = findViewById(R.id.tv_channel_bar_name);
             tv_channelnum = findViewById(R.id.tv_channel_bottom_number);
             tip_epg1 = findViewById(R.id.tv_current_program_time);
@@ -367,11 +395,11 @@ public class LivePlayActivity extends BaseActivity {
 
             if (show) {
                 if (backcontroller != null) backcontroller.setVisibility(View.VISIBLE);
-                if (ll_epg != null) ll_epg.setVisibility(View.GONE);
+                if (llBottomInfoBar != null) llBottomInfoBar.setVisibility(View.GONE);
             } else {
                 if (backcontroller != null) backcontroller.setVisibility(View.GONE);
-                if (ll_epg != null && !isListOrSettingLayoutVisible()) {
-                    ll_epg.setVisibility(View.VISIBLE);
+                if (llBottomInfoBar != null && !isListOrSettingLayoutVisible()) {
+                    llBottomInfoBar.setVisibility(View.GONE);
                 }
             }
 
@@ -1321,7 +1349,7 @@ public class LivePlayActivity extends BaseActivity {
             mHandler.post(mHideSettingLayoutRun);
             return;
         }
-        if (ll_epg != null) ll_epg.setVisibility(View.GONE);
+        if (llBottomInfoBar != null) llBottomInfoBar.setVisibility(View.GONE);
         if (tvLeftChannelListLayout != null) {
             tvLeftChannelListLayout.setTranslationX(0);
             tvLeftChannelListLayout.bringToFront();
@@ -1871,7 +1899,7 @@ public class LivePlayActivity extends BaseActivity {
             mHandler.removeCallbacks(mHideChannelListRun);
             mHandler.post(mHideChannelListRun);
         }
-        if (ll_epg != null) ll_epg.setVisibility(View.GONE);
+        if (llBottomInfoBar != null) llBottomInfoBar.setVisibility(View.GONE);
         if (tvRightSettingLayout != null) {
             tvRightSettingLayout.setTranslationX(0);
             tvRightSettingLayout.bringToFront();
@@ -3723,6 +3751,14 @@ public class LivePlayActivity extends BaseActivity {
         }
 
         // 台标
+        if (imgBottomIcon != null && channel_Name != null) {
+            String logo = channel_Name.getChannelLogo();
+            if (logo != null && !logo.isEmpty()) {
+                com.github.tvbox.osc.util.ImgUtil.load(DefaultConfig.checkReplaceProxy(logo), imgBottomIcon, 1, 0, 0, null, ImageView.ScaleType.FIT_CENTER);
+            } else {
+                imgBottomIcon.setImageDrawable(null);
+            }
+        }
         updateCurrentChannelIcon();
 
         // EPG进度条
