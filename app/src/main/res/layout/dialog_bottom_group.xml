@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <merge xmlns:android="http://schemas.android.com/apk/res/android">
-    <!-- 底部EPG信息栏 -->
     <LinearLayout
         android:id="@+id/ll_epg"
         android:layout_width="match_parent"
@@ -13,7 +12,6 @@
         android:orientation="vertical"
         android:padding="12dp"
         android:visibility="gone">
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -26,6 +24,18 @@
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+            <TextView
+                android:id="@+id/tvChannelNum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/shape_channel_num_bg"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:textColor="#CCFFFFFF"
+                android:textSize="12sp" />
             <View android:layout_width="0dp" android:layout_height="0dp" android:layout_weight="1" />
             <TextView
                 android:id="@+id/tv_source"
@@ -34,7 +44,6 @@
                 android:textColor="#80FFFFFF"
                 android:textSize="12sp" />
         </LinearLayout>
-
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
