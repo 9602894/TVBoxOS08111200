@@ -288,6 +288,14 @@
                 android:textSize="14sp" />
         </LinearLayout>
 
+        <!-- EPG加载分割线 -->
+        <View
+            android:id="@+id/divLoadEpgDivider"
+            android:layout_width="0.5dp"
+            android:layout_height="match_parent"
+            android:background="#30FFFFFF"
+            android:visibility="gone" />
+
         <!-- 返回EPG左侧提示 -->
         <LinearLayout
             android:id="@+id/divLoadEpgleft"
@@ -297,6 +305,13 @@
             android:orientation="vertical"
             android:padding="10dp"
             android:visibility="gone">
+
+            <ImageView
+                android:id="@+id/iv_back_bg"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/ic_live_back"
+                android:visibility="gone" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -393,6 +408,20 @@
                 android:textSize="20sp"
                 android:textStyle="bold" />
 
+            <TextView
+                android:id="@+id/tv_channel_bottom_number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/shape_channel_num_bg"
+                android:paddingStart="6dp"
+                android:paddingEnd="6dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:textColor="#CCFFFFFF"
+                android:textSize="12sp"
+                android:visibility="gone" />
+
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -461,6 +490,13 @@
                 android:textColor="#CCFFFFFF"
                 android:textSize="13sp" />
 
+            <!-- 隐藏的占位，供代码引用 -->
+            <TextView
+                android:id="@+id/tv_current_program_name"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
+
             <TextView
                 android:id="@+id/tv_next_program_time"
                 android:layout_width="wrap_content"
@@ -479,8 +515,36 @@
                 android:singleLine="true"
                 android:textColor="#80FFFFFF"
                 android:textSize="13sp" />
+
+            <!-- 隐藏的占位，供代码引用 -->
+            <TextView
+                android:id="@+id/tv_next_program_name"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:visibility="gone" />
         </LinearLayout>
     </LinearLayout>
+
+    <!-- ll_epg 兼容旧代码 -->
+    <LinearLayout
+        android:id="@+id/ll_epg"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <!-- tv_right_top_epg_name 兼容 -->
+    <TextView
+        android:id="@+id/tv_right_top_epg_name"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
+
+    <!-- tv_shownum 兼容 -->
+    <TextView
+        android:id="@+id/tv_shownum"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone" />
 
     <!-- ==================== 回看控制器 ==================== -->
     <RelativeLayout
