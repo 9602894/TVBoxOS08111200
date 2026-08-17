@@ -32,12 +32,4 @@
         android:textSize="13sp"
         android:visibility="gone" />
 
-    <ImageView
-        android:id="@+id/ivSettingItemArrow"
-        android:layout_width="16dp"
-        android:layout_height="16dp"
-        android:layout_marginStart="6dp"
-        android:src="@drawable/icon_arrow_right"
-        android:visibility="gone" />
-
 </LinearLayout>

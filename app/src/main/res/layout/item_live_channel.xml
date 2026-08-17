@@ -27,16 +27,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone"
-            app:changeSpeed="25"
-            app:changeStep="0.1"
-            app:lineColor="#ffffffff"
-            app:lineCount="1"
-            app:lineMaxHeight="16dp"
-            app:lineMinHeight="1dp"
-            app:lineRadius="0dp"
-            app:lineSpace="3dp"
-            app:lineWidth="2.5dp" />
+            android:visibility="gone" />
 
         <TextView
             android:id="@+id/tvChannelNum"

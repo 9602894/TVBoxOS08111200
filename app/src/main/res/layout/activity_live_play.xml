@@ -50,8 +50,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="top"
-        android:layout_marginTop="20dp"
         android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="30dp"
         android:orientation="horizontal"
         android:visibility="gone">
@@ -98,15 +98,24 @@
         android:layout_marginTop="60dp"
         android:layout_marginEnd="40dp"
         android:background="@android:color/transparent"
-        android:focusable="false"
         android:clickable="false"
+        android:focusable="false"
         android:textColor="@android:color/white"
         android:textSize="96sp"
         android:textStyle="bold"
         android:visibility="gone" />
 
     <!-- 时间组件 -->
-    <include layout="@layout/activity_tv_time_group" />
+    <TextView
+        android:id="@+id/tv_sys_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:visibility="gone" />
 
     <!-- ==================== 左侧频道列表面板（酷9三栏） ==================== -->
     <LinearLayout
@@ -292,9 +301,8 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:drawableTop="@drawable/icon_back"
                 android:gravity="center"
-                android:text="节目单"
+                android:text="◀ 节目单"
                 android:textColor="#80FFFFFF"
                 android:textSize="12sp" />
         </LinearLayout>
@@ -579,11 +587,11 @@
         android:orientation="horizontal"
         android:visibility="gone">
 
-        <ImageView
+        <ProgressBar
             android:id="@+id/iv_circle_bg"
             android:layout_width="20dp"
             android:layout_height="20dp"
-            android:src="@drawable/icon_loading" />
+            android:indeterminateTint="@android:color/white" />
     </LinearLayout>
 
     <!-- 底部左侧Seek回退提示 -->
