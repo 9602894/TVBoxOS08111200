@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textColor="@android:color/white"/>
-
+		
         <com.github.tvbox.osc.ui.tv.widget.MarqueeTextView
             android:textSize="@dimen/ts_16"
             android:ellipsize="marquee"
@@ -40,7 +40,7 @@
             android:clickable="true"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
-
+		
     </LinearLayout>
 
     <LinearLayout
@@ -58,7 +58,14 @@
             android:background="@drawable/shape_setting_model_focus"
             android:gravity="center"
             android:text="回看"
-            android:textColor="@android:color/white"
-            android:textSize="@dimen/ts_20" />
+            android:textColor="@color/color_FFFFFF"
+            android:textSize="@dimen/vs_15" />
+
+        <com.github.tvbox.osc.ui.tv.widget.AudioWaveView
+            android:id="@+id/wqddg_AudioWaveView"
+            android:layout_width="@dimen/vs_80"
+            android:layout_height="@dimen/ts_26"
+            android:layout_marginTop="3dp"
+            android:layout_marginRight="0px" />
     </LinearLayout>
 </LinearLayout>
