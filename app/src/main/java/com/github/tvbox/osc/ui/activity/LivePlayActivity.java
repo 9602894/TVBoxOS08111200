@@ -887,9 +887,9 @@ public class LivePlayActivity extends BaseActivity {
 
     @SuppressLint("SetTextI18n")
     private void showBottomEpg() {
+        try {
         if (isSHIYI) return;
         if (channel_Name == null || channel_Name.getChannelName() == null) return;
-        try {
         tip_chname.setText(channel_Name.getChannelName());
         tv_channelnum.setText("" + channel_Name.getChannelNum());
         TextView tv_current_program_name = findViewById(R.id.tv_current_program_name);
@@ -958,7 +958,6 @@ public class LivePlayActivity extends BaseActivity {
             if (ll_epg != null) ll_epg.setVisibility(View.GONE);
         }
 
-        } catch (Exception e) { e.printStackTrace(); }
         TextView tvSource = findViewById(R.id.tv_source);
         if (channel_Name == null || channel_Name.getSourceNum() <= 0) {
             if (tvSource != null) tvSource.setText("1/1");
@@ -967,6 +966,8 @@ public class LivePlayActivity extends BaseActivity {
         }
         if (tv_right_top_channel_name != null) tv_right_top_channel_name.setText(channel_Name.getChannelName());
         if (tv_right_top_epg_name != null) tv_right_top_epg_name.setText(channel_Name.getChannelName());
+    
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void setDefaultBottomEpg(TextView currentProgramName, TextView nextProgramName) {
@@ -2606,6 +2607,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void initLiveChannelList() {
+        try {
         if (ApiConfig.get().shouldReloadLiveConfig()) {
             loadLiveConfigOnEnter();
             return;
@@ -2622,6 +2624,8 @@ public class LivePlayActivity extends BaseActivity {
         } else {
             applyLiveChannelGroups(list);
         }
+    
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private boolean loadingLiveConfigOnEnter = false;
@@ -2758,6 +2762,7 @@ public class LivePlayActivity extends BaseActivity {
     }
 
     private void initLiveState() {
+        try {
         refreshingLiveChannelList = false;
         String lastChannelName = pendingLiveRefreshChannelName == null ? Hawk.get(HawkConfig.LIVE_CHANNEL, "") : pendingLiveRefreshChannelName;
         int sourceIndex = pendingLiveRefreshSourceIndex;
@@ -2811,6 +2816,8 @@ public class LivePlayActivity extends BaseActivity {
         }
         currentLiveChannelIndex = -1;
         selectChannelGroup(lastChannelGroupIndex, false, lastLiveChannelIndex);
+    
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private boolean isListOrSettingLayoutVisible() {
@@ -2844,7 +2851,6 @@ public class LivePlayActivity extends BaseActivity {
         return visibleGroups;
     }
 
-        } catch (Exception e) { e.printStackTrace(); }
     private void initLiveSettingGroupList() {
         liveSettingGroupList = ApiConfig.get().getLiveSettingGroupList();
         if (liveSettingGroupList == null) {
@@ -3486,5 +3492,4 @@ public class LivePlayActivity extends BaseActivity {
     private interface OnInputConfirmListener {
         void onConfirm(String value);
     }
-        } catch (Exception e) { e.printStackTrace(); }
 }
