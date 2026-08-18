@@ -203,7 +203,7 @@ public class LivePlayActivity extends BaseActivity {
     private View divLoadEpgDivider;
     private View divLoadEpgleft;
     private LinearLayout divEpg;
-    RelativeLayout ll_epg;
+    LinearLayout ll_epg;
     TextView tv_channelnum;
     TextView tip_chname;
     TextView tip_epg1;
@@ -270,6 +270,7 @@ public class LivePlayActivity extends BaseActivity {
 
     @Override
     protected void init() {
+        try {
         try {
             context = this;
             epgStringAddress = getConfiguredEpgAddress();
@@ -432,6 +433,8 @@ public class LivePlayActivity extends BaseActivity {
             startActivity(intent);
             finish();
         }
+    
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void safeInitSettingPanel() {
@@ -888,6 +891,7 @@ public class LivePlayActivity extends BaseActivity {
     @SuppressLint("SetTextI18n")
     private void showBottomEpg() {
         try {
+        try {
         if (isSHIYI) return;
         if (channel_Name == null || channel_Name.getChannelName() == null) return;
         tip_chname.setText(channel_Name.getChannelName());
@@ -966,6 +970,8 @@ public class LivePlayActivity extends BaseActivity {
         }
         if (tv_right_top_channel_name != null) tv_right_top_channel_name.setText(channel_Name.getChannelName());
         if (tv_right_top_epg_name != null) tv_right_top_epg_name.setText(channel_Name.getChannelName());
+    
+        } catch (Exception e) { e.printStackTrace(); }
     
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -2608,6 +2614,7 @@ public class LivePlayActivity extends BaseActivity {
 
     private void initLiveChannelList() {
         try {
+        try {
         if (ApiConfig.get().shouldReloadLiveConfig()) {
             loadLiveConfigOnEnter();
             return;
@@ -2624,6 +2631,8 @@ public class LivePlayActivity extends BaseActivity {
         } else {
             applyLiveChannelGroups(list);
         }
+    
+        } catch (Exception e) { e.printStackTrace(); }
     
         } catch (Exception e) { e.printStackTrace(); }
     }
@@ -2763,6 +2772,7 @@ public class LivePlayActivity extends BaseActivity {
 
     private void initLiveState() {
         try {
+        try {
         refreshingLiveChannelList = false;
         String lastChannelName = pendingLiveRefreshChannelName == null ? Hawk.get(HawkConfig.LIVE_CHANNEL, "") : pendingLiveRefreshChannelName;
         int sourceIndex = pendingLiveRefreshSourceIndex;
@@ -2816,6 +2826,8 @@ public class LivePlayActivity extends BaseActivity {
         }
         currentLiveChannelIndex = -1;
         selectChannelGroup(lastChannelGroupIndex, false, lastLiveChannelIndex);
+    
+        } catch (Exception e) { e.printStackTrace(); }
     
         } catch (Exception e) { e.printStackTrace(); }
     }
