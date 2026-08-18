@@ -21,16 +21,16 @@ public class HawkConfig {
     public static final String LIVE_SUBSCRIBE_LIST = "live_subscribe_list";
     public static final String SELECTED_LIVE_SUBSCRIBE = "selected_live_subscribe";
     public static final String EPG_SUBSCRIBE_LIST = "epg_subscribe_list";
-    public static final String SELECTED_EPG_SUBSCRIBE = "selected_epg_subscribe";        // 直播订阅地址
-    public static final String LIVE_API_HISTORY = "live_api_history"; // 直播订阅历史
+    public static final String SELECTED_EPG_SUBSCRIBE = "selected_epg_subscribe";
+    public static final String LIVE_API_HISTORY = "live_api_history";
     public static final String LIVE_WEB_HEADER = "live_web_header";
     public static final String DEFAULT_LOAD_LIVE = "DEFAULT_LOAD_LIVE";
-    public static final String LIVE_PLAY_TYPE = "live_play_type";    // 0 系统 1 ijk 2 exo 10 MXPlayer
+    public static final String LIVE_PLAY_TYPE = "live_play_type";
     public static final String LIVE_PLAY_SCALE = "live_play_scale";
 
-    // EPG相关（修正了重复定义）
-    public static final String EPG_URL = "epg_url";                  // EPG订阅地址
-    public static final String EPG_HISTORY = "epg_history";          // EPG订阅历史
+    // EPG相关
+    public static final String EPG_URL = "epg_url";
+    public static final String EPG_HISTORY = "epg_history";
 
     // 点播相关
     public static final String API_URL = "api_url";
@@ -41,21 +41,21 @@ public class HawkConfig {
     public static final String DEFAULT_PARSE = "parse_default";
 
     // 播放器相关
-    public static final String PLAY_TYPE = "play_type";              // 0 系统 1 ijk 2 exo 10 MXPlayer
-    public static final String PLAY_RENDER = "play_render";          // 0 texture 2
+    public static final String PLAY_TYPE = "play_type";
+    public static final String PLAY_RENDER = "play_render";
     public static final String PLAY_SCALE = "play_scale";
     public static final String PLAY_TIME_STEP = "play_time_step";
     public static final String IJK_CODEC = "ijk_codec";
     public static final String IJK_CACHE_PLAY = "ijk_cache_play";
-    public static final String PARSE_WEBVIEW = "parse_webview";      // true 系统 false xwalk
+    public static final String PARSE_WEBVIEW = "parse_webview";
 
     // 界面相关
     public static final String SHOW_PREVIEW = "show_preview";
-    public static final String HOME_REC = "home_rec";                // 0 豆瓣热播 1 数据源推荐 2 历史
+    public static final String HOME_REC = "home_rec";
     public static final String HOME_REC_STYLE = "home_rec_style";
     public static final String HISTORY_NUM = "history_num";
     public static final String HISTORY_MERGE = "history_merge";
-    public static final String SEARCH_VIEW = "search_view";          // 0 列表 1 缩略图
+    public static final String SEARCH_VIEW = "search_view";
     public static final String SEARCH_HISTORY = "search_history";
     public static final String FAST_SEARCH_MODE = "fast_search_mode";
     public static final String SCREEN_DISPLAY = "screen_display";
