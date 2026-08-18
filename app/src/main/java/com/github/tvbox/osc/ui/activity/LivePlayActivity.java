@@ -189,8 +189,8 @@ public class LivePlayActivity extends BaseActivity {
     private static final long RESOLUTION_INFO_RETRY_DELAY = 300L;
     private static final long RESOLUTION_INFO_HIDE_DELAY = 3000L;
     private static final String DEFAULT_EPG_ADDRESS = "http://epg.51zmt.top:8000/api/diyp/?ch={name}&date={date}";
-    private static final Pattern CATCHUP_TOKEN_PATTERN = Pattern.compile("(\Q$\E?\Q{\E[^}]*\Q}\E)");
-    private static final Pattern CATCHUP_TAG_PATTERN = Pattern.compile("\Q{\E([^}]*)\Q}\E");
+    private static final Pattern CATCHUP_TOKEN_PATTERN = Pattern.compile("(\\Q$\\E?\\Q{\\E[^}]*\\Q}\\E)");
+    private static final Pattern CATCHUP_TAG_PATTERN = Pattern.compile("\\Q{\\E([^}]*)\\Q}\\E");
     private final Runnable mLoadEpgRun = new Runnable() {
         @Override
         public void run() {
@@ -906,7 +906,7 @@ public class LivePlayActivity extends BaseActivity {
         if (channelName == null) return "";
         String trimName = channelName.trim();
         String compactName = trimName.replace("-", "").replace(" ", "");
-        Matcher cctvMatcher = Pattern.compile("(?i)^(CCTV\d+(?:\+|K)?)(?:[\u4e00-\u9fa5].*|)$").matcher(compactName);
+        Matcher cctvMatcher = Pattern.compile("(?i)^(CCTV\\d+(?:\\+|K)?)(?:[\\u4e00-\\u9fa5].*|)$").matcher(compactName);
         if (cctvMatcher.matches()) {
             return cctvMatcher.group(1).toUpperCase(Locale.ROOT);
         }
