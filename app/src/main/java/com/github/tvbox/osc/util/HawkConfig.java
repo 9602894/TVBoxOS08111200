@@ -1,12 +1,6 @@
 package com.github.tvbox.osc.util;
 
-/**
- * @author pj567
- * @date :2020/12/23
- * @description:
- */
 public class HawkConfig {
-    // 直播相关（修正了重复定义）
     public static final String LIVE_CHANNEL = "last_live_channel_name";
     public static final String LIVE_CHANNEL_GROUP = "live_channel_group";
     public static final String LIVE_CHANNEL_REVERSE = "live_channel_reverse";
@@ -27,20 +21,14 @@ public class HawkConfig {
     public static final String DEFAULT_LOAD_LIVE = "DEFAULT_LOAD_LIVE";
     public static final String LIVE_PLAY_TYPE = "live_play_type";
     public static final String LIVE_PLAY_SCALE = "live_play_scale";
-
-    // EPG相关
     public static final String EPG_URL = "epg_url";
     public static final String EPG_HISTORY = "epg_history";
-
-    // 点播相关
     public static final String API_URL = "api_url";
     public static final String API_HISTORY = "api_history";
     public static final String API_LINE_LIST = "api_line_list";
     public static final String API_LINE_SOURCE = "api_line_source";
     public static final String HOME_API = "home_api";
     public static final String DEFAULT_PARSE = "parse_default";
-
-    // 播放器相关
     public static final String PLAY_TYPE = "play_type";
     public static final String PLAY_RENDER = "play_render";
     public static final String PLAY_SCALE = "play_scale";
@@ -48,8 +36,6 @@ public class HawkConfig {
     public static final String IJK_CODEC = "ijk_codec";
     public static final String IJK_CACHE_PLAY = "ijk_cache_play";
     public static final String PARSE_WEBVIEW = "parse_webview";
-
-    // 界面相关
     public static final String SHOW_PREVIEW = "show_preview";
     public static final String HOME_REC = "home_rec";
     public static final String HOME_REC_STYLE = "home_rec_style";
@@ -59,12 +45,8 @@ public class HawkConfig {
     public static final String SEARCH_HISTORY = "search_history";
     public static final String FAST_SEARCH_MODE = "fast_search_mode";
     public static final String SCREEN_DISPLAY = "screen_display";
-
-    // 字幕相关
     public static final String SUBTITLE_TEXT_SIZE = "subtitle_text_size";
     public static final String SUBTITLE_TIME_DELAY = "subtitle_time_delay";
-
-    // 弹幕相关
     public static final String DANMU_OPEN = "danmu_open";
     public static final String DANMU_MAX_LINE = "danmu_max_line";
     public static final String DANMU_SPEED = "danmu_speed";
@@ -72,20 +54,15 @@ public class HawkConfig {
     public static final String DANMU_SIZE_SCALE = "danmu_size_scale";
     public static final String DANMU_RANDOM_COLOR = "danmu_random_color";
     public static final String DANMU_API = "danmu_api";
-
-    // 网络相关
     public static final String DOH_URL = "doh_url";
     public static final String DOH_JSON = "doh_json";
     public static final String REMOTE_TVBOX = "remote_tvbox_host";
-
-    // 其他
     public static final String DEBUG_OPEN = "debug_open";
     public static final String NOW_DATE = "now_date";
     public static final String SOURCES_FOR_SEARCH = "checked_sources_for_search";
     public static final String M3U8_PURIFY = "m3u8_purify";
     public static final String AUTO_SWITCH_LINE = "auto_switch_line";
     public static final String PLAYER_IS_LIVE = "player_is_live";
-
     public static final int DEFAULT_HOME_REC = 1;
     public static boolean hotVodDelete;
 }
