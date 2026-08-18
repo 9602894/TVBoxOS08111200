@@ -85,4 +85,3 @@ public class HawkConfig {
     public static final int DEFAULT_HOME_REC = 1;
     public static boolean hotVodDelete;
 }
-
