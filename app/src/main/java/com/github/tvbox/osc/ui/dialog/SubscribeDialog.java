@@ -27,6 +27,10 @@ import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
 
+/**
+ * 订阅管理对话框（适配酷9风格）
+ * 支持：二维码显示、列表管理（复制/删除/上移）、添加订阅
+ */
 public class SubscribeDialog extends BaseDialog {
 
     private boolean isLive;
@@ -61,6 +65,7 @@ public class SubscribeDialog extends BaseDialog {
         String qrUrl = "http://" + ip + ":9978/";
         tvQrUrl.setText(qrUrl);
 
+        // 点击二维码区域复制URL
         ivQrCode.setOnClickListener(v -> {
             copyToClipboard(qrUrl);
             Toast.makeText(getContext(), "URL已复制: " + qrUrl, Toast.LENGTH_SHORT).show();
