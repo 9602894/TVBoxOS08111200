@@ -62,4 +62,7 @@
     <color name="dialog_input_bg">#66353744</color>
     <color name="dialog_text_primary">#FFFFFFFF</color>
     <color name="dialog_text_hint">#80FFFFFF</color>
+    <color name="color_FFFFFF">#FFFFFFFF</color>
+    <color name="color_FFFFFF_50">#80FFFFFF</color>
+    <color name="color_FFFFFF_80">#CCFFFFFF</color>
 </resources>
