@@ -2336,32 +2336,8 @@ public class LivePlayActivity extends BaseActivity {
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(getCurrentLiveApiHistoryIndex(), true, true);
                 break;
             case 7:
-                // 列表订阅 - 根据选中位置加载
-                if (liveSettingItemAdapter != null) {
-                    int selectedIdx = liveSettingItemAdapter.getSelectedItemIndex();
-                    if (selectedIdx >= 0) {
-                        List<String> subs = getLiveSubscribeList();
-                        if (selectedIdx < subs.size()) {
-                            loadLiveSubscribe(selectedIdx);
-                        } else if (selectedIdx == subs.size()) {
-                            showAddSubscribeDialog("添加列表订阅", true);
-                        }
-                    }
-                }
                 break;
             case 8:
-                // EPG订阅
-                if (liveSettingItemAdapter != null) {
-                    int selectedIdx = liveSettingItemAdapter.getSelectedItemIndex();
-                    if (selectedIdx >= 0) {
-                        List<String> subs = getEpgSubscribeList();
-                        if (selectedIdx < subs.size()) {
-                            loadEpgSubscribe(selectedIdx);
-                        } else if (selectedIdx == subs.size()) {
-                            showAddSubscribeDialog("添加EPG订阅", false);
-                        }
-                    }
-                }
                 break;
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
@@ -2517,9 +2493,25 @@ public class LivePlayActivity extends BaseActivity {
                 });
                 break;
             }
-            case 7: // 列表订阅 - 点击项处理（已在selectSettingGroup中处理）
+            case 7: // 列表订阅
+                {
+                    List<String> liveSubs = getLiveSubscribeList();
+                    if (position < liveSubs.size()) {
+                        loadLiveSubscribe(position);
+                    } else if (position == liveSubs.size()) {
+                        showAddSubscribeDialog("添加列表订阅", true);
+                    }
+                }
                 break;
             case 8: // EPG订阅
+                {
+                    List<String> epgSubs = getEpgSubscribeList();
+                    if (position < epgSubs.size()) {
+                        loadEpgSubscribe(position);
+                    } else if (position == epgSubs.size()) {
+                        showAddSubscribeDialog("添加EPG订阅", false);
+                    }
+                }
                 break;
             case 9:
                 float[] speedValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
