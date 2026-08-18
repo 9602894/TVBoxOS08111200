@@ -27,68 +27,67 @@
 
     <androidx.media3.ui.SubtitleView
         android:id="@+id/mSubtitleView"
-        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"
-        android:layout_centerHorizontal="true"/>
+        android:layout_centerHorizontal="true"
+        android:visibility="gone" />
 
     <TextView
-        android:textSize="96sp"
-        android:textStyle="bold"
-        android:textColor="@android:color/white"
-        android:layout_gravity="end|top"
         android:id="@+id/tv_selected_channel"
-        android:background="@android:color/transparent"
-        android:focusable="false"
-        android:visibility="gone"
-        android:clickable="false"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
         android:layout_marginTop="25dp"
-        android:layout_marginRight="40dp"/>
+        android:layout_marginRight="40dp"
+        android:background="@android:color/transparent"
+        android:clickable="false"
+        android:focusable="false"
+        android:textColor="@android:color/white"
+        android:textSize="96sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
     <include layout="@layout/activity_tv_time_group"/>
 
     <TextView
-        android:textSize="15dp"
-        android:textColor="@color/color_FFFFFF"
-        android:gravity="center"
-        android:layout_gravity="end|bottom"
         android:id="@+id/tvNetSpeed"
-        android:background="@drawable/shape_time_netspeed_drawable"
-        android:padding="5dp"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_marginEnd="15dp"
         android:layout_marginBottom="15dp"
+        android:background="@drawable/shape_time_netspeed_drawable"
+        android:gravity="center"
+        android:padding="5dp"
         android:text="0.00MB/s"
-        android:layout_marginEnd="15dp"/>
+        android:textColor="@color/color_FFFFFF"
+        android:textSize="15dp"
+        android:visibility="gone" />
 
     <TextView
-        android:textSize="20dp"
-        android:textStyle="bold"
-        android:textColor="@color/color_FFFFFF_50"
-        android:gravity="center"
-        android:layout_gravity="start|bottom"
         android:id="@+id/mTvSeekBack"
-        android:padding="5dp"
-        android:visibility="gone"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="start|bottom"
+        android:layout_marginStart="15dp"
         android:layout_marginBottom="15dp"
-        android:layout_marginStart="15dp"/>
+        android:gravity="center"
+        android:padding="5dp"
+        android:textColor="@color/color_FFFFFF_50"
+        android:textSize="20dp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
     <include layout="@layout/dialog_bottom_group"/>
 
-    <!-- 酷9手势层 -->
     <View
         android:id="@+id/gesture_overlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@android:color/transparent" />
 
-    <!-- 酷9左侧频道面板 -->
+    <!-- 左侧频道面板 -->
     <LinearLayout
         android:id="@+id/tvLeftChannnelListLayout"
         android:layout_width="720dp"
@@ -257,7 +256,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 酷9右侧设置面板 -->
+    <!-- 右侧设置面板 -->
     <LinearLayout
         android:id="@+id/tvRightSettingLayout"
         android:layout_width="480dp"
@@ -296,7 +295,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- 酷9底部信息栏 -->
+    <!-- 底部信息栏 -->
     <LinearLayout
         android:id="@+id/ll_bottom_info_bar"
         android:layout_width="match_parent"
@@ -482,36 +481,7 @@
         </LinearLayout>
     </RelativeLayout>
 
-    <!-- 右上角回看标识 -->
-    <LinearLayout
-        android:id="@+id/ll_right_top_huikan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="end|top"
-        android:layout_marginTop="60dp"
-        android:layout_marginEnd="30dp"
-        android:background="@drawable/shape_huikan_tag"
-        android:gravity="center"
-        android:orientation="horizontal"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
-        android:visibility="gone">
-        <View
-            android:layout_width="6dp"
-            android:layout_height="6dp"
-            android:layout_marginEnd="4dp"
-            android:background="@drawable/circle_red" />
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="回看"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
-    </LinearLayout>
-
-    <!-- 右上角加载圈 -->
+    <!-- 右上角加载/回看提示 -->
     <LinearLayout
         android:id="@+id/ll_right_top_loading"
         android:layout_width="wrap_content"
@@ -519,36 +489,71 @@
         android:layout_gravity="end|top"
         android:layout_marginTop="60dp"
         android:layout_marginEnd="30dp"
-        android:gravity="center"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
         android:visibility="gone">
         <ProgressBar
             android:id="@+id/iv_circle_bg"
             android:layout_width="20dp"
             android:layout_height="20dp"
+            android:layout_marginEnd="6dp"
             android:indeterminateTint="@android:color/white" />
+        <TextView
+            android:id="@+id/tv_shownum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@android:color/white"
+            android:textSize="14sp" />
     </LinearLayout>
 
-    <!-- 仅酷9代码使用的独立ID（不在任何include中） -->
+    <TextView
+        android:id="@+id/ll_right_top_huikan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="60dp"
+        android:layout_marginEnd="30dp"
+        android:background="@drawable/shape_tag_bg"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:text="回看"
+        android:textColor="@android:color/white"
+        android:textSize="13sp"
+        android:visibility="gone" />
+
     <TextView
         android:id="@+id/tvChannel"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="start|top"
+        android:layout_marginStart="30dp"
+        android:layout_marginTop="20dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
         android:visibility="gone" />
+
     <TextView
         android:id="@+id/tvTime"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
         android:visibility="gone" />
+
     <TextView
         android:id="@+id/tv_right_top_epg_name"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:visibility="gone" />
-    <TextView
-        android:id="@+id/tv_shownum"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|top"
+        android:layout_marginTop="50dp"
+        android:layout_marginEnd="30dp"
+        android:textColor="#80FFFFFF"
+        android:textSize="12sp"
         android:visibility="gone" />
 
 </FrameLayout>
