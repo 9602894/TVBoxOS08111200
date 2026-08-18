@@ -1,76 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <FrameLayout
-        android:id="@+id/tv_pause_container"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:tag="vod_control_pause"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <LinearLayout
-            android:layout_width="@dimen/vs_200"
-            android:layout_height="@dimen/vs_140"
-            android:layout_gravity="center"
-            android:background="@drawable/shape_user_focus"
-            android:focusable="false"
-            android:focusableInTouchMode="false"
-            android:gravity="center"
-            android:orientation="vertical">
-
-            <ImageView
-                android:layout_width="@dimen/vs_60"
-                android:layout_height="@dimen/vs_60"
-                android:layout_gravity="center"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:src="@drawable/icon_play" />
-
-            <TextView
-                android:id="@+id/tv_pause_progress_text"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginTop="@dimen/vs_20"
-                android:focusable="false"
-                android:focusableInTouchMode="false"
-                android:tag="vod_control_pause_t"
-                android:visibility="gone"
-                android:textColor="@android:color/white"
-                android:textSize="@dimen/ts_30"
-                tools:text="100" />
-        </LinearLayout>
-
-    </FrameLayout>
-
-    <TextView
-        android:id="@+id/tv_slide_progress_text"
-        android:layout_width="@dimen/vs_200"
-        android:layout_height="@dimen/vs_100"
+    <LinearLayout
+        android:id="@+id/dialog_volume"
+        android:tag="dialog_volume"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:background="@drawable/shape_user_focus"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
+        android:layout_margin="50dp"
+        android:background="@drawable/shape_user_pause"
         android:gravity="center"
-        android:tag="vod_control_slide_info"
-        android:textAlignment="gravity"
-        android:textColor="@android:color/white"
-        android:textSize="@dimen/ts_30"
-        android:visibility="gone"
-        tools:text="100" />
+        android:orientation="vertical"
+        android:visibility="gone">
+        <ProgressBar
+            android:id="@+id/volume_progressbar"
+            android:tag="progressbar_volume"
+            style="@style/video_vertical_progressBar"
+            android:layout_width="5dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:max="100" />
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
+            android:alpha="0.9"
+            android:src="@drawable/play_volume" />
+    </LinearLayout>
 
-    <ProgressBar
-        android:layout_width="@dimen/vs_50"
-        android:layout_height="@dimen/vs_50"
-        android:layout_gravity="center"
-        android:indeterminateBehavior="repeat"
-        android:indeterminateDrawable="@drawable/anim_loading"
-        android:indeterminateOnly="true"
-        android:tag="vod_control_loading"
-        android:visibility="gone" />
+    <LinearLayout
+        android:id="@+id/dialog_bright"
+        android:tag="dialog_brightness"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_margin="50dp"
+        android:background="@drawable/shape_user_pause"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+        <ProgressBar
+            android:id="@+id/brightness_progressbar"
+            android:tag="progressbar_brightness"
+            style="@style/video_vertical_progressBar"
+            android:layout_width="5dp"
+            android:layout_height="90dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="20dp"
+            android:max="100" />
+        <ImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="20dp"
+            android:alpha="0.9"
+            android:src="@drawable/play_brightness" />
+    </LinearLayout>
 
 </FrameLayout>
