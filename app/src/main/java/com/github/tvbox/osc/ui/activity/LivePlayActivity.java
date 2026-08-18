@@ -2336,7 +2336,32 @@ public class LivePlayActivity extends BaseActivity {
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(getCurrentLiveApiHistoryIndex(), true, true);
                 break;
             case 7:
-                if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(-1, false, false);
+                // 列表订阅 - 根据选中位置加载
+                if (liveSettingItemAdapter != null) {
+                    int selectedIdx = liveSettingItemAdapter.getSelectedItemIndex();
+                    if (selectedIdx >= 0) {
+                        List<String> subs = getLiveSubscribeList();
+                        if (selectedIdx < subs.size()) {
+                            loadLiveSubscribe(selectedIdx);
+                        } else if (selectedIdx == subs.size()) {
+                            showAddSubscribeDialog("添加列表订阅", true);
+                        }
+                    }
+                }
+                break;
+            case 8:
+                // EPG订阅
+                if (liveSettingItemAdapter != null) {
+                    int selectedIdx = liveSettingItemAdapter.getSelectedItemIndex();
+                    if (selectedIdx >= 0) {
+                        List<String> subs = getEpgSubscribeList();
+                        if (selectedIdx < subs.size()) {
+                            loadEpgSubscribe(selectedIdx);
+                        } else if (selectedIdx == subs.size()) {
+                            showAddSubscribeDialog("添加EPG订阅", false);
+                        }
+                    }
+                }
                 break;
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
@@ -2492,56 +2517,9 @@ public class LivePlayActivity extends BaseActivity {
                 });
                 break;
             }
-            case 7: // 列表订阅
-                try {
-                ArrayList<HashMap<String, String>> liveSubList = getLiveSubscribeList();
-                if (position == liveSubList.size()) {
-                    // 添加订阅
-                    showAddSubscribeDialog("添加列表订阅", (name, url) -> {
-                        if (!url.isEmpty()) {
-                            addLiveSubscribe(name, url);
-                            Toast.makeText(this, "已添加: " + (name.isEmpty() ? url : name), Toast.LENGTH_SHORT).show();
-                            initLiveSettingGroupList();
-                            if (liveSettingGroupAdapter != null) {
-                                liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
-                            }
-                        }
-                    });
-                } else if (position >= 0 && position < liveSubList.size()) {
-                    // 选中并加载
-                    loadLiveSubscribe(position);
-                    // 刷新显示 √ 标记
-                    initLiveSettingGroupList();
-                    if (liveSettingGroupAdapter != null) {
-                        liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
-                    }
-                }
-                } catch (Exception e) { e.printStackTrace(); }
+            case 7: // 列表订阅 - 点击项处理（已在selectSettingGroup中处理）
                 break;
             case 8: // EPG订阅
-                try {
-                ArrayList<HashMap<String, String>> epgSubList = getEpgSubscribeList();
-                if (position == epgSubList.size()) {
-                    // 添加EPG
-                    showAddSubscribeDialog("添加EPG订阅", (name, url) -> {
-                        if (!url.isEmpty()) {
-                            addEpgSubscribe(name, url);
-                            Toast.makeText(this, "已添加: " + (name.isEmpty() ? url : name), Toast.LENGTH_SHORT).show();
-                            initLiveSettingGroupList();
-                            if (liveSettingGroupAdapter != null) {
-                                liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
-                            }
-                        }
-                    });
-                } else if (position >= 0 && position < epgSubList.size()) {
-                    // 选中并加载
-                    loadEpgSubscribe(position);
-                    initLiveSettingGroupList();
-                    if (liveSettingGroupAdapter != null) {
-                        liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
-                    }
-                }
-                } catch (Exception e) { e.printStackTrace(); }
                 break;
             case 9:
                 float[] speedValues = {0.5f, 0.75f, 1.0f, 1.25f, 1.5f, 2.0f};
@@ -2846,6 +2824,7 @@ public class LivePlayActivity extends BaseActivity {
         if (liveSettingGroupList == null) {
             liveSettingGroupList = new ArrayList<>();
         }
+        // 移除索引>=7的旧组（我们重新构建）
         java.util.Iterator<LiveSettingGroup> it = liveSettingGroupList.iterator();
         while (it.hasNext()) {
             LiveSettingGroup g = it.next();
@@ -2853,6 +2832,7 @@ public class LivePlayActivity extends BaseActivity {
                 it.remove();
             }
         }
+        // 补充原有的组（0-6）
         LiveSettingGroup timeoutGroup = findSettingGroupByIndex(3);
         if (timeoutGroup != null && timeoutGroup.getLiveSettingItems() != null) {
             int timeoutIdx = Hawk.get(HawkConfig.LIVE_CONNECT_TIMEOUT, 1);
@@ -2875,48 +2855,52 @@ public class LivePlayActivity extends BaseActivity {
             lineGroup.getLiveSettingItems().get(liveGroupIndex).setItemSelected(true);
         }
 
-        // 列表订阅
+        // ====== 重新构建订阅组（索引7和8） ======
+        // 7: 列表订阅
         LiveSettingGroup sourceGroup = new LiveSettingGroup();
         sourceGroup.setGroupIndex(7);
         sourceGroup.setGroupName("列表订阅");
         ArrayList<LiveSettingItem> sourceItems = new ArrayList<>();
-        ArrayList<HashMap<String, String>> liveSubs = getLiveSubscribeList();
+        List<String> liveSubs = getLiveSubscribeList();
         int selectedLive = Hawk.get(HawkConfig.SELECTED_LIVE_SUBSCRIBE, -1);
         for (int i = 0; i < liveSubs.size(); i++) {
             LiveSettingItem s = new LiveSettingItem();
             s.setItemIndex(i);
-            s.setItemName((i == selectedLive ? "√ " : "") + liveSubs.get(i).get("name"));
+            // 显示 "√ " 表示当前选中的订阅
+            s.setItemName((i == selectedLive ? "√ " : "") + "订阅 #" + (i+1) + " (" + liveSubs.get(i) + ")");
             s.setItemSelected(i == selectedLive);
             sourceItems.add(s);
         }
+        // 添加项（用于新增订阅）
         LiveSettingItem sAdd = new LiveSettingItem();
         sAdd.setItemIndex(liveSubs.size());
-        sAdd.setItemName("+ 添加订阅");
+        sAdd.setItemName("+ 添加列表订阅");
         sourceItems.add(sAdd);
         sourceGroup.setLiveSettingItems(sourceItems);
         liveSettingGroupList.add(sourceGroup);
 
-        // EPG订阅
+        // 8: EPG订阅
         LiveSettingGroup epgGroup = new LiveSettingGroup();
         epgGroup.setGroupIndex(8);
         epgGroup.setGroupName("EPG订阅");
         ArrayList<LiveSettingItem> epgItems = new ArrayList<>();
-        ArrayList<HashMap<String, String>> epgSubs = getEpgSubscribeList();
+        List<String> epgSubs = getEpgSubscribeList();
         int selectedEpg = Hawk.get(HawkConfig.SELECTED_EPG_SUBSCRIBE, -1);
         for (int i = 0; i < epgSubs.size(); i++) {
             LiveSettingItem e = new LiveSettingItem();
             e.setItemIndex(i);
-            e.setItemName((i == selectedEpg ? "√ " : "") + epgSubs.get(i).get("name"));
+            e.setItemName((i == selectedEpg ? "√ " : "") + "EPG #" + (i+1) + " (" + epgSubs.get(i) + ")");
             e.setItemSelected(i == selectedEpg);
             epgItems.add(e);
         }
         LiveSettingItem eAdd = new LiveSettingItem();
         eAdd.setItemIndex(epgSubs.size());
-        eAdd.setItemName("+ 添加EPG");
+        eAdd.setItemName("+ 添加EPG订阅");
         epgItems.add(eAdd);
         epgGroup.setLiveSettingItems(epgItems);
         liveSettingGroupList.add(epgGroup);
 
+        // 9: 播放倍速（保留）
         LiveSettingGroup speedGroup = new LiveSettingGroup();
         speedGroup.setGroupIndex(9);
         speedGroup.setGroupName("播放倍速");
@@ -3316,162 +3300,131 @@ public class LivePlayActivity extends BaseActivity {
         return (eTime - sTime) / 1000;
     }
 
+    // ================== 订阅列表管理（简化版本） ==================
+    // 存储为 List<String>，只保存 URL
 
-    // ================== 订阅列表管理 ==================
-    private ArrayList<HashMap<String, String>> getLiveSubscribeList() {
-        String json = Hawk.get(HawkConfig.LIVE_SUBSCRIBE_LIST, "");
-        ArrayList<HashMap<String, String>> list = new ArrayList<>();
-        if (json == null || json.isEmpty()) return list;
-        try {
-            org.json.JSONArray array = new org.json.JSONArray(json);
-            for (int i = 0; i < array.length(); i++) {
-                org.json.JSONObject obj = array.getJSONObject(i);
-                HashMap<String, String> item = new HashMap<>();
-                item.put("name", obj.optString("name", "订阅" + (i + 1)));
-                item.put("url", obj.optString("url", ""));
-                list.add(item);
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-        return list;
+    /**
+     * 获取直播订阅列表
+     */
+    private List<String> getLiveSubscribeList() {
+        List<String> list = Hawk.get(HawkConfig.LIVE_SUBSCRIBE_LIST, new ArrayList<>());
+        return list != null ? list : new ArrayList<>();
     }
 
-    private void saveLiveSubscribeList(ArrayList<HashMap<String, String>> list) {
-        try {
-            org.json.JSONArray array = new org.json.JSONArray();
-            for (HashMap<String, String> item : list) {
-                org.json.JSONObject obj = new org.json.JSONObject();
-                obj.put("name", item.get("name"));
-                obj.put("url", item.get("url"));
-                array.put(obj);
-            }
-            Hawk.put(HawkConfig.LIVE_SUBSCRIBE_LIST, array.toString());
-        } catch (Exception e) { e.printStackTrace(); }
-    }
-
-    private void addLiveSubscribe(String name, String url) {
-        ArrayList<HashMap<String, String>> list = getLiveSubscribeList();
-        HashMap<String, String> item = new HashMap<>();
-        item.put("name", name.isEmpty() ? "订阅" + (list.size() + 1) : name);
-        item.put("url", url);
-        list.add(item);
-        saveLiveSubscribeList(list);
-    }
-
-    private void removeLiveSubscribe(int index) {
-        ArrayList<HashMap<String, String>> list = getLiveSubscribeList();
-        if (index >= 0 && index < list.size()) {
-            list.remove(index);
-            saveLiveSubscribeList(list);
+    /**
+     * 添加直播订阅
+     */
+    private void addLiveSubscribe(String url) {
+        List<String> list = getLiveSubscribeList();
+        if (!list.contains(url)) {
+            list.add(url);
+            Hawk.put(HawkConfig.LIVE_SUBSCRIBE_LIST, list);
         }
     }
 
+    /**
+     * 加载直播订阅（根据索引）
+     */
     private void loadLiveSubscribe(int index) {
-        ArrayList<HashMap<String, String>> list = getLiveSubscribeList();
+        List<String> list = getLiveSubscribeList();
         if (index < 0 || index >= list.size()) return;
-        HashMap<String, String> item = list.get(index);
-        String url = item.get("url");
-        if (url == null || url.isEmpty()) return;
+        String url = list.get(index);
+        if (TextUtils.isEmpty(url)) return;
         Hawk.put(HawkConfig.SELECTED_LIVE_SUBSCRIBE, index);
         Hawk.put(HawkConfig.LIVE_API_URL, url);
         HistoryHelper.setLiveApiHistory(url);
-        Toast.makeText(this, "正在加载: " + item.get("name"), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "正在加载订阅: " + url, Toast.LENGTH_SHORT).show();
         final int reqId = ++liveConfigRequestId;
         String cfgChannelName = getPreferredLiveRefreshChannelName();
         int cfgSourceIndex = getPreferredLiveRefreshSourceIndex();
         ApiConfig.get().loadLiveConfig(false, new ApiConfig.LoadConfigCallback() {
-            @Override public void success() {
+            @Override
+            public void success() {
                 mHandler.post(() -> {
                     if (reqId != liveConfigRequestId || isFinishing()) return;
                     refreshLiveChannelListAndPlay(cfgChannelName, cfgSourceIndex);
                 });
             }
-            @Override public void error(String msg) {
+            @Override
+            public void error(String msg) {
                 mHandler.post(() -> {
                     if (reqId != liveConfigRequestId || isFinishing()) return;
                     Toast.makeText(LivePlayActivity.this, msg, Toast.LENGTH_SHORT).show();
                 });
             }
-            @Override public void notice(String msg) {}
+            @Override
+            public void notice(String msg) {}
         });
     }
 
-    private ArrayList<HashMap<String, String>> getEpgSubscribeList() {
-        String json = Hawk.get(HawkConfig.EPG_SUBSCRIBE_LIST, "");
-        ArrayList<HashMap<String, String>> list = new ArrayList<>();
-        if (json == null || json.isEmpty()) return list;
-        try {
-            org.json.JSONArray array = new org.json.JSONArray(json);
-            for (int i = 0; i < array.length(); i++) {
-                org.json.JSONObject obj = array.getJSONObject(i);
-                HashMap<String, String> item = new HashMap<>();
-                item.put("name", obj.optString("name", "EPG" + (i + 1)));
-                item.put("url", obj.optString("url", ""));
-                list.add(item);
-            }
-        } catch (Exception e) { e.printStackTrace(); }
-        return list;
+    /**
+     * 获取EPG订阅列表
+     */
+    private List<String> getEpgSubscribeList() {
+        List<String> list = Hawk.get(HawkConfig.EPG_SUBSCRIBE_LIST, new ArrayList<>());
+        return list != null ? list : new ArrayList<>();
     }
 
-    private void saveEpgSubscribeList(ArrayList<HashMap<String, String>> list) {
-        try {
-            org.json.JSONArray array = new org.json.JSONArray();
-            for (HashMap<String, String> item : list) {
-                org.json.JSONObject obj = new org.json.JSONObject();
-                obj.put("name", item.get("name"));
-                obj.put("url", item.get("url"));
-                array.put(obj);
-            }
-            Hawk.put(HawkConfig.EPG_SUBSCRIBE_LIST, array.toString());
-        } catch (Exception e) { e.printStackTrace(); }
+    /**
+     * 添加EPG订阅
+     */
+    private void addEpgSubscribe(String url) {
+        List<String> list = getEpgSubscribeList();
+        if (!list.contains(url)) {
+            list.add(url);
+            Hawk.put(HawkConfig.EPG_SUBSCRIBE_LIST, list);
+        }
     }
 
-    private void addEpgSubscribe(String name, String url) {
-        ArrayList<HashMap<String, String>> list = getEpgSubscribeList();
-        HashMap<String, String> item = new HashMap<>();
-        item.put("name", name.isEmpty() ? "EPG" + (list.size() + 1) : name);
-        item.put("url", url);
-        list.add(item);
-        saveEpgSubscribeList(list);
-    }
-
+    /**
+     * 加载EPG订阅（根据索引）
+     */
     private void loadEpgSubscribe(int index) {
-        ArrayList<HashMap<String, String>> list = getEpgSubscribeList();
+        List<String> list = getEpgSubscribeList();
         if (index < 0 || index >= list.size()) return;
-        HashMap<String, String> item = list.get(index);
-        String url = item.get("url");
-        if (url == null || url.isEmpty()) return;
+        String url = list.get(index);
+        if (TextUtils.isEmpty(url)) return;
         Hawk.put(HawkConfig.SELECTED_EPG_SUBSCRIBE, index);
         Hawk.put(HawkConfig.EPG_URL, url);
         epgStringAddress = url;
         hsEpg.clear();
         if (channel_Name != null) getEpg(new Date());
-        Toast.makeText(this, "EPG已切换: " + item.get("name"), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "EPG已切换: " + url, Toast.LENGTH_SHORT).show();
     }
 
-    private void showAddSubscribeDialog(String title, final OnSubscribeAddListener listener) {
-        android.widget.LinearLayout layout = new android.widget.LinearLayout(this);
-        layout.setOrientation(android.widget.LinearLayout.VERTICAL);
-        layout.setPadding(40, 20, 40, 20);
-        EditText nameEdit = new EditText(this);
-        nameEdit.setHint("名称(选填)");
-        layout.addView(nameEdit);
-        EditText urlEdit = new EditText(this);
-        urlEdit.setHint("地址");
-        layout.addView(urlEdit);
+    /**
+     * 显示添加订阅对话框（支持直播和EPG）
+     * @param title 对话框标题
+     * @param isLive true: 列表订阅, false: EPG订阅
+     */
+    private void showAddSubscribeDialog(String title, boolean isLive) {
+        EditText editText = new EditText(this);
+        editText.setHint("请输入订阅URL");
         new AlertDialog.Builder(this)
-            .setTitle(title)
-            .setView(layout)
-            .setPositiveButton("确定", (dialog, which) -> {
-                String name = nameEdit.getText().toString().trim();
-                String url = urlEdit.getText().toString().trim();
-                if (!url.isEmpty() && listener != null) listener.onAdd(name, url);
-            })
-            .setNegativeButton("取消", null)
-            .show();
-    }
-
-    private interface OnSubscribeAddListener {
-        void onAdd(String name, String url);
+                .setTitle(title)
+                .setView(editText)
+                .setPositiveButton("添加", (dialog, which) -> {
+                    String url = editText.getText().toString().trim();
+                    if (!TextUtils.isEmpty(url)) {
+                        if (isLive) {
+                            addLiveSubscribe(url);
+                            Toast.makeText(this, "已添加列表订阅", Toast.LENGTH_SHORT).show();
+                        } else {
+                            addEpgSubscribe(url);
+                            Toast.makeText(this, "已添加EPG订阅", Toast.LENGTH_SHORT).show();
+                        }
+                        // 刷新设置面板
+                        initLiveSettingGroupList();
+                        if (liveSettingGroupAdapter != null) {
+                            liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
+                        }
+                        // 重新选中对应的组，刷新列表
+                        int groupIndex = isLive ? 7 : 8;
+                        selectSettingGroup(groupIndex, false);
+                    }
+                })
+                .setNegativeButton("取消", null)
+                .show();
     }
 
     private String durationToString(int duration) {
@@ -3633,23 +3586,5 @@ public class LivePlayActivity extends BaseActivity {
 
     private void setEmptyLiveChannelList(boolean releasePlayer) {
         clearLiveChannelList(releasePlayer);
-    }
-
-    private void showInputDialog(String title, String defaultValue, OnInputConfirmListener listener) {
-        EditText editText = new EditText(this);
-        editText.setText(defaultValue);
-        editText.setSelection(defaultValue != null ? defaultValue.length() : 0);
-        new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setView(editText)
-                .setPositiveButton("确定", (dialog, which) -> {
-                    if (listener != null) listener.onConfirm(editText.getText().toString().trim());
-                })
-                .setNegativeButton("取消", null)
-                .show();
-    }
-
-    private interface OnInputConfirmListener {
-        void onConfirm(String value);
     }
 }
