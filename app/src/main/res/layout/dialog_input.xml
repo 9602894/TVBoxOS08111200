@@ -13,54 +13,54 @@
         android:layout_gravity="center_horizontal"
         android:text="输入"
         android:textColor="#FFFFFF"
-        android:textSize="@dimen/ts_30"
-        android:textStyle="bold" />
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
 
     <EditText
         android:id="@+id/etInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/input_dialog_api_input"
         android:hint="请输入..."
-        android:padding="12dp"
-        android:singleLine="true"
         android:textColor="#FFFFFF"
-        android:textColorHint="#99FFFFFF"
-        android:textSize="@dimen/ts_24" />
+        android:textColorHint="#66FFFFFF"
+        android:background="@drawable/shape_search_edit"
+        android:padding="12dp"
+        android:textSize="14sp"
+        android:singleLine="true"
+        android:layout_marginBottom="20dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="end"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:gravity="center">
 
         <TextView
             android:id="@+id/tvCancel"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="@drawable/button_dialog_main"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:paddingHorizontal="24dp"
-            android:paddingVertical="10dp"
+            android:layout_weight="1"
             android:text="取消"
-            android:textColor="#FFFFFF"
-            android:textSize="@dimen/ts_22" />
+            android:textColor="#AAAAAA"
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="14sp" />
+
+        <View
+            android:layout_width="0.5dp"
+            android:layout_height="match_parent"
+            android:background="#33FFFFFF" />
 
         <TextView
             android:id="@+id/tvConfirm"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:background="@drawable/button_dialog_main"
-            android:focusable="true"
-            android:focusableInTouchMode="true"
-            android:paddingHorizontal="24dp"
-            android:paddingVertical="10dp"
+            android:layout_weight="1"
             android:text="确定"
             android:textColor="#FFFFFF"
-            android:textSize="@dimen/ts_22" />
+            android:gravity="center"
+            android:padding="10dp"
+            android:textSize="14sp" />
     </LinearLayout>
 </LinearLayout>
