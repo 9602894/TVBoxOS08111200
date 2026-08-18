@@ -91,43 +91,43 @@ public class SettingDialog extends BaseDialog {
     private void showLiveSubDialog() {
         String current = Hawk.get(HawkConfig.LIVE_API_URL, "");
         new InputDialog(getContext())
-                .setTitle("直播订阅地址")
-                .setHint("请输入直播源订阅链接 (支持m3u/txt/json)...")
-                .setDefaultText(current)
-                .setOnConfirmListener(text -> {
-                    if (text == null || text.trim().isEmpty()) {
-                        Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    String url = text.trim();
-                    Hawk.put(HawkConfig.LIVE_API_URL, url);
-                    saveToHistory(HawkConfig.LIVE_API_HISTORY, url);
-                    Toast.makeText(getContext(), "直播订阅已保存，重启播放生效", Toast.LENGTH_LONG).show();
-                    initData();
-                    notifyLiveRefresh();
-                })
-                .show();
+            .setTitle("直播订阅地址")
+            .setHint("请输入直播源订阅链接 (支持m3u/txt/json)...")
+            .setDefaultText(current)
+            .setOnConfirmListener(text -> {
+                if (text == null || text.trim().isEmpty()) {
+                    Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String url = text.trim();
+                Hawk.put(HawkConfig.LIVE_API_URL, url);
+                saveToHistory(HawkConfig.LIVE_API_HISTORY, url);
+                Toast.makeText(getContext(), "直播订阅已保存，重启播放生效", Toast.LENGTH_LONG).show();
+                initData();
+                notifyLiveRefresh();
+            })
+            .show();
     }
 
     private void showEpgSubDialog() {
         String current = Hawk.get(HawkConfig.EPG_URL, "");
         new InputDialog(getContext())
-                .setTitle("EPG节目单地址")
-                .setHint("请输入EPG订阅链接 (XML/JSON格式)...")
-                .setDefaultText(current)
-                .setOnConfirmListener(text -> {
-                    if (text == null || text.trim().isEmpty()) {
-                        Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-                    String url = text.trim();
-                    Hawk.put(HawkConfig.EPG_URL, url);
-                    saveToHistory(HawkConfig.EPG_HISTORY, url);
-                    Toast.makeText(getContext(), "EPG订阅已保存", Toast.LENGTH_LONG).show();
-                    initData();
-                    notifyEpgRefresh();
-                })
-                .show();
+            .setTitle("EPG节目单地址")
+            .setHint("请输入EPG订阅链接 (XML/JSON格式)...")
+            .setDefaultText(current)
+            .setOnConfirmListener(text -> {
+                if (text == null || text.trim().isEmpty()) {
+                    Toast.makeText(getContext(), "地址不能为空", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                String url = text.trim();
+                Hawk.put(HawkConfig.EPG_URL, url);
+                saveToHistory(HawkConfig.EPG_HISTORY, url);
+                Toast.makeText(getContext(), "EPG订阅已保存", Toast.LENGTH_LONG).show();
+                initData();
+                notifyEpgRefresh();
+            })
+            .show();
     }
 
     private void saveToHistory(String key, String url) {
