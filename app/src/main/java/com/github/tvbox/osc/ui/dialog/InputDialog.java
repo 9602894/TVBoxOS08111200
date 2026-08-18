@@ -1,7 +1,6 @@
 package com.github.tvbox.osc.ui.dialog;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
@@ -28,12 +27,9 @@ public class InputDialog extends BaseDialog {
         tvCancel = findViewById(R.id.tvCancel);
 
         tvConfirm.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onConfirm(etInput.getText().toString());
-            }
+            if (listener != null) listener.onConfirm(etInput.getText().toString());
             dismiss();
         });
-
         tvCancel.setOnClickListener(v -> dismiss());
     }
 
@@ -41,12 +37,10 @@ public class InputDialog extends BaseDialog {
         if (tvTitle != null) tvTitle.setText(title);
         return this;
     }
-
     public InputDialog setHint(String hint) {
         if (etInput != null) etInput.setHint(hint);
         return this;
     }
-
     public InputDialog setDefaultText(String text) {
         if (etInput != null) {
             etInput.setText(text);
@@ -54,12 +48,10 @@ public class InputDialog extends BaseDialog {
         }
         return this;
     }
-
     public InputDialog setOnConfirmListener(OnConfirmListener listener) {
         this.listener = listener;
         return this;
     }
-
     public interface OnConfirmListener {
         void onConfirm(String text);
     }

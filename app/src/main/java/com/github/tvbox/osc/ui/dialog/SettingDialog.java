@@ -1,7 +1,6 @@
 package com.github.tvbox.osc.ui.dialog;
 
 import android.content.Context;
-import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -16,10 +15,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 设置弹窗修复类（适配酷9反编译项目）
- * 修复：直播订阅、EPG订阅点击无响应
- */
 public class SettingDialog extends BaseDialog {
 
     private TextView tvLiveSub;
@@ -49,24 +44,13 @@ public class SettingDialog extends BaseDialog {
     private void initData() {
         String liveUrl = Hawk.get(HawkConfig.LIVE_API_URL, "");
         String epgUrl = Hawk.get(HawkConfig.EPG_URL, "");
-
-        if (tvLiveStatus != null) {
-            tvLiveStatus.setText(liveUrl.isEmpty() ? "未配置" : "已配置");
-        }
-        if (tvEpgStatus != null) {
-            tvEpgStatus.setText(epgUrl.isEmpty() ? "未配置" : "已配置");
-        }
+        if (tvLiveStatus != null) tvLiveStatus.setText(liveUrl.isEmpty() ? "未配置" : "已配置");
+        if (tvEpgStatus != null) tvEpgStatus.setText(epgUrl.isEmpty() ? "未配置" : "已配置");
     }
 
     private void initListener() {
-        if (tvLiveSub != null) {
-            tvLiveSub.setOnClickListener(v -> showLiveSubDialog());
-        }
-
-        if (tvEpgSub != null) {
-            tvEpgSub.setOnClickListener(v -> showEpgSubDialog());
-        }
-
+        if (tvLiveSub != null) tvLiveSub.setOnClickListener(v -> showLiveSubDialog());
+        if (tvEpgSub != null) tvEpgSub.setOnClickListener(v -> showEpgSubDialog());
         if (tvLiveClear != null) {
             tvLiveClear.setOnClickListener(v -> {
                 Hawk.put(HawkConfig.LIVE_API_URL, "");
@@ -76,7 +60,6 @@ public class SettingDialog extends BaseDialog {
                 notifyLiveRefresh();
             });
         }
-
         if (tvEpgClear != null) {
             tvEpgClear.setOnClickListener(v -> {
                 Hawk.put(HawkConfig.EPG_URL, "");
@@ -136,30 +119,22 @@ public class SettingDialog extends BaseDialog {
             if (history == null) history = new ArrayList<>();
             history.remove(url);
             history.add(0, url);
-            if (history.size() > 10) {
-                history = history.subList(0, 10);
-            }
+            if (history.size() > 10) history = history.subList(0, 10);
             Hawk.put(key, history);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void notifyLiveRefresh() {
         try {
             android.content.Intent intent = new android.content.Intent("com.github.tvbox.osc.LIVE_REFRESH");
             getContext().sendBroadcast(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 
     private void notifyEpgRefresh() {
         try {
             android.content.Intent intent = new android.content.Intent("com.github.tvbox.osc.EPG_REFRESH");
             getContext().sendBroadcast(intent);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) { e.printStackTrace(); }
     }
 }
