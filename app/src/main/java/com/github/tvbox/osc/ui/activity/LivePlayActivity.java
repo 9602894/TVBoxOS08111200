@@ -2336,9 +2336,25 @@ public class LivePlayActivity extends BaseActivity {
             case 6:
                 if (liveSettingItemAdapter != null) liveSettingItemAdapter.selectItem(getCurrentLiveApiHistoryIndex(), true, true);
                 break;
-            case 7:
+            case 7: // 列表订阅
+                {
+                    List<String> liveSubs = getLiveSubscribeList();
+                    if (position < liveSubs.size()) {
+                        loadLiveSubscribe(position);
+                    } else if (position == liveSubs.size()) {
+                        showAddSubscribeDialog("列表订阅", true);
+                    }
+                }
                 break;
-            case 8:
+            case 8: // EPG订阅
+                {
+                    List<String> epgSubs = getEpgSubscribeList();
+                    if (position < epgSubs.size()) {
+                        loadEpgSubscribe(position);
+                    } else if (position == epgSubs.size()) {
+                        showAddSubscribeDialog("EPG订阅", false);
+                    }
+                }
                 break;
         }
         int scrollToPosition = liveSettingItemAdapter != null ? liveSettingItemAdapter.getSelectedItemIndex() : 0;
