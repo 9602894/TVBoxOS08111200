@@ -51,4 +51,7 @@
         <item name="android:drawablePadding">10.0dip</item>
         <item name="android:radius">10dp</item>
     </style>
+    <style name="video_vertical_progressBar" parent="android:Widget.ProgressBar.Horizontal">
+    <!-- 酷9的竖向进度条样式 -->
+</style>
 </resources>
