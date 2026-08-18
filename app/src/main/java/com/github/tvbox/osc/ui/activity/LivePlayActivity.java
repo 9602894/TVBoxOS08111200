@@ -236,10 +236,10 @@ public class LivePlayActivity extends BaseActivity {
     private TextView tv_right_top_channel_name;
     private TextView tv_right_top_epg_name;
     private TextView tv_right_top_type;
-    private ImageView iv_circle_bg;
+    private View iv_circle_bg;
     private TextView tv_shownum;
     private TextView txtNoEpg;
-    private ImageView iv_back_bg;
+    private View iv_back_bg;
 
     private ObjectAnimator objectAnimator;
     public String epgStringAddress = "";
