@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/shape_dialog_bg_main"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:paddingEnd="12dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="扫码输入(点击复制)"
+            android:textColor="#FFFFFF"
+            android:textSize="11sp" />
+
+        <TextView
+            android:id="@+id/tvQrUrl"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="http://127.0.0.1:9978/"
+            android:textColor="#88CCFF"
+            android:textSize="9sp"
+            android:layout_marginTop="4dp" />
+
+        <ImageView
+            android:id="@+id/ivQrCode"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_marginTop="8dp"
+            android:background="#FFFFFF" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="2"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/tvSubTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="列表订阅"
+            android:textColor="#FFFFFF"
+            android:textSize="16sp"
+            android:textStyle="bold" />
+
+        <LinearLayout
+            android:id="@+id/llSubscribeList"
+            android:layout_width="match_parent"
+            android:layout_height="180dp"
+            android:orientation="vertical"
+            android:layout_marginTop="8dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp"
+            android:gravity="center_vertical">
+
+            <EditText
+                android:id="@+id/etSubName"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:hint="名称(选填)"
+                android:textColorHint="#66FFFFFF"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:background="@drawable/shape_dialog_bg_main"
+                android:padding="6dp"
+                android:singleLine="true" />
+
+            <EditText
+                android:id="@+id/etSubUrl"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="2"
+                android:hint="地址"
+                android:textColorHint="#66FFFFFF"
+                android:textColor="#FFFFFF"
+                android:textSize="11sp"
+                android:background="@drawable/shape_dialog_bg_main"
+                android:padding="6dp"
+                android:singleLine="true"
+                android:layout_marginStart="6dp" />
+
+            <TextView
+                android:id="@+id/btnSubDelete"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="删除"
+                android:textColor="#FF4444"
+                android:textSize="12sp"
+                android:padding="6dp"
+                android:layout_marginStart="6dp" />
+
+            <TextView
+                android:id="@+id/btnSubConfirm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="确定"
+                android:textColor="#FFFFFF"
+                android:background="@drawable/shape_dialog_bg_main"
+                android:textSize="12sp"
+                android:padding="6dp"
+                android:layout_marginStart="6dp" />
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
