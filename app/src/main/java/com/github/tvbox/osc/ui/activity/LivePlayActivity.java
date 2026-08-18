@@ -189,8 +189,8 @@ public class LivePlayActivity extends BaseActivity {
     private static final long RESOLUTION_INFO_RETRY_DELAY = 300L;
     private static final long RESOLUTION_INFO_HIDE_DELAY = 3000L;
     private static final String DEFAULT_EPG_ADDRESS = "http://epg.51zmt.top:8000/api/diyp/?ch={name}&date={date}";
-    private static final Pattern CATCHUP_TOKEN_PATTERN = Pattern.compile("(\\Q$\\E?\\Q{\\E[^}]*\\Q}\\E)");
-    private static final Pattern CATCHUP_TAG_PATTERN = Pattern.compile("\\Q{\\E([^}]*)\\Q}\\E");
+    private static final Pattern CATCHUP_TOKEN_PATTERN = Pattern.compile("(\Q$\E?\Q{\E[^}]*\Q}\E)");
+    private static final Pattern CATCHUP_TAG_PATTERN = Pattern.compile("\Q{\E([^}]*)\Q}\E");
     private final Runnable mLoadEpgRun = new Runnable() {
         @Override
         public void run() {
@@ -331,10 +331,13 @@ public class LivePlayActivity extends BaseActivity {
             divLoadEpgleft = findViewById(R.id.divLoadEpgleft);
             divEpg = findViewById(R.id.divEPG);
 
-            objectAnimator = ObjectAnimator.ofFloat(iv_circle_bg, "rotation", 360.0f);
-            objectAnimator.setDuration(postTimeout);
-            objectAnimator.setRepeatCount(-1);
-            objectAnimator.start();
+            // 修复：iv_circle_bg可能为null导致ObjectAnimator崩溃
+            if (iv_circle_bg != null) {
+                objectAnimator = ObjectAnimator.ofFloat(iv_circle_bg, "rotation", 360.0f);
+                objectAnimator.setDuration(postTimeout);
+                objectAnimator.setRepeatCount(-1);
+                objectAnimator.start();
+            }
 
             mEpgDateGridView = findViewById(R.id.mEpgDateGridView);
             Hawk.put(HawkConfig.NOW_DATE, formatDate.format(new Date()));
@@ -357,13 +360,13 @@ public class LivePlayActivity extends BaseActivity {
             iv_play = findViewById(R.id.iv_play);
             tvSelectedChannel = findViewById(R.id.tv_selected_channel);
 
-        // ========== 酷9手势与窗口初始化 ==========
-        gestureOverlay = findViewById(R.id.gesture_overlay);
-        llBottomInfoBar = findViewById(R.id.ll_bottom_info_bar);
-        epgProgressBar = findViewById(R.id.epg_progress_bar);
-        tvCurrentProgramName = findViewById(R.id.tv_current_program_name);
-        tvNextProgramName = findViewById(R.id.tv_next_program_name);
-        initGestureDetector();
+            // ========== 酷9手势与窗口初始化 ==========
+            gestureOverlay = findViewById(R.id.gesture_overlay);
+            llBottomInfoBar = findViewById(R.id.ll_bottom_info_bar);
+            epgProgressBar = findViewById(R.id.epg_progress_bar);
+            tvCurrentProgramName = findViewById(R.id.tv_current_program_name);
+            tvNextProgramName = findViewById(R.id.tv_next_program_name);
+            initGestureDetector();
 
             if (show) {
                 if (backcontroller != null) backcontroller.setVisibility(View.VISIBLE);
@@ -903,7 +906,7 @@ public class LivePlayActivity extends BaseActivity {
         if (channelName == null) return "";
         String trimName = channelName.trim();
         String compactName = trimName.replace("-", "").replace(" ", "");
-        Matcher cctvMatcher = Pattern.compile("(?i)^(CCTV\\d+(?:\\+|K)?)(?:[\\u4e00-\\u9fa5].*|)$").matcher(compactName);
+        Matcher cctvMatcher = Pattern.compile("(?i)^(CCTV\d+(?:\+|K)?)(?:[\u4e00-\u9fa5].*|)$").matcher(compactName);
         if (cctvMatcher.matches()) {
             return cctvMatcher.group(1).toUpperCase(Locale.ROOT);
         }
@@ -917,8 +920,9 @@ public class LivePlayActivity extends BaseActivity {
     private void showBottomEpg() {
         if (isSHIYI) return;
         if (channel_Name == null || channel_Name.getChannelName() == null) return;
-        tip_chname.setText(channel_Name.getChannelName());
-        tv_channelnum.setText("" + channel_Name.getChannelNum());
+        // 修复：增加null保护，防止布局ID不存在导致NPE
+        if (tip_chname != null) tip_chname.setText(channel_Name.getChannelName());
+        if (tv_channelnum != null) tv_channelnum.setText("" + channel_Name.getChannelNum());
         TextView tv_current_program_name = findViewById(R.id.tv_current_program_name);
         TextView tv_next_program_name = findViewById(R.id.tv_next_program_name);
         setDefaultBottomEpg(tv_current_program_name, tv_next_program_name);
@@ -936,14 +940,14 @@ public class LivePlayActivity extends BaseActivity {
                     Epginfo epg = arrayList.get(size);
                     if (epg != null && epg.startdateTime != null && epg.enddateTime != null
                             && date.after(epg.startdateTime) && date.before(epg.enddateTime)) {
-                        tip_epg1.setText(epg.start + "-" + epg.end);
+                        if (tip_epg1 != null) tip_epg1.setText(epg.start + "-" + epg.end);
                         if (tv_current_program_name != null) tv_current_program_name.setText(epg.title);
                         if (size != arrayList.size() - 1) {
                             Epginfo nextEpg = arrayList.get(size + 1);
-                            tip_epg2.setText(nextEpg.start + "-" + nextEpg.end);
+                            if (tip_epg2 != null) tip_epg2.setText(nextEpg.start + "-" + nextEpg.end);
                             if (tv_next_program_name != null) tv_next_program_name.setText(nextEpg.title);
                         } else {
-                            tip_epg2.setText(epg.end + "-23:59");
+                            if (tip_epg2 != null) tip_epg2.setText(epg.end + "-23:59");
                             if (tv_next_program_name != null) tv_next_program_name.setText("精彩节目-暂无节目预告信息");
                         }
                         hasInfo = true;
@@ -963,7 +967,9 @@ public class LivePlayActivity extends BaseActivity {
         }
 
         if (countDownTimer != null) countDownTimer.cancel();
-        if (!"暂无信息".equals(tip_epg1.getText().toString())) {
+        // 修复：tip_epg1可能为null
+        String tipEpg1Text = tip_epg1 != null ? tip_epg1.getText().toString() : "";
+        if (!"暂无信息".equals(tipEpg1Text)) {
             if (ll_right_top_loading != null) ll_right_top_loading.setVisibility(View.VISIBLE);
             if (ll_epg != null && !isListOrSettingLayoutVisible()) {
                 ll_epg.setVisibility(View.VISIBLE);
@@ -993,7 +999,7 @@ public class LivePlayActivity extends BaseActivity {
         }
         if (tv_right_top_channel_name != null) tv_right_top_channel_name.setText(channel_Name.getChannelName());
         if (tv_right_top_epg_name != null) tv_right_top_epg_name.setText(channel_Name.getChannelName());
-    
+
         // 酷9：更新底部信息栏显示
         updateBottomInfoBar();
     }
@@ -1014,9 +1020,10 @@ public class LivePlayActivity extends BaseActivity {
 
         SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         timeFormat.setTimeZone(timeZone);
-        tip_epg1.setText(timeFormat.format(currentStart.getTime()) + "-" + timeFormat.format(currentEnd.getTime()));
+        // 修复：增加null保护
+        if (tip_epg1 != null) tip_epg1.setText(timeFormat.format(currentStart.getTime()) + "-" + timeFormat.format(currentEnd.getTime()));
         if (currentProgramName != null) currentProgramName.setText("精彩节目");
-        tip_epg2.setText(timeFormat.format(nextStart.getTime()) + "-" + timeFormat.format(nextEnd.getTime()));
+        if (tip_epg2 != null) tip_epg2.setText(timeFormat.format(nextStart.getTime()) + "-" + timeFormat.format(nextEnd.getTime()));
         if (nextProgramName != null) nextProgramName.setText("暂无节目预告信息");
     }
 
@@ -1190,6 +1197,7 @@ public class LivePlayActivity extends BaseActivity {
             }
             if (keyCode == KeyEvent.KEYCODE_MENU || keyCode == KeyEvent.KEYCODE_INFO || keyCode == KeyEvent.KEYCODE_HELP) {
                 showSettingGroup();
+                return true; // 修复：防止继续执行后续按键处理
             } else if (!isListOrSettingLayoutVisible()) {
                 switch (keyCode) {
                     case KeyEvent.KEYCODE_DPAD_UP:
@@ -1948,7 +1956,6 @@ public class LivePlayActivity extends BaseActivity {
                     public void onAnimationEnd(Animator animation) {
                         super.onAnimationEnd(animation);
                         tvRightSettingLayout.setVisibility(View.INVISIBLE);
-                        if (liveSettingGroupAdapter != null) liveSettingGroupAdapter.setSelectedGroupIndex(-1);
                         if (ll_epg != null && tv_curepg_left != null && !"暂无信息".equals(tip_epg1 != null ? tip_epg1.getText().toString() : "")) {
                             ll_epg.setVisibility(View.VISIBLE);
                         }
@@ -2237,7 +2244,8 @@ public class LivePlayActivity extends BaseActivity {
             if (liveChannelGroupAdapter != null) liveChannelGroupAdapter.setFocusedGroupIndex(groupIndex);
             clearFocusedChannelInMenu();
         }
-        if (liveChannelGroupAdapter != null && (groupIndex > -1 && groupIndex != liveChannelGroupAdapter.getSelectedGroupIndex()) || isNeedInputPassword(groupIndex)) {
+        // 修复：增加null保护，防止liveChannelGroupAdapter为null时NPE
+        if (liveChannelGroupAdapter != null && ((groupIndex > -1 && groupIndex != liveChannelGroupAdapter.getSelectedGroupIndex()) || isNeedInputPassword(groupIndex))) {
             liveChannelGroupAdapter.setSelectedGroupIndex(groupIndex);
             if (isNeedInputPassword(groupIndex)) {
                 showPasswordDialog(groupIndex, liveChannelIndex);
@@ -3312,7 +3320,7 @@ public class LivePlayActivity extends BaseActivity {
         }
         return epgList;
     }
-    
+
     private Date getDayStart(Date date) throws ParseException {
         SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         dayFormat.setTimeZone(TimeZone.getTimeZone("GMT+8:00"));
