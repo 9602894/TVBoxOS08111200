@@ -6,6 +6,7 @@
     android:background="@drawable/shape_dialog_bg_main"
     android:padding="16dp">
 
+    <!-- 左侧二维码区域 -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -35,9 +36,11 @@
             android:layout_width="80dp"
             android:layout_height="80dp"
             android:layout_marginTop="8dp"
-            android:background="#FFFFFF" />
+            android:background="#FFFFFF"
+            android:contentDescription="二维码" />
     </LinearLayout>
 
+    <!-- 右侧列表和输入 -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
@@ -53,13 +56,16 @@
             android:textSize="16sp"
             android:textStyle="bold" />
 
+        <!-- 列表容器 -->
         <LinearLayout
             android:id="@+id/llSubscribeList"
             android:layout_width="match_parent"
             android:layout_height="180dp"
             android:orientation="vertical"
-            android:layout_marginTop="8dp" />
+            android:layout_marginTop="8dp"
+            android:background="#11000000" />
 
+        <!-- 底部输入 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
