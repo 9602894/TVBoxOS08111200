@@ -1,27 +1,14 @@
 package com.github.tvbox.osc.ui.tv.CustomView;
 
 import android.content.Context;
-import android.graphics.Rect;
-import android.text.TextUtils;
 import android.util.AttributeSet;
+import android.widget.FrameLayout;
 
-public class MarqueeTextView extends androidx.appcompat.widget.AppCompatTextView {
-    public MarqueeTextView(Context context) { this(context, null); }
-    public MarqueeTextView(Context context, AttributeSet attrs) { this(context, attrs, 0); }
-    public MarqueeTextView(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        setEllipsize(TextUtils.TruncateAt.MARQUEE);
-        setMarqueeRepeatLimit(-1);
-        setSingleLine(true);
-        setFocusable(true);
-        setFocusableInTouchMode(true);
-        setHorizontallyScrolling(true);
-    }
-    @Override public boolean isFocused() { return true; }
-    @Override protected void onFocusChanged(boolean focused, int direction, Rect previouslyFocusedRect) {
-        if (focused) super.onFocusChanged(focused, direction, previouslyFocusedRect);
-    }
-    @Override public void onWindowFocusChanged(boolean hasWindowFocus) {
-        if (hasWindowFocus) super.onWindowFocusChanged(hasWindowFocus);
-    }
+/**
+ * 占位类：原文件中的 MarqueeTextView 已迁移到 MarqueeTextView.java
+ * 如项目中无其他引用可安全删除此文件
+ */
+class MusicLoadingView extends FrameLayout {
+    public MusicLoadingView(Context context) { super(context); }
+    public MusicLoadingView(Context context, AttributeSet attrs) { super(context, attrs); }
 }
