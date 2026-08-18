@@ -223,7 +223,7 @@ public class LivePlayActivity extends BaseActivity {
     private View divLoadEpgDivider;
     private View divLoadEpgleft;
     private LinearLayout divEpg;
-    RelativeLayout ll_epg;
+    LinearLayout ll_epg;
     TextView tv_channelnum;
     TextView tip_chname;
     TextView tip_epg1;
