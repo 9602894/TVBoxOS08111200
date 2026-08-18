@@ -24,7 +24,7 @@
         android:hint="请输入..."
         android:textColor="#FFFFFF"
         android:textColorHint="#66FFFFFF"
-        android:background="@drawable/shape_search_edit"
+        android:background="@drawable/shape_dialog_bg_main"
         android:padding="12dp"
         android:textSize="14sp"
         android:singleLine="true"
