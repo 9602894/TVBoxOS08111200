@@ -17,7 +17,11 @@ public class HawkConfig {
     public static final String LIVE_SHOW_TIME = "live_show_time";
     public static final String LIVE_GROUP_INDEX = "live_group_index";
     public static final String LIVE_GROUP_LIST = "live_group_list";
-    public static final String LIVE_API_URL = "live_api_url";        // 直播订阅地址
+    public static final String LIVE_API_URL = "live_api_url";
+    public static final String LIVE_SUBSCRIBE_LIST = "live_subscribe_list";
+    public static final String SELECTED_LIVE_SUBSCRIBE = "selected_live_subscribe";
+    public static final String EPG_SUBSCRIBE_LIST = "epg_subscribe_list";
+    public static final String SELECTED_EPG_SUBSCRIBE = "selected_epg_subscribe";        // 直播订阅地址
     public static final String LIVE_API_HISTORY = "live_api_history"; // 直播订阅历史
     public static final String LIVE_WEB_HEADER = "live_web_header";
     public static final String DEFAULT_LOAD_LIVE = "DEFAULT_LOAD_LIVE";
