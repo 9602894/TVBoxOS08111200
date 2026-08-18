@@ -59,6 +59,7 @@ import com.github.tvbox.osc.ui.adapter.LiveSettingGroupAdapter;
 import com.github.tvbox.osc.ui.adapter.LiveSettingItemAdapter;
 import com.github.tvbox.osc.ui.adapter.MyEpgAdapter;
 import com.github.tvbox.osc.ui.dialog.LivePasswordDialog;
+import com.github.tvbox.osc.ui.dialog.SubscribeDialog;
 import com.github.tvbox.osc.ui.tv.widget.ViewObj;
 import com.github.tvbox.osc.util.DefaultConfig;
 import com.github.tvbox.osc.util.EpgUtil;
@@ -2499,7 +2500,7 @@ public class LivePlayActivity extends BaseActivity {
                     if (position < liveSubs.size()) {
                         loadLiveSubscribe(position);
                     } else if (position == liveSubs.size()) {
-                        showAddSubscribeDialog("添加列表订阅", true);
+                        showAddSubscribeDialog("列表订阅管理", true);
                     }
                 }
                 break;
@@ -2509,7 +2510,7 @@ public class LivePlayActivity extends BaseActivity {
                     if (position < epgSubs.size()) {
                         loadEpgSubscribe(position);
                     } else if (position == epgSubs.size()) {
-                        showAddSubscribeDialog("添加EPG订阅", false);
+                        showAddSubscribeDialog("EPG订阅管理", false);
                     }
                 }
                 break;
@@ -3390,33 +3391,16 @@ public class LivePlayActivity extends BaseActivity {
      * @param isLive true: 列表订阅, false: EPG订阅
      */
     private void showAddSubscribeDialog(String title, boolean isLive) {
-        EditText editText = new EditText(this);
-        editText.setHint("请输入订阅URL");
-        new AlertDialog.Builder(this)
-                .setTitle(title)
-                .setView(editText)
-                .setPositiveButton("添加", (dialog, which) -> {
-                    String url = editText.getText().toString().trim();
-                    if (!TextUtils.isEmpty(url)) {
-                        if (isLive) {
-                            addLiveSubscribe(url);
-                            Toast.makeText(this, "已添加列表订阅", Toast.LENGTH_SHORT).show();
-                        } else {
-                            addEpgSubscribe(url);
-                            Toast.makeText(this, "已添加EPG订阅", Toast.LENGTH_SHORT).show();
-                        }
-                        // 刷新设置面板
-                        initLiveSettingGroupList();
-                        if (liveSettingGroupAdapter != null) {
-                            liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
-                        }
-                        // 重新选中对应的组，刷新列表
-                        int groupIndex = isLive ? 7 : 8;
-                        selectSettingGroup(groupIndex, false);
-                    }
-                })
-                .setNegativeButton("取消", null)
-                .show();
+        SubscribeDialog dialog = new SubscribeDialog(this, isLive);
+        dialog.setOnSubscribeChangeListener(() -> {
+            initLiveSettingGroupList();
+            if (liveSettingGroupAdapter != null) {
+                liveSettingGroupAdapter.setNewData(getVisibleLiveSettingGroupList());
+            }
+            int groupIndex = isLive ? 7 : 8;
+            selectSettingGroup(groupIndex, false);
+        });
+        dialog.show();
     }
 
     private String durationToString(int duration) {
