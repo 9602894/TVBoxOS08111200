@@ -5,85 +5,82 @@
     android:layout_height="wrap_content"
     android:gravity="start|center_vertical"
     android:orientation="horizontal"
-    android:paddingStart="8dp"
-    android:paddingEnd="8dp"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp"
     android:focusable="true"
     android:background="@drawable/bg_live_channel_selector">
 
-    <!-- 频道号+加载动画容器 -->
     <LinearLayout
         android:id="@+id/LoadingViewGroup"
-        android:layout_width="48dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
-        android:layout_marginEnd="8dp"
+        android:layout_marginEnd="6dp"
         android:gravity="center"
         android:orientation="vertical">
-
         <com.github.tvbox.osc.ui.tv.CustomView.MusicLoadingView
             android:id="@+id/music_LoadingView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="gone" />
-
+            app:changeSpeed="25"
+            app:changeStep="0.1"
+            app:lineColor="#ffffffff"
+            app:lineCount="1"
+            app:lineMaxHeight="16dp"
+            app:lineMinHeight="1dp"
+            app:lineRadius="0dp"
+            app:lineSpace="3dp"
+            app:lineWidth="2.5dp" />
         <TextView
             android:id="@+id/tvChannelNum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/shape_channel_num_bg"
             android:gravity="center"
-            android:textColor="#80FFFFFF"
-            android:textSize="12sp" />
+            android:textColor="@android:color/white"
+            android:textSize="12dp" />
     </LinearLayout>
 
-    <!-- 台标 -->
     <ImageView
         android:id="@+id/tv_channel_logo"
-        android:layout_width="40dp"
+        android:layout_width="56dp"
         android:layout_height="28dp"
         android:layout_gravity="center"
-        android:adjustViewBounds="true"
-        android:scaleType="fitCenter" />
+        android:adjustViewBounds="true" />
 
-    <!-- 频道名+EPG -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
         android:layout_weight="1"
-        android:gravity="center_vertical"
-        android:orientation="vertical">
-
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_marginStart="6dp">
         <com.github.tvbox.osc.ui.tv.CustomView.MarqueeTextView
             android:id="@+id/tvChannelName"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:ellipsize="end"
-            android:gravity="start|center_vertical"
-            android:singleLine="true"
+            android:textSize="17dp"
             android:textColor="@android:color/white"
-            android:textSize="15sp" />
-
+            android:ellipsize="end"
+            android:gravity="center"
+            android:singleLine="true" />
         <com.github.tvbox.osc.ui.tv.CustomView.MarqueeTextView
             android:id="@+id/tvChannelNowEpg"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:textSize="11dp"
+            android:textColor="@color/color_FFFFFF_80"
             android:ellipsize="end"
-            android:gravity="start|center_vertical"
-            android:singleLine="true"
-            android:textColor="#80FFFFFF"
-            android:textSize="11sp" />
+            android:gravity="center"
+            android:singleLine="true" />
     </LinearLayout>
 
-    <!-- 收藏图标 -->
     <ImageView
         android:id="@+id/favor_logo"
         android:layout_width="13dp"
         android:layout_height="13dp"
-        android:layout_marginStart="4dp"
+        android:layout_marginStart="3dp"
         android:adjustViewBounds="true"
         android:visibility="gone"
         app:srcCompat="@drawable/icon_favor" />
